@@ -198,8 +198,20 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 /* ANIMATIONS */
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0.25)}}
+@keyframes lockOpen{0%{transform:scale(1)}30%{transform:scale(1.4) rotate(-15deg)}60%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes countUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .screen.active{animation:fadeIn 0.2s ease;}
-.missao{animation:fadeIn 0.15s ease;}
+.missao{opacity:0;animation:slideUp 0.3s ease forwards;}
+.missao:nth-child(1){animation-delay:0.05s;}
+.missao:nth-child(2){animation-delay:0.1s;}
+.missao:nth-child(3){animation-delay:0.15s;}
+.missao:nth-child(4){animation-delay:0.2s;}
+.missao:nth-child(5){animation-delay:0.25s;}
+.cq.unlocked{animation:goldPulse 1.5s ease 3;}
+.xp-fill{transition:width 1.4s cubic-bezier(0.4,0,0.2,1);}
+.stat-n.pop{animation:countUp 0.25s ease;}
 </style>
 </head>
 <body>
@@ -472,23 +484,72 @@ function buildCal(){
   evts.innerHTML=`<div class="ev-item"><div class="ev-dot" style="background:#ef4444"></div><div><div class="ev-title">Repasse de contribuicoes</div><div class="ev-date">10/05/2026 · Lei 9.717/98</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#3b82f6"></div><div><div class="ev-title">DIPR — Envio do demonstrativo</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#10b981"></div><div><div class="ev-title">DAIR — Demonstrativo de aplicacoes</div><div class="ev-date">31/05/2026 · Res. CMN 4.963/2021</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#f59e0b"></div><div><div class="ev-title">DRAA — Avaliacao atuarial</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022, art. 58</div></div></div>`;
 }
 
+function animarXP(de, para) {
+  const fill = document.getElementById('xp-fill');
+  const cur = document.getElementById('xp-cur');
+  const sXp = document.getElementById('s-xp');
+  if(!fill) return;
+  fill.style.transition = 'none';
+  fill.style.width = Math.min(Math.round((de/2000)*100),100)+'%';
+  setTimeout(()=>{
+    fill.style.transition = 'width 1.4s cubic-bezier(0.4,0,0.2,1)';
+    fill.style.width = Math.min(Math.round((para/2000)*100),100)+'%';
+  }, 50);
+  let start = de;
+  const step = Math.ceil((para - de) / 30);
+  const timer = setInterval(()=>{
+    start = Math.min(start + step, para);
+    const val = start.toLocaleString('pt-BR');
+    if(cur) cur.textContent = val;
+    if(sXp) sXp.textContent = val;
+    if(start >= para) clearInterval(timer);
+  }, 40);
+}
+
+function animarStat(id, de, para) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.textContent = typeof para === 'number' ? para.toLocaleString('pt-BR') : para;
+  el.classList.add('pop');
+}
+
+function animarCadeado(id, icon) {
+  const el = document.getElementById('cq'+id);
+  if(!el || el.classList.contains('unlocked')) return;
+  el.classList.add('unlocked');
+  const ico = el.querySelector('i');
+  if(ico) {
+    ico.style.animation = 'lockOpen 0.5s ease forwards';
+    setTimeout(()=>{
+      ico.className = 'ti ' + icon;
+      ico.style.color = '#BA7517';
+      ico.style.animation = '';
+    }, 300);
+  }
+  const nome = el.querySelector('.cq-nome');
+  if(nome) nome.style.color = '#412402';
+}
+
 function render(){
   const pct=Math.min(Math.round((estado.xp/2000)*100),100);
-  document.getElementById('xp-fill').style.width=pct+'%';
-  document.getElementById('xp-cur').textContent=estado.xp.toLocaleString('pt-BR');
-  document.getElementById('s-xp').textContent=estado.xp.toLocaleString('pt-BR');
-  document.getElementById('s-ok').textContent=estado.ok||0;
-  document.getElementById('s-pend').textContent=estado.pend||5;
-  document.getElementById('s-str').textContent=estado.streak||0;
+  const xpFill=document.getElementById('xp-fill');
+  if(xpFill){xpFill.style.transition='none';xpFill.style.width='0%';setTimeout(()=>{xpFill.style.transition='width 1.4s cubic-bezier(0.4,0,0.2,1)';xpFill.style.width=pct+'%';},80);}
+  animarStat('xp-cur',0,estado.xp||0);
+  animarStat('s-xp',0,estado.xp||0);
+  animarStat('s-ok',0,estado.ok||0);
+  animarStat('s-pend',0,estado.pend||5);
+  animarStat('s-str',0,estado.streak||0);
   ['dipr','dair','rep','cons'].forEach(k=>{
     const p=Math.round((estado.prog[k]||0)/8*100);
     const pb=document.getElementById('pb-'+k);
     const pp=document.getElementById('pp-'+k);
-    if(pb)pb.style.width=p+'%';
+    if(pb){pb.style.transition='none';pb.style.width='0%';setTimeout(()=>{pb.style.transition='width 1.2s ease';pb.style.width=p+'%';},100);}
     if(pp)pp.textContent=p+'%';
   });
-  if((estado.ok||0)>=1)desbloquear(0,'ti-medal');
-  if((estado.feitas||[]).length>=5)desbloquear(1,'ti-trophy');
+  if((estado.ok||0)>=1)animarCadeado(0,'ti-medal');
+  if((estado.feitas||[]).length>=5)animarCadeado(1,'ti-trophy');
   buildMissoes();
   buildStreak();
 }
@@ -505,6 +566,8 @@ async function completar(id){
   if(!estado.prog)estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
   if(m.prog&&estado.prog[m.prog]!==undefined)estado.prog[m.prog]++;
   if(estado.feitas.length>=5)estado.streak=Math.max(estado.streak||0,1);
+  const xpAntes = estado.xp - m.xp;
+  animarXP(xpAntes, estado.xp);
   render();
   await salvar();
 }
