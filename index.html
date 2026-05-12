@@ -50,6 +50,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 /* HEADER */
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.avatar-prog{position:relative;width:48px;height:56px;cursor:pointer;flex-shrink:0;}
+.avatar-prog svg{width:48px;height:56px;}
+.lv-tag{position:absolute;bottom:-4px;right:-4px;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;white-space:nowrap;z-index:2;}
+@keyframes levelUp{0%{transform:scale(1)}30%{transform:scale(1.5) rotate(-5deg)}60%{transform:scale(0.95) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes avatarFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.avatar-prog{animation:avatarFloat 3s ease-in-out infinite;}
+.avatar-prog.leveling{animation:levelUp 0.7s ease;}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .app-logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
 .app-logo svg{width:18px;height:18px;stroke:#fff;}
@@ -238,8 +245,52 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 <div class="topbar">
   <div class="topbar-left">
-    <div class="app-logo">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+    <div class="avatar-prog" id="avatar-prog" onclick="mostrarInfoAvatar()" title="Seu avatar">
+      <svg id="avatar-svg" width="48" height="56" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="45" cy="110" r="35" fill="#E6F1FB" opacity="0.3"/>
+        <circle cx="45" cy="38" r="22" fill="#FDDBB4"/>
+        <ellipse cx="35" cy="35" rx="3" ry="4" fill="#FDDBB4"/>
+        <ellipse cx="55" cy="35" rx="3" ry="4" fill="#FDDBB4"/>
+        <circle cx="37" cy="36" r="4" fill="white"/>
+        <circle cx="53" cy="36" r="4" fill="white"/>
+        <circle cx="38" cy="37" r="2.5" fill="#1a1a2e"/>
+        <circle cx="54" cy="37" r="2.5" fill="#1a1a2e"/>
+        <circle cx="39" cy="36" r="1" fill="white"/>
+        <circle cx="55" cy="36" r="1" fill="white"/>
+        <path d="M38 47 Q45 52 52 47" stroke="#c0795a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="35" cy="44" rx="3" ry="2" fill="#f4a5a5" opacity="0.5"/>
+        <ellipse cx="55" cy="44" rx="3" ry="2" fill="#f4a5a5" opacity="0.5"/>
+        <path d="M28 20 Q45 8 62 20 Q65 30 62 32 Q55 28 45 27 Q35 28 28 32 Q25 30 28 20Z" fill="#2d1b00"/>
+        <rect x="20" y="58" width="50" height="45" rx="8" fill="#185FA5"/>
+        <rect x="30" y="58" width="30" height="20" fill="#185FA5"/>
+        <rect x="35" y="55" width="20" height="8" rx="3" fill="#dbeafe"/>
+        <rect x="32" y="75" width="12" height="28" rx="4" fill="#1e40af"/>
+        <rect x="46" y="75" width="12" height="28" rx="4" fill="#1e40af"/>
+        <rect x="15" y="60" width="10" height="30" rx="5" fill="#185FA5"/>
+        <rect x="65" y="60" width="10" height="30" rx="5" fill="#185FA5"/>
+        <rect x="60" y="62" width="16" height="22" rx="3" fill="#f59e0b" stroke="#BA7517" stroke-width="1"/>
+        <rect x="62" y="64" width="12" height="3" rx="1" fill="#fcd34d"/>
+        <rect x="62" y="69" width="8" height="2" rx="1" fill="#fcd34d"/>
+        <rect x="62" y="73" width="10" height="2" rx="1" fill="#fcd34d"/>
+        <g id="av-toga" style="display:none">
+          <path d="M20 62 L30 58 L30 103 L20 103Z" fill="#3C3489" opacity="0.8"/>
+          <path d="M70 62 L60 58 L60 103 L70 103Z" fill="#3C3489" opacity="0.8"/>
+        </g>
+        <g id="av-escudo" style="display:none">
+          <path d="M8 62 L14 59 L20 62 L20 72 Q14 76 8 72Z" fill="#185FA5" stroke="#0C447C" stroke-width="1"/>
+          <path d="M10 66 L13 69 L18 63" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </g>
+        <g id="av-coroa" style="display:none">
+          <path d="M26 20 L30 13 L33 18 L37 11 L41 17 L45 10 L49 17 L53 11 L57 18 L60 13 L64 20 Z" fill="#f59e0b" stroke="#BA7517" stroke-width="0.8"/>
+          <circle cx="45" cy="10" r="2.5" fill="#fcd34d"/>
+          <circle cx="30" cy="13" r="1.8" fill="#fcd34d"/>
+          <circle cx="60" cy="13" r="1.8" fill="#fcd34d"/>
+        </g>
+        <g id="av-brilho" style="display:none">
+          <circle cx="45" cy="55" r="52" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
+        </g>
+      </svg>
+      <div class="lv-tag" id="av-lv-tag" style="background:#1d4ed8;color:#dbeafe">Nv1</div>
     </div>
     <div>
       <div class="app-title">RPPS Gestor</div>
@@ -521,6 +572,68 @@ function buildCal(){
   evts.innerHTML=`<div class="ev-item"><div class="ev-dot" style="background:#ef4444"></div><div><div class="ev-title">Repasse de contribuicoes</div><div class="ev-date">10/05/2026 · Lei 9.717/98</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#3b82f6"></div><div><div class="ev-title">DIPR — Envio do demonstrativo</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#10b981"></div><div><div class="ev-title">DAIR — Demonstrativo de aplicacoes</div><div class="ev-date">31/05/2026 · Res. CMN 4.963/2021</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#f59e0b"></div><div><div class="ev-title">DRAA — Avaliacao atuarial</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022, art. 58</div></div></div>`;
 }
 
+const NIVEIS = [
+  {min:0,    max:599,  lv:1, nome:'Estudante',    bg:'#1d4ed8', txt:'#dbeafe', extras:[]},
+  {min:600,  max:1199, lv:2, nome:'Analista',     bg:'#065f46', txt:'#d1fae5', extras:[]},
+  {min:1200, max:1899, lv:3, nome:'Gestor',       bg:'#4c1d95', txt:'#ede9fe', extras:['av-toga']},
+  {min:1900, max:2719, lv:4, nome:'Guardiao',     bg:'#78350f', txt:'#fef3c7', extras:['av-toga','av-escudo']},
+  {min:2720, max:99999,lv:5, nome:'Ministro RPPS',bg:'#713f12', txt:'#fef9c3', extras:['av-toga','av-escudo','av-coroa','av-brilho']},
+];
+
+const NOMES_NIVEL = ['Estudante','Analista','Gestor','Guardiao','Ministro RPPS'];
+const ROUPAS_COR = ['#185FA5','#3B6D11','#534AB7','#854F0B','#BA7517'];
+const CABELOS_COR = ['#2d1b00','#4a2800','#1a0a00','#2d1200','#3d1a00'];
+let nivelAtual = 0;
+
+function atualizarAvatar(xpAtual) {
+  const nivel = [...NIVEIS].reverse().find(n => xpAtual >= n.min) || NIVEIS[0];
+  const mudou = nivel.lv !== nivelAtual;
+  nivelAtual = nivel.lv;
+  const idx = nivel.lv - 1;
+
+  const tag = document.getElementById('av-lv-tag');
+  const prog = document.getElementById('avatar-prog');
+  const svg = document.getElementById('avatar-svg');
+
+  if(tag){ tag.textContent = 'Nv'+nivel.lv; tag.style.background = nivel.bg; tag.style.color = nivel.txt; }
+
+  if(svg){
+    const roupas = svg.querySelectorAll('rect[fill="#185FA5"], path[fill="#185FA5"], rect[fill="#1e40af"]');
+    roupas.forEach(el => {
+      const f = el.getAttribute('fill');
+      if(f === '#185FA5' || f === '#1e40af') el.setAttribute('fill', ROUPAS_COR[idx]);
+    });
+    const cabelo = svg.querySelector('path[fill="#2d1b00"]');
+    if(cabelo) cabelo.setAttribute('fill', CABELOS_COR[idx]);
+  }
+
+  ['av-toga','av-escudo','av-coroa','av-brilho'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = nivel.extras.includes(id) ? 'block' : 'none';
+  });
+
+  if(mudou && prog){
+    prog.classList.remove('leveling');
+    void prog.offsetWidth;
+    prog.classList.add('leveling');
+    setTimeout(() => prog.classList.remove('leveling'), 700);
+    dispararEstrelas(null);
+    setTimeout(() => {
+      alert('Parabens! Voce subiu para Nivel ' + nivel.lv + ' — ' + nivel.nome + '!');
+    }, 800);
+  }
+}
+
+function mostrarInfoAvatar() {
+  const nivel = [...NIVEIS].reverse().find(n => (estado.xp||0) >= n.min) || NIVEIS[0];
+  const prox = NIVEIS.find(n => n.lv === nivel.lv + 1);
+  const falta = prox ? prox.min - (estado.xp||0) : 0;
+  const msg = prox
+    ? 'Nivel ' + nivel.lv + ' — ' + nivel.nome + '\nXP atual: ' + (estado.xp||0) + '\nFaltam ' + falta + ' XP para ' + prox.nome
+    : 'Nivel 5 — Ministro RPPS\nXP: ' + (estado.xp||0) + '\nVoce atingiu o nivel maximo!';
+  alert(msg);
+}
+
 function dispararEstrelas(e) {
   const emojis = ['⭐','🌟','✨','💫','⭐','🌟'];
   const x = e ? e.clientX : window.innerWidth/2;
@@ -636,6 +749,7 @@ function render(){
   if((estado.feitas||[]).length>=5)animarCadeado(1,'ti-trophy');
   buildMissoes();
   buildStreak();
+  atualizarAvatar(estado.xp||0);
 }
 
 async function completar(id){
