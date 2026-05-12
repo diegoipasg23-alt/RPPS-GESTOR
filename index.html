@@ -368,24 +368,10 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex
 
 </main>
 
-<script>
-const MISSOES_DATA=[
-  {id:0,title:'Enviar DIPR de maio',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 56',xp:100,cor:'rgba(59,130,246,0.15)',stroke:'#3b82f6',label:'+100 XP',labelBg:'rgba(59,130,246,0.15)',labelColor:'#93c5fd',prog:'dipr',
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M9 12h6M9 16h4"/><polyline points="14 2 14 8 20 8"/></svg>'},
-  {id:1,title:'Enviar DAIR de maio',sub:'Prazo: 31/05 · Res. CMN 4.963/2021',xp:100,cor:'rgba(16,185,129,0.15)',stroke:'#10b981',label:'+100 XP',labelBg:'rgba(16,185,129,0.15)',labelColor:'#6ee7b7',prog:'dair',
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>'},
-  {id:2,title:'Enviar DRAA 2025',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 58 · Missao especial!',xp:200,cor:'rgba(245,158,11,0.15)',stroke:'#f59e0b',label:'+200 XP',labelBg:'rgba(245,158,11,0.15)',labelColor:'#fcd34d',prog:'draa',
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'},
-  {id:3,title:'Repasse de contribuicoes',sub:'Prazo: 10/05 · Lei 9.717/98, art. 2, par. 1',xp:150,cor:'rgba(239,68,68,0.15)',stroke:'#ef4444',label:'+150 XP',labelBg:'rgba(239,68,68,0.15)',labelColor:'#fca5a5',prog:'rep',
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>'},
-  {id:4,title:'Reuniao do Conselho',sub:'Mensal · Lei 9.717/98, art. 1',xp:50,cor:'rgba(139,92,246,0.15)',stroke:'#8b5cf6',label:'+50 XP',labelBg:'rgba(139,92,246,0.15)',labelColor:'#c4b5fd',prog:'cons',
-   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'}
-];
 
-const MESES=['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",
@@ -410,151 +396,179 @@ const MISSOES_DATA = [
 ];
 
 const MESES = ['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-let estado = {xp:1240, ok:0, pend:5, streak:0, feitas:[], prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
-let salvando = false;
+let chatHistory = [];
+let estado = {xp:1240,ok:0,pend:5,streak:0,feitas:[],prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
 
 async function salvar() {
   try {
-    salvando = true;
     await set(ESTADO_REF, estado);
-    mostrarSalvo();
-  } catch(e) {
-    console.error('Erro ao salvar:', e);
-  } finally {
-    salvando = false;
-  }
+    const t = document.getElementById('saved-tag');
+    if(t){t.style.display='flex';setTimeout(()=>t.style.display='none',2000);}
+  } catch(e) { console.error('Firebase erro:', e); }
 }
 
-function mostrarSalvo() {
-  const t = document.getElementById('saved-tag');
-  if (t) { t.style.display='flex'; setTimeout(()=>t.style.display='none', 2000); }
+function showScreen(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
 }
+window.showScreen = showScreen;
 
-function render() {
-  const pct = Math.min(Math.round((estado.xp/2000)*100),100);
-  const xpFill = document.getElementById('xp-fill');
-  const xpCur = document.getElementById('xp-cur');
-  const sXp = document.getElementById('s-xp');
-  const sOk = document.getElementById('s-ok');
-  const sPend = document.getElementById('s-pend');
-  const sStr = document.getElementById('s-str');
-  if(xpFill) xpFill.style.width=pct+'%';
-  if(xpCur) xpCur.textContent=estado.xp.toLocaleString('pt-BR');
-  if(sXp) sXp.textContent=estado.xp.toLocaleString('pt-BR');
-  if(sOk) sOk.textContent=estado.ok;
-  if(sPend) sPend.textContent=estado.pend;
-  if(sStr) sStr.textContent=estado.streak;
-
-  ['dipr','dair','rep','cons'].forEach(k=>{
-    const p = Math.round((estado.prog[k]||0)/8*100);
-    const pb = document.getElementById('pb-'+k);
-    const pp = document.getElementById('pp-'+k);
-    if(pb) pb.style.width=p+'%';
-    if(pp) pp.textContent=p+'%';
-  });
-
-  if(estado.ok>=1) desbloquear(0,'ti-medal');
-  if((estado.feitas||[]).length>=5) desbloquear(1,'ti-trophy');
-  if(estado.streak>=3) desbloquear(2,'ti-flame');
-  if(estado.streak>=6) desbloquear(3,'ti-shield');
-  if(estado.streak>=8) desbloquear(4,'ti-crown');
-
-  buildMissoes();
-  buildStreak();
-}
-
-function desbloquear(id, icon) {
-  const el = document.getElementById('cq'+id);
-  if(!el || el.classList.contains('unlocked')) return;
+function desbloquear(id,icon){
+  const el=document.getElementById('cq'+id);
+  if(!el||el.classList.contains('unlocked'))return;
   el.classList.add('unlocked');
-  const ico = el.querySelector('i');
-  if(ico) { ico.className = `ti ${icon}`; ico.style.color='#BA7517'; }
-  const nome = el.querySelector('.cq-nome');
-  if(nome) nome.style.color='#412402';
+  el.querySelector('i').className='ti '+icon;
+  el.querySelector('i').style.color='#BA7517';
+  el.querySelector('.cq-nome').style.color='#412402';
 }
 
-function buildMissoes() {
-  const c = document.getElementById('missoes-list');
-  if(!c) return;
+function buildMissoes(){
+  const c=document.getElementById('missoes-list');
+  if(!c)return;
   c.innerHTML='';
   MISSOES_DATA.forEach(m=>{
-    const feita = (estado.feitas||[]).includes(m.id);
-    const d = document.createElement('div');
-    d.className = 'missao' + (feita?' done':'');
-    d.onclick = () => completar(m.id);
-    d.innerHTML = `
-      <div class="m-ico" style="background:${m.bg}"><i class="ti ${m.icon}" style="font-size:20px;color:${m.cor}" aria-hidden="true"></i></div>
-      <div class="m-body"><div class="m-title">${m.title}</div><div class="m-sub">${m.sub}</div></div>
-      <div class="m-xp" style="background:${m.xpBg};color:${m.xpCor}">+${m.xp} XP</div>
-      <i class="ti ${feita?'ti-circle-check':'ti-circle'} check${feita?' done-c':''}" aria-hidden="true"></i>
-    `;
+    const feita=(estado.feitas||[]).includes(m.id);
+    const d=document.createElement('div');
+    d.className='missao'+(feita?' done':'');
+    d.onclick=()=>completar(m.id);
+    d.innerHTML=`<div class="m-ico" style="background:${m.bg}"><i class="ti ${m.icon}" style="font-size:20px;color:${m.cor}" aria-hidden="true"></i></div><div class="m-body"><div class="m-title">${m.title}</div><div class="m-sub">${m.sub}</div></div><div class="m-xp" style="background:${m.xpBg};color:${m.xpCor}">+${m.xp} XP</div><i class="ti ${feita?'ti-circle-check':'ti-circle'} check${feita?' done-c':''}" aria-hidden="true"></i>`;
     c.appendChild(d);
   });
 }
 
-function buildStreak() {
-  const c = document.getElementById('meses-row');
-  if(!c) return;
+function buildStreak(){
+  const c=document.getElementById('meses-row');
+  if(!c)return;
   c.innerHTML='';
   MESES.forEach((m,i)=>{
-    const wrap = document.createElement('div');
-    wrap.className='mes-item';
-    wrap.id='mes-'+i;
-    const box = document.createElement('div');
-    box.className='mes-box';
-    const completo = (i===0 && estado.streak>=1);
-    box.style.background = completo?'rgba(16,185,129,0.15)':i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
-    box.style.border = completo?'1.5px solid #10b981':i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
-    box.innerHTML = completo
-      ?'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>'
-      :i===0?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>'
-      :'<svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
-    const lbl = document.createElement('div');
-    lbl.className='mes-lbl';
-    lbl.textContent=m;
-    wrap.appendChild(box); wrap.appendChild(lbl);
-    c.appendChild(wrap);
+    const wrap=document.createElement('div');wrap.className='mes-item';wrap.id='mes-'+i;
+    const box=document.createElement('div');box.className='mes-box';
+    const ok=(i===0&&estado.streak>=1);
+    box.style.background=ok?'rgba(16,185,129,0.15)':i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
+    box.style.border=ok?'1.5px solid #10b981':i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
+    box.innerHTML=ok?'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>':i===0?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
+    const lbl=document.createElement('div');lbl.className='mes-lbl';lbl.textContent=m;
+    wrap.appendChild(box);wrap.appendChild(lbl);c.appendChild(wrap);
   });
 }
 
-async function completar(id) {
-  if((estado.feitas||[]).includes(id)) return;
-  const m = MISSOES_DATA.find(x=>x.id===id);
-  if(!m) return;
-  if(!estado.feitas) estado.feitas=[];
+function buildCal(){
+  const grid=document.getElementById('cal-grid');
+  const evts=document.getElementById('events-list');
+  if(!grid||!evts)return;
+  const dias=['D','S','T','Q','Q','S','S'];
+  grid.innerHTML='';
+  dias.forEach(d=>{const h=document.createElement('div');h.className='cal-head';h.textContent=d;grid.appendChild(h);});
+  const primeiroDia=new Date(2026,4,1).getDay();
+  for(let i=0;i<primeiroDia;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  for(let d=1;d<=31;d++){
+    const cell=document.createElement('div');cell.className='cal-day';cell.textContent=d;
+    if(d===10){cell.classList.add('urgent');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#ef4444';cell.appendChild(dot);}
+    if(d===31){cell.classList.add('has-event');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#3b82f6';cell.appendChild(dot);}
+    grid.appendChild(cell);
+  }
+  evts.innerHTML=`<div class="ev-item"><div class="ev-dot" style="background:#ef4444"></div><div><div class="ev-title">Repasse de contribuicoes</div><div class="ev-date">10/05/2026 · Lei 9.717/98</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#3b82f6"></div><div><div class="ev-title">DIPR — Envio do demonstrativo</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#10b981"></div><div><div class="ev-title">DAIR — Demonstrativo de aplicacoes</div><div class="ev-date">31/05/2026 · Res. CMN 4.963/2021</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#f59e0b"></div><div><div class="ev-title">DRAA — Avaliacao atuarial</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022, art. 58</div></div></div>`;
+}
+
+function render(){
+  const pct=Math.min(Math.round((estado.xp/2000)*100),100);
+  document.getElementById('xp-fill').style.width=pct+'%';
+  document.getElementById('xp-cur').textContent=estado.xp.toLocaleString('pt-BR');
+  document.getElementById('s-xp').textContent=estado.xp.toLocaleString('pt-BR');
+  document.getElementById('s-ok').textContent=estado.ok||0;
+  document.getElementById('s-pend').textContent=estado.pend||5;
+  document.getElementById('s-str').textContent=estado.streak||0;
+  ['dipr','dair','rep','cons'].forEach(k=>{
+    const p=Math.round((estado.prog[k]||0)/8*100);
+    const pb=document.getElementById('pb-'+k);
+    const pp=document.getElementById('pp-'+k);
+    if(pb)pb.style.width=p+'%';
+    if(pp)pp.textContent=p+'%';
+  });
+  if((estado.ok||0)>=1)desbloquear(0,'ti-medal');
+  if((estado.feitas||[]).length>=5)desbloquear(1,'ti-trophy');
+  buildMissoes();
+  buildStreak();
+}
+
+async function completar(id){
+  if((estado.feitas||[]).includes(id))return;
+  const m=MISSOES_DATA.find(x=>x.id===id);
+  if(!m)return;
+  if(!estado.feitas)estado.feitas=[];
   estado.feitas.push(id);
-  estado.xp += m.xp;
-  estado.ok = (estado.ok||0)+1;
-  estado.pend = Math.max(0,(estado.pend||5)-1);
-  if(!estado.prog) estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
-  if(m.prog && estado.prog[m.prog]!==undefined) estado.prog[m.prog]++;
-  if(estado.feitas.length>=5) estado.streak = Math.max(estado.streak||0,1);
+  estado.xp+=m.xp;
+  estado.ok=(estado.ok||0)+1;
+  estado.pend=Math.max(0,(estado.pend||5)-1);
+  if(!estado.prog)estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
+  if(m.prog&&estado.prog[m.prog]!==undefined)estado.prog[m.prog]++;
+  if(estado.feitas.length>=5)estado.streak=Math.max(estado.streak||0,1);
   render();
   await salvar();
 }
 
-window.resetarProgresso = async function() {
-  if(!confirm('Reiniciar todo o progresso?')) return;
-  estado = {xp:1240, ok:0, pend:5, streak:0, feitas:[], prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
-  await salvar();
-  render();
+window.resetarProgresso = async function(){
+  if(!confirm('Reiniciar todo o progresso?'))return;
+  estado={xp:1240,ok:0,pend:5,streak:0,feitas:[],prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
+  await salvar();render();
 };
 
-onValue(ESTADO_REF, (snapshot)=>{
-  const data = snapshot.val();
-  if(data) {
-    estado = data;
-    if(!estado.feitas) estado.feitas=[];
-    if(!estado.prog) estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
-    render();
-  } else {
-    render();
+window.showNotif = function(){alert('Prazos proximos em maio:\n- Repasse: 10/05\n- DIPR: 31/05\n- DAIR: 31/05\n- DRAA: 31/05');};
+
+async function callSofia(msg){
+  chatHistory.push({role:'user',content:msg});
+  if(chatHistory.length>16)chatHistory=chatHistory.slice(-16);
+  const r=await fetch('https://rpps-sofia.diego-ipasg23.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:chatHistory.slice(0,-1)})});
+  const data=await r.json();
+  const txt=data.text||'Desculpe, erro ao conectar.';
+  chatHistory.push({role:'assistant',content:txt});
+  return txt;
+}
+
+function addMsg(txt,tipo){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='msg '+tipo;
+  d.innerHTML=txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function addTyping(){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');d.className='typing-dots';d.id='typing';
+  d.innerHTML='<span></span><span></span><span></span>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
+window.enviarSofia = async function(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';addMsg(msg,'user');addTyping();
+  try{const r=await callSofia(msg);removeTyping();addMsg(r,'sofia');}
+  catch(e){removeTyping();addMsg('Erro ao conectar com a Sofia.','sofia');}
+};
+
+window.perguntarSofia = function(msg){
+  document.getElementById('chat-input').value=msg;
+  window.enviarSofia();
+};
+
+onValue(ESTADO_REF,(snapshot)=>{
+  const data=snapshot.val();
+  if(data){
+    estado=data;
+    if(!estado.feitas)estado.feitas=[];
+    if(!estado.prog)estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
   }
+  render();
+  buildCal();
 });
 
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(()=>{});
-}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
 </html>
