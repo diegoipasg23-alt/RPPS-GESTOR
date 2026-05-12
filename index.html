@@ -383,10 +383,56 @@ const MISSOES_DATA=[
 ];
 
 const MESES=['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-let xp=1240,ok=0,pend=34,streak=0;
+<script>
+const MISSOES_DATA=[
+  {id:0,title:'Enviar DIPR de maio',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 56',xp:100,cor:'rgba(59,130,246,0.15)',stroke:'#3b82f6',label:'+100 XP',labelBg:'rgba(59,130,246,0.15)',labelColor:'#93c5fd',prog:'dipr',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M9 12h6M9 16h4"/><polyline points="14 2 14 8 20 8"/></svg>'},
+  {id:1,title:'Enviar DAIR de maio',sub:'Prazo: 31/05 · Res. CMN 4.963/2021',xp:100,cor:'rgba(16,185,129,0.15)',stroke:'#10b981',label:'+100 XP',labelBg:'rgba(16,185,129,0.15)',labelColor:'#6ee7b7',prog:'dair',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>'},
+  {id:2,title:'Enviar DRAA 2025',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 58',xp:200,cor:'rgba(245,158,11,0.15)',stroke:'#f59e0b',label:'+200 XP',labelBg:'rgba(245,158,11,0.15)',labelColor:'#fcd34d',prog:'draa',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'},
+  {id:3,title:'Repasse de contribuicoes',sub:'Prazo: 10/05 · Lei 9.717/98, art. 2, par. 1',xp:150,cor:'rgba(239,68,68,0.15)',stroke:'#ef4444',label:'+150 XP',labelBg:'rgba(239,68,68,0.15)',labelColor:'#fca5a5',prog:'rep',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>'},
+  {id:4,title:'Reuniao do Conselho',sub:'Mensal · Lei 9.717/98, art. 1',xp:50,cor:'rgba(139,92,246,0.15)',stroke:'#8b5cf6',label:'+50 XP',labelBg:'rgba(139,92,246,0.15)',labelColor:'#c4b5fd',prog:'cons',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'}
+];
+
+const MESES=['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+let chatHistory=[];
+
+// ---- ESTADO COM LOCALSTORAGE ----
+const STORAGE_KEY = 'rpps_gestor_v1';
+
+function salvar(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      xp, ok, pend, streak,
+      done_arr: [...done_set],
+      PROG
+    }));
+  }catch(e){}
+}
+
+function carregar(){
+  try{
+    const s = localStorage.getItem(STORAGE_KEY);
+    if(s){
+      const d = JSON.parse(s);
+      xp = d.xp ?? 1240;
+      ok = d.ok ?? 0;
+      pend = d.pend ?? 34;
+      streak = d.streak ?? 0;
+      if(d.done_arr) d.done_arr.forEach(i => done_set.add(Number(i)));
+      if(d.PROG) Object.assign(PROG, d.PROG);
+    }
+  }catch(e){}
+}
+
+let xp=1240, ok=0, pend=34, streak=0;
 const done_set=new Set();
-const PROG={dipr:0,dair:0,rep:0,cons:0};
-let history=[];
+const PROG={dipr:0,dair:0,rep:0,cons:0,draa:0};
+carregar();
+// ---------------------------------
 
 function showScreen(id,btn){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -400,13 +446,13 @@ function buildMissoes(){
   if(!c)return;
   c.innerHTML='';
   MISSOES_DATA.forEach(m=>{
+    const feita = done_set.has(m.id);
     const d=document.createElement('div');
-    d.className='missao'+(done_set.has(m.id)?' done':'');
+    d.className='missao'+(feita?' done':'');
     d.id='m'+m.id;
     d.onclick=()=>completar(m.id,m.xp,m.prog);
-    const ck=done_set.has(m.id)
+    const ck = feita
       ?`<svg class="check" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" fill="#10b981" stroke="#10b981"/><path d="M9 12l2 2 4-4" stroke="#d1fae5" stroke-width="2"/></svg>`
-      ?`<svg class="check" viewBox="0 0 24 24" fill="none" stroke="${m.stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>`:''
       :`<svg class="check" viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>`;
     d.innerHTML=`<div class="m-ico" style="background:${m.cor}">${m.icon}</div><div class="m-body"><div class="m-title">${m.title}</div><div class="m-sub">${m.sub}</div></div><div class="m-xp" style="background:${m.labelBg};color:${m.labelColor}">${m.label}</div>${ck}`;
     c.appendChild(d);
@@ -418,6 +464,7 @@ function completar(id,pts,prog){
   done_set.add(id);
   xp+=pts; ok++; pend--;
   if(prog&&PROG[prog]!==undefined)PROG[prog]++;
+  salvar();
   updateStats();
   buildMissoes();
   if(ok===1)unlock(0,'#f59e0b','<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>');
@@ -426,6 +473,7 @@ function completar(id,pts,prog){
     streak=1;
     const m=document.getElementById('mes-0');
     if(m){m.querySelector('.mes-box').style.background='rgba(16,185,129,0.15)';m.querySelector('.mes-box').style.border='1.5px solid #10b981';m.querySelector('.mes-box').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>';}
+    salvar();
     updateStats();
   }
 }
@@ -434,7 +482,8 @@ function unlock(id,cor,iconPath){
   const el=document.getElementById('cq'+id);
   if(!el)return;
   el.className='cq unlocked';
-  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg><div class="cq-nome" style="color:${cor}">${el.querySelector('.cq-nome').textContent}</div>`;
+  const nome=el.querySelector('.cq-nome').textContent;
+  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg><div class="cq-nome" style="color:${cor}">${nome}</div>`;
 }
 
 function updateStats(){
@@ -452,6 +501,8 @@ function updateStats(){
     if(pb)pb.style.width=p+'%';
     if(pp)pp.textContent=p+'%';
   });
+  if(ok>=1)unlock(0,'#f59e0b','<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>');
+  if(streak>=1)unlock(1,'#f59e0b','<path d="M6 9H4.5a2.5 2.5 0 000 5H6"/><path d="M18 9h1.5a2.5 2.5 0 010 5H18"/><path d="M8 9h8M8 15h8M9 9v6m6-6v6"/>');
 }
 
 function buildStreak(){
@@ -464,10 +515,12 @@ function buildStreak(){
     wrap.id='mes-'+i;
     const box=document.createElement('div');
     box.className='mes-box';
-    box.style.background=i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
-    box.style.border=i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
-    box.innerHTML=i===0
-      ?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>'
+    const completo = (i===0 && streak>=1);
+    box.style.background=completo?'rgba(16,185,129,0.15)':i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
+    box.style.border=completo?'1.5px solid #10b981':i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
+    box.innerHTML=completo
+      ?'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>'
+      :i===0?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>'
       :'<svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
     const lbl=document.createElement('div');
     lbl.className='mes-lbl';
@@ -486,7 +539,6 @@ function buildCal(){
   dias.forEach(d=>{const h=document.createElement('div');h.className='cal-head';h.textContent=d;grid.appendChild(h);});
   const primeiroDia=new Date(2026,4,1).getDay();
   for(let i=0;i<primeiroDia;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
-  const eventos={10:['Repasse contrib.',,'#ef4444'],31:['DIPR','DAIR','DRAA']};
   for(let d=1;d<=31;d++){
     const cell=document.createElement('div');
     cell.className='cal-day';
@@ -503,21 +555,19 @@ function buildCal(){
   `;
 }
 
-function showNotif(){alert('3 prazos proximos em maio:\n- Repasse: 10/05\n- DIPR: 31/05\n- DAIR: 31/05\n- DRAA: 31/05');}
-
-const SOFIA_SYSTEM=`Voce e Sofia, assistente juridica especializada em RPPS (Regime Proprio de Previdencia Social). Responda sempre em portugues do Brasil de forma clara, direta e profissional. Trate o usuario como "gestor". Conhece profundamente: Lei 9.717/98, LC 108 e 109/2001, EC 103/2019, Portaria MTP 1.467/2022, Res. CMN 4.963/2021, DIPR, DAIR, DRAA, CADPREV, certificacoes, avaliacao atuarial. Seja concisa mas completa.`;
+function showNotif(){alert('Prazos proximos em maio:\n- Repasse: 10/05\n- DIPR: 31/05\n- DAIR: 31/05\n- DRAA: 31/05');}
 
 async function callSofia(msg){
-  history.push({role:'user',content:msg});
-  if(history.length>16)history=history.slice(-16);
+  chatHistory.push({role:'user',content:msg});
+  if(chatHistory.length>16)chatHistory=chatHistory.slice(-16);
   const r=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SOFIA_SYSTEM,messages:history})
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:'Voce e Sofia, assistente juridica especializada em RPPS. Responda em portugues do Brasil, de forma clara e profissional. Trate o usuario como gestor. Conhece: Lei 9.717/98, LC 108 e 109/2001, EC 103/2019, Portaria MTP 1.467/2022, Res. CMN 4.963/2021, DIPR, DAIR, DRAA, CADPREV.',messages:chatHistory})
   });
   const data=await r.json();
-  const txt=data.content?.[0]?.text||'Desculpe, nao consegui processar. Tente novamente.';
-  history.push({role:'assistant',content:txt});
+  const txt=data.content?.[0]?.text||'Desculpe, nao consegui processar.';
+  chatHistory.push({role:'assistant',content:txt});
   return txt;
 }
 
