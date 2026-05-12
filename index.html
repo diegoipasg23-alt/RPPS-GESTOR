@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0f1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RPPS">
+<meta name="description" content="Painel de gestão RPPS com Sofia jurídica">
+<link rel="manifest" href="manifest.json">
+<title>RPPS — Painel do Gestor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0f1e;
+  --bg2: #111827;
+  --bg3: #1a2235;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f0f4ff;
+  --text2: #8b9ec9;
+  --text3: #4a5a7a;
+  --blue: #3b82f6;
+  --blue2: #1d4ed8;
+  --green: #10b981;
+  --green2: #065f46;
+  --amber: #f59e0b;
+  --amber2: #78350f;
+  --red: #ef4444;
+  --red2: #7f1d1d;
+  --purple: #8b5cf6;
+  --purple2: #4c1d95;
+  --teal: #14b8a6;
+  --font: 'Space Grotesk', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --radius-sm: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+
+/* HEADER */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.app-logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.app-logo svg{width:18px;height:18px;stroke:#fff;}
+.app-title{font-size:15px;font-weight:600;color:var(--text);}
+.app-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);}
+.icon-btn:hover{background:var(--bg3);color:var(--text);}
+.icon-btn svg{width:16px;height:16px;}
+.notif-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:6px;}
+.icon-btn{position:relative;}
+
+/* NAV */
+.nav{display:flex;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;overflow-x:auto;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-btn{display:flex;align-items:center;gap:7px;padding:10px 16px;font-size:13px;font-weight:500;color:var(--text2);border:none;background:transparent;cursor:pointer;font-family:var(--font);white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s;}
+.nav-btn svg{width:15px;height:15px;}
+.nav-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
+.nav-btn:hover:not(.active){color:var(--text);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;padding:16px 20px;}
+.screen{display:none;}
+.screen.active{display:block;}
+
+/* CARDS */
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;}
+.card+.card{margin-top:12px;}
+
+/* HERO */
+.hero{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
+.avatar-ring{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));padding:2px;flex-shrink:0;}
+.avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
+.avatar-inner svg{width:26px;height:26px;stroke:var(--blue);}
+.hero-info{flex:1;min-width:0;}
+.hero-name{font-size:14px;font-weight:600;color:var(--text);}
+.hero-role{font-size:11px;color:var(--text2);margin-top:2px;}
+.lv-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,0.15);color:var(--amber);font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;margin-top:6px;}
+.lv-chip svg{width:11px;height:11px;}
+.xp-wrap{margin-top:8px;}
+.xp-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
+.xp-track{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:99px;transition:width 0.8s;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.stat{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px;}
+.stat-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.stat-ico svg{width:18px;height:18px;}
+.stat-n{font-size:20px;font-weight:700;}
+.stat-l{font-size:11px;color:var(--text2);margin-top:2px;}
+.s-g{background:rgba(16,185,129,0.1);}.s-g svg{stroke:var(--green);}.s-g .stat-n{color:var(--green);}
+.s-r{background:rgba(239,68,68,0.1);}.s-r svg{stroke:var(--red);}.s-r .stat-n{color:var(--red);}
+.s-a{background:rgba(245,158,11,0.1);}.s-a svg{stroke:var(--amber);}.s-a .stat-n{color:var(--amber);}
+.s-b{background:rgba(59,130,246,0.1);}.s-b svg{stroke:var(--blue);}.s-b .stat-n{color:var(--blue);}
+
+/* ALERT */
+.alert{display:flex;align-items:flex-start;gap:10px;background:rgba(245,158,11,0.1);border:0.5px solid rgba(245,158,11,0.3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:13px;color:#fcd34d;}
+.alert svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;stroke:#f59e0b;}
+
+/* MISSOES */
+.sec-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.sec-title svg{width:13px;height:13px;}
+.missoes{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
+.missao{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:var(--bg2);cursor:pointer;transition:all 0.15s;}
+.missao:hover{border-color:var(--border2);background:var(--bg3);}
+.missao.done{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);}
+.missao.done .m-title{color:#6ee7b7;text-decoration:line-through;}
+.m-ico{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.m-ico svg{width:20px;height:20px;}
+.m-body{flex:1;min-width:0;}
+.m-title{font-size:13px;font-weight:500;color:var(--text);}
+.m-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.m-xp{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.check{width:20px;height:20px;flex-shrink:0;}
+.check svg{width:20px;height:20px;}
+
+/* PROG */
+.prog-rows{display:flex;flex-direction:column;gap:10px;}
+.prog-row{display:flex;align-items:center;gap:10px;}
+.prog-lbl{font-size:12px;color:var(--text2);min-width:72px;display:flex;align-items:center;gap:5px;}
+.prog-lbl svg{width:13px;height:13px;}
+.prog-track{flex:1;height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:99px;transition:width 0.8s;}
+.prog-pct{font-size:11px;font-weight:600;color:var(--text2);min-width:30px;text-align:right;}
+
+/* STREAK */
+.meses-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+.mes-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.mes-box{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.mes-box svg{width:18px;height:18px;}
+.mes-lbl{font-size:9px;color:var(--text3);font-family:var(--mono);}
+
+/* CONQUISTAS */
+.conquistas{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px;}
+.cq{border-radius:var(--radius-sm);padding:10px 6px;text-align:center;border:0.5px solid var(--border);background:var(--bg2);transition:all 0.2s;}
+.cq.unlocked{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08);}
+.cq svg{width:24px;height:24px;display:block;margin:0 auto 5px;}
+.cq-nome{font-size:10px;font-weight:500;color:var(--text2);line-height:1.3;}
+.cq.unlocked .cq-nome{color:var(--amber);}
+
+/* CALENDARIO */
+.cal-month{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
+.cal-head{font-size:10px;font-family:var(--mono);color:var(--text3);text-align:center;padding:4px 0;}
+.cal-day{min-height:34px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--text2);cursor:default;background:var(--bg2);border:0.5px solid transparent;}
+.cal-day.has-event{border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);cursor:pointer;color:var(--blue);}
+.cal-day.has-event:hover{background:rgba(59,130,246,0.15);}
+.cal-day.today{border-color:var(--blue);color:var(--blue);}
+.cal-day.urgent{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);color:var(--red);}
+.cal-day.empty{background:transparent;border:none;color:var(--text3);}
+.cal-dot{width:4px;height:4px;border-radius:50%;margin-top:2px;}
+.events-list{display:flex;flex-direction:column;gap:6px;}
+.ev-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);}
+.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.ev-title{font-size:13px;color:var(--text);}
+.ev-date{font-size:11px;color:var(--text3);font-family:var(--mono);}
+
+/* SOFIA */
+.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px);}
+.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:12px;}
+.msg{max-width:88%;padding:10px 13px;border-radius:12px;font-size:13px;line-height:1.6;}
+.msg.sofia{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;}
+.msg.user{background:var(--blue2);color:#dbeafe;align-self:flex-end;border-bottom-right-radius:3px;}
+.msg strong{color:var(--blue);font-weight:600;}
+.typing-dots{display:flex;gap:4px;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;align-self:flex-start;border-bottom-left-radius:3px;}
+.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;}
+.typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
+.quick-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.qb{padding:6px 12px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:12px;cursor:pointer;font-family:var(--font);}
+.qb:hover{background:var(--bg3);color:var(--text);}
+.chat-input-row{display:flex;gap:8px;padding-top:10px;border-top:0.5px solid var(--border);}
+.chat-input{flex:1;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--text);font-family:var(--font);outline:none;}
+.chat-input:focus{border-color:var(--blue);}
+.chat-input::placeholder{color:var(--text3);}
+.send-btn{width:38px;height:38px;border-radius:var(--radius-sm);background:var(--blue);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.send-btn:hover{background:var(--blue2);}
+.send-btn svg{width:16px;height:16px;stroke:#fff;}
+.disclaimer{font-size:10px;color:var(--text3);text-align:center;margin-top:6px;}
+
+/* SYNC BTN */
+.sync-btn{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+.sync-btn:hover{background:var(--blue2);}
+.sync-btn svg{width:15px;height:15px;stroke:#fff;}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.screen.active{animation:fadeIn 0.2s ease;}
+.missao{animation:fadeIn 0.15s ease;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="app-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <div>
+      <div class="app-title">RPPS Gestor</div>
+      <div class="app-sub">Painel de conformidade</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" onclick="showNotif()" aria-label="Notificações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      <div class="notif-dot"></div>
+    </button>
+    <button class="icon-btn" aria-label="Configurações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    </button>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showScreen('painel',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Painel
+  </button>
+  <button class="nav-btn" onclick="showScreen('missoes',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M9 13l2 2 4-4"/></svg>
+    Missoes
+  </button>
+  <button class="nav-btn" onclick="showScreen('calendario',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Calendario
+  </button>
+  <button class="nav-btn" onclick="showScreen('sofia',this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 110 20 10 10 0 010-20z"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    Sofia
+  </button>
+</nav>
+
+<main class="main">
+
+<!-- PAINEL -->
+<div id="screen-painel" class="screen active">
+  <div class="hero">
+    <div class="avatar-ring">
+      <div class="avatar-inner">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+    </div>
+    <div class="hero-info">
+      <div class="hero-name">Gestor RPPS</div>
+      <div class="hero-role">Guardiao Previdenciario · 2026</div>
+      <div class="lv-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Nivel 4 — Guardiao
+      </div>
+      <div class="xp-wrap">
+        <div class="xp-labels"><span>XP: <span id="xp-cur">1.240</span></span><span>2.000 XP</span></div>
+        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:62%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-ico s-g"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div><div><div class="stat-n" id="s-ok">0</div><div class="stat-l">concluidas</div></div></div>
+    <div class="stat"><div class="stat-ico s-r"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-n" id="s-pend">34</div><div class="stat-l">pendentes</div></div></div>
+    <div class="stat"><div class="stat-ico s-a"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-6 8-6 13a6 6 0 0012 0c0-5-6-7-6-13z"/></svg></div><div><div class="stat-n" id="s-str">0</div><div class="stat-l">streak meses</div></div></div>
+    <div class="stat"><div class="stat-ico s-b"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="stat-n" id="s-xp">1.240</div><div class="stat-l">XP total</div></div></div>
+  </div>
+
+  <div class="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+    DIPR, DAIR e DRAA de maio vencem em 19 dias. Conclua essas missoes para garantir o CRP!
+  </div>
+
+  <div class="sec-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-6 8-6 13a6 6 0 0012 0c0-5-6-7-6-13z"/></svg>
+    Streak de conformidade
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="meses-row" id="meses-row"></div>
+  </div>
+
+  <div class="sec-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Progresso anual
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="prog-rows">
+      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>DIPR</div><div class="prog-track"><div class="prog-fill" id="pb-dipr" style="width:0%;background:#3b82f6"></div></div><div class="prog-pct" id="pp-dipr">0%</div></div>
+      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>DAIR</div><div class="prog-track"><div class="prog-fill" id="pb-dair" style="width:0%;background:#10b981"></div></div><div class="prog-pct" id="pp-dair">0%</div></div>
+      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Repasse</div><div class="prog-track"><div class="prog-fill" id="pb-rep" style="width:0%;background:#ef4444"></div></div><div class="prog-pct" id="pp-rep">0%</div></div>
+      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Conselho</div><div class="prog-track"><div class="prog-fill" id="pb-cons" style="width:0%;background:#8b5cf6"></div></div><div class="prog-pct" id="pp-cons">0%</div></div>
+    </div>
+  </div>
+
+  <div class="sec-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    Conquistas
+  </div>
+  <div class="conquistas" style="margin-bottom:16px;">
+    <div class="cq" id="cq0"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">1a missao</div></div>
+    <div class="cq" id="cq1"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Mes perfeito</div></div>
+    <div class="cq" id="cq2"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Fogo triplo</div></div>
+    <div class="cq" id="cq3"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Guardiao CRP</div></div>
+    <div class="cq" id="cq4"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Lenda RPPS</div></div>
+  </div>
+
+  <button class="sync-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    Sincronizar com Todoist
+  </button>
+</div>
+
+<!-- MISSOES -->
+<div id="screen-missoes" class="screen">
+  <div class="sec-title" style="margin-bottom:10px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M9 13l2 2 4-4"/></svg>
+    Missoes ativas — maio 2026
+  </div>
+  <div class="missoes" id="missoes-list"></div>
+</div>
+
+<!-- CALENDARIO -->
+<div id="screen-calendario" class="screen">
+  <div class="sec-title" style="margin-bottom:10px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Maio 2026
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="cal-month" id="cal-grid"></div>
+  </div>
+  <div class="sec-title" style="margin-bottom:8px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+    Prazos do mes
+  </div>
+  <div class="events-list" id="events-list"></div>
+</div>
+
+<!-- SOFIA -->
+<div id="screen-sofia" class="screen">
+  <div class="chat-wrap">
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="msg sofia">Ola, gestor! Sou a <strong>Sofia</strong>, sua assistente juridica especializada em RPPS. Estou aqui para te ajudar com prazos, normas e obrigacoes. O que precisa?</div>
+    </div>
+    <div class="quick-btns">
+      <button class="qb" onclick="perguntarSofia('Quais sao os prazos de maio?')">Prazos de maio</button>
+      <button class="qb" onclick="perguntarSofia('O que e o DIPR?')">O que e DIPR?</button>
+      <button class="qb" onclick="perguntarSofia('Quais as consequencias de atraso no repasse?')">Consequencias de atraso</button>
+      <button class="qb" onclick="perguntarSofia('Explique a Resolucao CMN 4.963/21')">CMN 4.963/21</button>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" type="text" placeholder="Pergunte sobre legislacao RPPS..." onkeydown="if(event.key==='Enter')enviarSofia()">
+      <button class="send-btn" onclick="enviarSofia()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="disclaimer">Sofia orienta com base na legislacao vigente. Para decisoes formais, consulte o setor juridico.</div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const MISSOES_DATA=[
+  {id:0,title:'Enviar DIPR de maio',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 56',xp:100,cor:'rgba(59,130,246,0.15)',stroke:'#3b82f6',label:'+100 XP',labelBg:'rgba(59,130,246,0.15)',labelColor:'#93c5fd',prog:'dipr',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M9 12h6M9 16h4"/><polyline points="14 2 14 8 20 8"/></svg>'},
+  {id:1,title:'Enviar DAIR de maio',sub:'Prazo: 31/05 · Res. CMN 4.963/2021',xp:100,cor:'rgba(16,185,129,0.15)',stroke:'#10b981',label:'+100 XP',labelBg:'rgba(16,185,129,0.15)',labelColor:'#6ee7b7',prog:'dair',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>'},
+  {id:2,title:'Enviar DRAA 2025',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 58 · Missao especial!',xp:200,cor:'rgba(245,158,11,0.15)',stroke:'#f59e0b',label:'+200 XP',labelBg:'rgba(245,158,11,0.15)',labelColor:'#fcd34d',prog:'draa',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'},
+  {id:3,title:'Repasse de contribuicoes',sub:'Prazo: 10/05 · Lei 9.717/98, art. 2, par. 1',xp:150,cor:'rgba(239,68,68,0.15)',stroke:'#ef4444',label:'+150 XP',labelBg:'rgba(239,68,68,0.15)',labelColor:'#fca5a5',prog:'rep',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>'},
+  {id:4,title:'Reuniao do Conselho',sub:'Mensal · Lei 9.717/98, art. 1',xp:50,cor:'rgba(139,92,246,0.15)',stroke:'#8b5cf6',label:'+50 XP',labelBg:'rgba(139,92,246,0.15)',labelColor:'#c4b5fd',prog:'cons',
+   icon:'<svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>'}
+];
+
+const MESES=['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+let xp=1240,ok=0,pend=34,streak=0;
+const done_set=new Set();
+const PROG={dipr:0,dair:0,rep:0,cons:0};
+let history=[];
+
+function showScreen(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+}
+
+function buildMissoes(){
+  const c=document.getElementById('missoes-list');
+  if(!c)return;
+  c.innerHTML='';
+  MISSOES_DATA.forEach(m=>{
+    const d=document.createElement('div');
+    d.className='missao'+(done_set.has(m.id)?' done':'');
+    d.id='m'+m.id;
+    d.onclick=()=>completar(m.id,m.xp,m.prog);
+    const ck=done_set.has(m.id)
+      ?`<svg class="check" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" fill="#10b981" stroke="#10b981"/><path d="M9 12l2 2 4-4" stroke="#d1fae5" stroke-width="2"/></svg>`
+      ?`<svg class="check" viewBox="0 0 24 24" fill="none" stroke="${m.stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>`:''
+      :`<svg class="check" viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>`;
+    d.innerHTML=`<div class="m-ico" style="background:${m.cor}">${m.icon}</div><div class="m-body"><div class="m-title">${m.title}</div><div class="m-sub">${m.sub}</div></div><div class="m-xp" style="background:${m.labelBg};color:${m.labelColor}">${m.label}</div>${ck}`;
+    c.appendChild(d);
+  });
+}
+
+function completar(id,pts,prog){
+  if(done_set.has(id))return;
+  done_set.add(id);
+  xp+=pts; ok++; pend--;
+  if(prog&&PROG[prog]!==undefined)PROG[prog]++;
+  updateStats();
+  buildMissoes();
+  if(ok===1)unlock(0,'#f59e0b','<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>');
+  if(done_set.size===5){
+    unlock(1,'#f59e0b','<path d="M6 9H4.5a2.5 2.5 0 000 5H6"/><path d="M18 9h1.5a2.5 2.5 0 010 5H18"/><path d="M8 9h8M8 15h8M9 9v6m6-6v6"/>');
+    streak=1;
+    const m=document.getElementById('mes-0');
+    if(m){m.querySelector('.mes-box').style.background='rgba(16,185,129,0.15)';m.querySelector('.mes-box').style.border='1.5px solid #10b981';m.querySelector('.mes-box').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>';}
+    updateStats();
+  }
+}
+
+function unlock(id,cor,iconPath){
+  const el=document.getElementById('cq'+id);
+  if(!el)return;
+  el.className='cq unlocked';
+  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${iconPath}</svg><div class="cq-nome" style="color:${cor}">${el.querySelector('.cq-nome').textContent}</div>`;
+}
+
+function updateStats(){
+  const pct=Math.min(Math.round((xp/2000)*100),100);
+  document.getElementById('xp-fill').style.width=pct+'%';
+  document.getElementById('xp-cur').textContent=xp.toLocaleString('pt-BR');
+  document.getElementById('s-xp').textContent=xp.toLocaleString('pt-BR');
+  document.getElementById('s-ok').textContent=ok;
+  document.getElementById('s-pend').textContent=pend;
+  document.getElementById('s-str').textContent=streak;
+  ['dipr','dair','rep','cons'].forEach(k=>{
+    const p=Math.round((PROG[k]||0)/8*100);
+    const pb=document.getElementById('pb-'+k);
+    const pp=document.getElementById('pp-'+k);
+    if(pb)pb.style.width=p+'%';
+    if(pp)pp.textContent=p+'%';
+  });
+}
+
+function buildStreak(){
+  const c=document.getElementById('meses-row');
+  if(!c)return;
+  c.innerHTML='';
+  MESES.forEach((m,i)=>{
+    const wrap=document.createElement('div');
+    wrap.className='mes-item';
+    wrap.id='mes-'+i;
+    const box=document.createElement('div');
+    box.className='mes-box';
+    box.style.background=i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
+    box.style.border=i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
+    box.innerHTML=i===0
+      ?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>'
+      :'<svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
+    const lbl=document.createElement('div');
+    lbl.className='mes-lbl';
+    lbl.textContent=m;
+    wrap.appendChild(box);wrap.appendChild(lbl);
+    c.appendChild(wrap);
+  });
+}
+
+function buildCal(){
+  const grid=document.getElementById('cal-grid');
+  const evts=document.getElementById('events-list');
+  if(!grid||!evts)return;
+  const dias=['D','S','T','Q','Q','S','S'];
+  grid.innerHTML='';
+  dias.forEach(d=>{const h=document.createElement('div');h.className='cal-head';h.textContent=d;grid.appendChild(h);});
+  const primeiroDia=new Date(2026,4,1).getDay();
+  for(let i=0;i<primeiroDia;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
+  const eventos={10:['Repasse contrib.',,'#ef4444'],31:['DIPR','DAIR','DRAA']};
+  for(let d=1;d<=31;d++){
+    const cell=document.createElement('div');
+    cell.className='cal-day';
+    cell.textContent=d;
+    if(d===10){cell.classList.add('urgent');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#ef4444';cell.appendChild(dot);}
+    if(d===31){cell.classList.add('has-event');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#3b82f6';cell.appendChild(dot);}
+    grid.appendChild(cell);
+  }
+  evts.innerHTML=`
+    <div class="ev-item"><div class="ev-dot" style="background:#ef4444"></div><div><div class="ev-title">Repasse de contribuicoes</div><div class="ev-date">10/05/2026 · Lei 9.717/98</div></div></div>
+    <div class="ev-item"><div class="ev-dot" style="background:#3b82f6"></div><div><div class="ev-title">DIPR — Envio do demonstrativo</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022</div></div></div>
+    <div class="ev-item"><div class="ev-dot" style="background:#10b981"></div><div><div class="ev-title">DAIR — Demonstrativo de aplicacoes</div><div class="ev-date">31/05/2026 · Res. CMN 4.963/2021</div></div></div>
+    <div class="ev-item"><div class="ev-dot" style="background:#f59e0b"></div><div><div class="ev-title">DRAA — Avaliacao atuarial</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022, art. 58</div></div></div>
+  `;
+}
+
+function showNotif(){alert('3 prazos proximos em maio:\n- Repasse: 10/05\n- DIPR: 31/05\n- DAIR: 31/05\n- DRAA: 31/05');}
+
+const SOFIA_SYSTEM=`Voce e Sofia, assistente juridica especializada em RPPS (Regime Proprio de Previdencia Social). Responda sempre em portugues do Brasil de forma clara, direta e profissional. Trate o usuario como "gestor". Conhece profundamente: Lei 9.717/98, LC 108 e 109/2001, EC 103/2019, Portaria MTP 1.467/2022, Res. CMN 4.963/2021, DIPR, DAIR, DRAA, CADPREV, certificacoes, avaliacao atuarial. Seja concisa mas completa.`;
+
+async function callSofia(msg){
+  history.push({role:'user',content:msg});
+  if(history.length>16)history=history.slice(-16);
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SOFIA_SYSTEM,messages:history})
+  });
+  const data=await r.json();
+  const txt=data.content?.[0]?.text||'Desculpe, nao consegui processar. Tente novamente.';
+  history.push({role:'assistant',content:txt});
+  return txt;
+}
+
+function addMsg(txt,tipo){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='msg '+tipo;
+  d.innerHTML=txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  c.appendChild(d);
+  c.scrollTop=c.scrollHeight;
+}
+
+function addTyping(){
+  const c=document.getElementById('chat-msgs');
+  const d=document.createElement('div');
+  d.className='typing-dots';d.id='typing';
+  d.innerHTML='<span></span><span></span><span></span>';
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
+
+async function enviarSofia(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim();
+  if(!msg)return;
+  inp.value='';
+  addMsg(msg,'user');
+  addTyping();
+  try{const r=await callSofia(msg);removeTyping();addMsg(r,'sofia');}
+  catch(e){removeTyping();addMsg('Erro ao conectar. Verifique sua conexao.','sofia');}
+}
+
+function perguntarSofia(msg){
+  document.getElementById('chat-input').value=msg;
+  enviarSofia();
+}
+
+buildMissoes();
+buildStreak();
+buildCal();
+updateStats();
+
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
