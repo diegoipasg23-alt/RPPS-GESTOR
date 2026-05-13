@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Repasses — IPASG 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--navy:#0B1F3A;--navy2:#132A4E;--gold:#C9A84C;--gold2:#E8C878;--gold3:#F5E4B0;--white:#F8F9FC;--text:#1A2B45;--text2:#4A5D78;--text3:#8A9AB5;--green:#1A7A4A;--green2:#E8F7EE;--blue:#1A5CA8;--blue2:#E6F1FB;--red:#9B2020;--red2:#FDEAEA;--border:rgba(11,31,58,0.1);--fd:'Source Serif 4',Georgia,serif;--fb:'Inter',Arial,sans-serif;--fm:'Roboto Mono',monospace;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fb);background:var(--white);color:var(--text);}
+/* HEADER */
+.header{background:var(--navy);padding:1.75rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);}
+.brasao{width:56px;height:56px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brasao svg{width:30px;height:30px;stroke:var(--navy);}
+.htitle{margin-left:16px;}
+.htitle h1{font-family:var(--fd);font-size:19px;font-weight:700;color:#fff;}
+.htitle p{font-size:11px;color:var(--gold2);margin-top:3px;letter-spacing:.05em;text-transform:uppercase;}
+.hright{text-align:right;}
+.hright .lbl{font-size:10px;color:var(--gold3);text-transform:uppercase;letter-spacing:.08em;}
+.hright .ano{font-family:var(--fd);font-size:32px;color:var(--gold);font-weight:700;line-height:1;margin-top:3px;}
+.pbtn{margin-top:8px;padding:5px 13px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:11px;border-radius:3px;cursor:pointer;font-family:var(--fb);}
+.pbtn:hover{background:var(--gold);color:var(--navy);}
+.subhdr{background:var(--navy2);padding:.75rem 3rem;display:flex;flex-wrap:wrap;gap:1.5rem;border-bottom:1px solid rgba(201,168,76,.2);}
+.shi{font-size:11px;color:var(--gold3);}
+.shi b{color:rgba(255,255,255,.4);margin-right:4px;font-weight:400;}
+/* LEGENDA */
+.legenda{background:#fff;border-bottom:1px solid var(--border);padding:.6rem 3rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);}
+.leg-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+/* ABAS */
+.tabs-bar{background:#fff;border-bottom:2px solid var(--border);padding:0 2rem;display:flex;gap:0;overflow-x:auto;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(11,31,58,0.06);}
+.tab{padding:13px 18px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;margin-bottom:-2px;}
+.tab:hover{color:var(--navy);background:#F8F9FC;}
+.tab.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+.main{max-width:1140px;margin:0 auto;padding:2rem 2rem;}
+/* TÍTULOS */
+.stitle{font-family:var(--fd);font-size:16px;font-weight:600;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:10px;}
+.stitle::after{content:'';flex:1;height:1px;background:var(--border);}
+.slbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:var(--navy);padding:3px 9px;border-radius:2px;}
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.75rem;}
+.card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--gold);}
+.card.g::before{background:var(--green);}
+.card.n::before{background:var(--navy);}
+.card.r::before{background:var(--red);}
+.card.b::before{background:var(--blue);}
+.clbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
+.cval{font-family:var(--fd);font-size:22px;font-weight:700;color:var(--navy);line-height:1;}
+.csub{font-size:11px;color:var(--text3);margin-top:4px;}
+.cbdg{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-top:6px;}
+.bok{background:var(--green2);color:var(--green);}
+.bblue{background:var(--blue2);color:var(--blue);}
+.bred{background:var(--red2);color:var(--red);}
+.bwarn{background:#FFF3E0;color:#E65100;}
+.bnav{background:#E6F1FB;color:#0C447C;}
+/* BOX */
+.box{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:1.5rem;}
+.btitle{font-size:12px;font-weight:600;color:var(--navy);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.btitle span{font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0;}
+/* TABELA */
+table{width:100%;border-collapse:collapse;font-size:12.5px;}
+thead th{background:var(--navy);color:var(--gold2);font-weight:600;padding:9px 12px;text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;}
+thead th.r{text-align:right;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:hover{background:#F5F7FB;}
+tbody td{padding:9px 12px;}
+tbody td.r{text-align:right;font-family:var(--fm);font-size:12px;}
+tbody td.bold{font-weight:600;color:var(--navy);}
+tfoot td{padding:10px 12px;font-weight:700;color:#fff;background:var(--navy);font-size:13px;}
+tfoot td.r{text-align:right;font-family:var(--fm);}
+.chip{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:3px;margin-right:5px;}
+.c-fmas{background:#E6F1FB;color:#0C447C;}
+.c-fms{background:#E8F7EE;color:#1A7A4A;}
+.c-adm{background:#EEEDFE;color:#3C3489;}
+.c-fme{background:#FAEEDA;color:#633806;}
+.c-fundeb{background:#FCEBEB;color:#791F1F;}
+/* STATUS */
+.sb{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;padding:4px 10px;border-radius:4px;cursor:help;position:relative;white-space:nowrap;}
+.sb::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:11px;font-weight:400;padding:6px 12px;border-radius:5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2);}
+.sb::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy);opacity:0;pointer-events:none;transition:opacity .2s;}
+.sb:hover::after,.sb:hover::before{opacity:1;}
+.sb-green{background:var(--green2);color:var(--green);}
+.sb-blue{background:var(--blue2);color:var(--blue);}
+.sb-red{background:var(--red2);color:var(--red);}
+/* ALERTAS */
+.alertas-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.alertas-single{margin-bottom:10px;}
+.alerta{cursor:pointer;user-select:none;padding:10px 14px;border-radius:8px;border-left:4px solid transparent;position:relative;overflow:hidden;transition:box-shadow 0.2s;}
+.alerta:hover{box-shadow:0 2px 12px rgba(0,0,0,0.08);}
+.alerta-header{display:flex;align-items:center;gap:10px;}
+.alerta-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.critico{background:#FEF2F2;border-left-color:#9B2020;}
+.critico .alerta-icon{background:#FECACA;color:#9B2020;}
+.critico .alerta-titulo{color:#7F1D1D;}
+.critico .alerta-texto{color:#991B1B;}
+.critico .alerta-base{background:#FEE2E2;color:#7F1D1D;}
+.atencao{background:#FFFBEB;border-left-color:#D97706;}
+.atencao .alerta-icon{background:#FDE68A;color:#92400E;}
+.atencao .alerta-titulo{color:#78350F;}
+.atencao .alerta-texto{color:#92400E;}
+.atencao .alerta-base{background:#FEF3C7;color:#78350F;}
+.ok-alert{background:#F0FDF4;border-left-color:#1A7A4A;}
+.ok-alert .alerta-icon{background:#BBF7D0;color:#166534;}
+.ok-alert .alerta-titulo{color:#14532D;}
+.ok-alert .alerta-texto{color:#166534;}
+.ok-alert .alerta-base{background:#DCFCE7;color:#14532D;}
+.info-alert{background:#EFF6FF;border-left-color:#1A5CA8;}
+.info-alert .alerta-icon{background:#BFDBFE;color:#1E40AF;}
+.info-alert .alerta-titulo{color:#1E3A8A;}
+.info-alert .alerta-texto{color:#1E40AF;}
+.info-alert .alerta-base{background:#DBEAFE;color:#1E3A8A;}
+.alerta-titulo{font-size:12.5px;font-weight:700;flex:1;line-height:1.3;}
+.alerta-arrow{font-size:11px;transition:transform 0.3s;display:inline-block;margin-left:4px;opacity:0.6;}
+.alerta.expanded .alerta-arrow{transform:rotate(180deg);}
+.alerta-content{display:none;margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,0,0,0.07);}
+.alerta-content.open{display:block;}
+.alerta-texto{font-size:12px;line-height:1.6;}
+.alerta-base{margin-top:7px;padding:7px 10px;border-radius:5px;font-size:11.5px;line-height:1.6;}
+@keyframes plateBounce{0%,100%{transform:translateY(0) rotate(-3deg)}30%{transform:translateY(-5px) rotate(3deg)}60%{transform:translateY(-2px) rotate(-1deg)}}
+.placa{display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;animation:plateBounce 1.4s ease-in-out infinite;margin-right:2px;}
+.atencao .placa{animation:plateBounce 1.6s ease-in-out infinite;}
+@keyframes handPoint{0%,100%{transform:translateX(0)}40%{transform:translateX(7px)}70%{transform:translateX(3px)}}
+.hand-hint{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--text3);margin-bottom:10px;padding:5px 12px;background:rgba(11,31,58,0.05);border-radius:99px;}
+.hand-hint .hand{display:inline-block;animation:handPoint 1.4s ease-in-out infinite;font-size:15px;}
+@keyframes ripple{0%{transform:scale(0);opacity:0.3}100%{transform:scale(3);opacity:0}}
+.alerta::after{content:'';position:absolute;top:var(--ry,50%);left:var(--rx,50%);width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.07);transform:scale(0);opacity:0;pointer-events:none;}
+.alerta.rippling::after{animation:ripple 0.5s ease-out forwards;}
+/* RESUMO EXECUTIVO */
+.resumo-exec{background:var(--navy);color:#fff;border-radius:8px;padding:20px 24px;margin-bottom:1.75rem;}
+.resumo-exec h3{font-family:var(--fd);font-size:16px;color:var(--gold2);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.resumo-exec p{font-size:13px;line-height:1.8;color:#CBD5E1;}
+.resumo-exec strong{color:var(--gold2);}
+.re-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+.re-tag{font-size:11px;padding:3px 10px;border-radius:99px;font-weight:600;}
+.re-tag.g{background:rgba(26,122,74,.25);color:#6EE7B7;}
+.re-tag.r{background:rgba(155,32,32,.25);color:#FCA5A5;}
+.re-tag.b{background:rgba(26,92,168,.25);color:#93C5FD;}
+/* LOADING */
+.loading{text-align:center;padding:3rem;color:var(--text3);}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+/* SIGN */
+.sign{background:#fff;border:1px solid var(--border);border-radius:8px;padding:18px 24px;margin-top:2rem;display:flex;align-items:center;justify-content:space-between;}
+.sinfo h3{font-family:var(--fd);font-size:15px;color:var(--navy);}
+.sinfo p{font-size:12px;color:var(--text2);margin-top:3px;}
+.sline{border-top:1px solid var(--navy);width:180px;padding-top:7px;font-size:11px;color:var(--text3);text-align:center;}
+/* FOOTER */
+.footer{background:var(--navy);padding:1rem 3rem;display:flex;align-items:center;justify-content:space-between;}
+.footer p{font-size:11px;color:rgba(255,255,255,.4);}
+.footer-r{font-size:11px;color:var(--gold3);font-family:var(--fm);}
+/* ANIMAÇÕES */
+@keyframes alertSlide{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes barGrow{from{width:0%}to{width:var(--bar-w)}}
+@keyframes rowFadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.card{animation:fadeInUp 0.5s ease both;}
+.card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.15s}.card:nth-child(3){animation-delay:.25s}.card:nth-child(4){animation-delay:.35s}
+.alerta{animation:alertSlide 0.4s ease both;}
+.alerta:nth-child(1){animation-delay:.05s}.alerta:nth-child(2){animation-delay:.15s}.alerta:nth-child(3){animation-delay:.25s}.alerta:nth-child(4){animation-delay:.35s}.alerta:nth-child(5){animation-delay:.45s}
+.bar-anim{width:0% !important;animation:barGrow 1.2s cubic-bezier(0.4,0,0.2,1) forwards;animation-delay:0.6s;}
+tbody tr.row-anim{opacity:0;animation:rowFadeIn 0.35s ease forwards;}
+@media print{.pbtn,.tabs-bar,.legenda{display:none;}body{background:white;}.header,.subhdr,thead,tfoot{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.tab-panel{display:block!important;page-break-before:always;}.tab-panel:first-child{page-break-before:auto;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div style="display:flex;align-items:center">
+    <div class="brasao">
+      <svg viewBox="0 0 36 36" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 4L6 9v9c0 8 5 14 12 16 7-2 12-8 12-16V9L18 4z"/>
+        <path d="M13 18l3 3 7-7"/>
+      </svg>
+    </div>
+    <div class="htitle">
+      <h1>Relatório de Repasses Mensais — IPASG</h1>
+      <p id="hdr-sub">IPASG — Instituto de Previdência · Município de Goiandira/GO</p>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="lbl">Exercício</div>
+    <div class="ano">2026</div>
+    <button class="pbtn" onclick="window.print()">⎙ Imprimir / PDF</button>
+  </div>
+</div>
+
+<div class="subhdr">
+  <div class="shi"><b>Ente:</b><span id="sub-ente">Município de Goiandira — GO</span></div>
+  <div class="shi"><b>Órgão:</b>IPASG</div>
+  <div class="shi"><b>Base legal:</b>Lei 9.717/98, art. 2º, §1º</div>
+  <div class="shi"><b>Aposentados:</b><span id="sub-apos">97</span> &nbsp;·&nbsp; <b>Pensionistas:</b><span id="sub-pens">28</span></div>
+  <div class="shi"><b>Responsável:</b><span id="sub-gestor">Diego Camargo da Silva</span></div>
+  <div class="shi"><b>Emitido em:</b><span id="sub-data"></span></div>
+</div>
+
+<div class="legenda">
+  <span style="font-size:11px;font-weight:600;color:var(--text2);margin-right:.5rem">Legenda:</span>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--green)"></div><strong style="color:var(--green)">OK Verde</strong> — Pago dentro do prazo</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div><strong style="color:var(--blue)">OK Azul</strong> — Pago fora do prazo com multa, juros e INPC</div>
+  <div class="leg-item"><div class="leg-dot" style="background:var(--red)"></div><strong style="color:var(--red)">Em Débito</strong> — Não pago</div>
+  <div class="leg-item" style="margin-left:auto;font-size:11px;color:var(--text3)">💡 Passe o cursor sobre o status para detalhes</div>
+</div>
+
+<div class="tabs-bar" id="tabs-bar">
+  <div class="tab active" onclick="showTab('geral',this)">📊 Visão Geral</div>
+</div>
+
+<div id="panels-container">
+  <div id="tab-geral" class="tab-panel active">
+    <div class="main">
+      <div class="loading" id="loading-geral">
+        <div class="loading-spinner"></div>
+        <div>Carregando dados do Firebase...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <p>IPASG — Instituto de Previdência e Assistência Social de Goiandira · Município de Goiandira/GO · Lei 9.717/98 · <span id="ftr-info">Aposentados: 97 · Pensionistas: 28</span></p>
+  <div class="footer-r" id="ftr-ref">2026 · Emitido <span id="ftr-data"></span></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",
+  authDomain: "rpps-gestor.firebaseapp.com",
+  databaseURL: "https://rpps-gestor-default-rtdb.firebaseio.com",
+  projectId: "rpps-gestor",
+  storageBucket: "rpps-gestor.firebasestorage.app",
+  messagingSenderId: "306067757224",
+  appId: "1:306067757224:web:5f8acdc7c5199911774a9d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const REF = ref(db, 'relatorio/dados');
+
+const ORGAOS = ['FMAS','FMS','ADM','FME','FUNDEB'];
+const CHIPS = {FMAS:'c-fmas',FMS:'c-fms',ADM:'c-adm',FME:'c-fme',FUNDEB:'c-fundeb'};
+const TIPOS = ['lei','patronal','servidor'];
+const fmt = v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtN = v => parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+let chartsMap = {};
+
+// Data de hoje
+const hoje = new Date();
+document.getElementById('sub-data').textContent = hoje.toLocaleDateString('pt-BR');
+document.getElementById('ftr-data').textContent = hoje.toLocaleDateString('pt-BR');
+
+function calcTotais(mes) {
+  let pago = 0, debito = 0, verde = 0, azul = 0, emDebito = 0;
+  for(const org of ORGAOS) {
+    for(const tipo of TIPOS) {
+      const g = mes.orgaos?.[org]?.[tipo];
+      if(!g) continue;
+      const v = parseFloat(g.valor)||0;
+      if(g.status==='verde'){pago+=v;verde++;}
+      else if(g.status==='azul'){pago+=v;azul++;}
+      else{debito+=v;emDebito++;}
+    }
+  }
+  return {pago, debito, verde, azul, emDebito};
+}
+
+function statusBadge(status) {
+  if(status==='verde') return `<span class="sb sb-green" data-tip="Pago dentro do prazo">● OK</span>`;
+  if(status==='azul')  return `<span class="sb sb-blue" data-tip="Pagamento atualizado com multa de 2,5%, juros de 1% ao mês e correção pelo INPC">● OK</span>`;
+  return `<span class="sb sb-red" data-tip="Em atraso, necessário atualizar">● Em Débito</span>`;
+}
+
+function buildTabMes(key, mes) {
+  const t = calcTotais(mes);
+  const pct = mes.total > 0 ? ((t.pago/mes.total)*100).toFixed(1) : 0;
+  let rows = '';
+  for(const org of ORGAOS) {
+    let first = true;
+    for(const tipo of TIPOS) {
+      const g = mes.orgaos?.[org]?.[tipo];
+      if(!g) continue;
+      rows += `<tr>
+        ${first ? `<td rowspan="3" class="bold"><span class="chip ${CHIPS[org]}">${org}</span></td>` : ''}
+        <td>GUIA ${org} ${tipo.toUpperCase()}</td>
+        <td>${tipo.charAt(0).toUpperCase()+tipo.slice(1)}</td>
+        <td class="r">${fmtN(g.valor)}</td>
+        <td style="font-family:var(--fm);font-size:11px">${g.data_pgto||'—'}</td>
+        <td>${statusBadge(g.status)}</td>
+      </tr>`;
+      first = false;
+    }
+  }
+
+  return `
+  <div class="main">
+    <div class="stitle"><span class="slbl">${mes.competencia.split('/')[0].toLowerCase()}</span>Repasses — ${mes.competencia} · Prazo: ${mes.prazo}</div>
+    <div class="cards">
+      <div class="card"><div class="clbl">Total do mês</div><div class="cval">${fmt(mes.total)}</div><div class="csub">Competência ${mes.competencia}</div></div>
+      <div class="card g"><div class="clbl">OK Verde</div><div class="cval">${t.verde} guias</div><div class="csub">Pagas no prazo</div><div class="cbdg bok">✓ Sem acréscimos</div></div>
+      <div class="card b"><div class="clbl">OK Azul</div><div class="cval">${t.azul} guias</div><div class="csub">Pagas com acréscimos</div><div class="cbdg bblue">Multa 2,5% + Juros + INPC</div></div>
+      <div class="card r"><div class="clbl">Em Débito</div><div class="cval">${t.emDebito} guias</div><div class="csub">${fmt(t.debito)}</div><div class="cbdg bred">Pendentes</div></div>
+    </div>
+    <div class="stitle"><span class="slbl">detalhamento</span>Todas as Guias — ${mes.competencia}</div>
+    <div class="box">
+      <table>
+        <thead><tr><th>Órgão</th><th>Guia</th><th>Tipo</th><th class="r">Valor (R$)</th><th>Data Pgto</th><th>Status</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr><td colspan="3">TOTAL ${mes.competencia.toUpperCase()}</td><td class="r">${fmt(mes.total)}</td><td colspan="2"></td></tr></tfoot>
+      </table>
+    </div>
+    <div class="box"><div class="btitle">Participação por Órgão — ${mes.competencia}</div><canvas id="chart-${key}" height="130"></canvas></div>
+  </div>`;
+}
+
+function buildChartMes(key, mes) {
+  const ctx = document.getElementById('chart-'+key);
+  if(!ctx) return;
+  if(chartsMap[key]) chartsMap[key].destroy();
+  const vals = ORGAOS.map(o => {
+    let t=0;
+    for(const tp of TIPOS){ t += parseFloat(mes.orgaos?.[o]?.[tp]?.valor||0); }
+    return t;
+  });
+  chartsMap[key] = new Chart(ctx,{type:'bar',data:{labels:ORGAOS,datasets:[{data:vals,backgroundColor:['#0B1F3A','#C9A84C','#1A7A4A','#534AB7','#9B2020'],borderRadius:5}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}}}});
+}
+
+function buildGeral(dados) {
+  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const cfg = dados.config||{};
+
+  // Stats globais
+  let totalGeral=0, totalPago=0, totalDebito=0, verdeTotal=0, azulTotal=0, debitoTotal=0;
+  let rowsDemonst='', rowsConsolidado='';
+
+  for(const [key, mes] of meses) {
+    const t = calcTotais(mes);
+    totalGeral += parseFloat(mes.total)||0;
+    totalPago += t.pago;
+    totalDebito += t.debito;
+    verdeTotal += t.verde;
+    azulTotal += t.azul;
+    debitoTotal += t.emDebito;
+    const pct = mes.total>0 ? ((t.pago/mes.total)*100).toFixed(1) : 0;
+    const barColor = t.verde>0&&t.azul===0 ? 'var(--green)' : t.azul>0 ? 'var(--blue)' : 'var(--red)';
+    const sitLabel = t.verde>0&&t.azul===0 ? `<span class="sb sb-green" style="cursor:default">● Verde</span>` : t.azul>0&&t.verde>0 ? `<span class="sb sb-blue" style="cursor:default">● Misto</span>` : t.azul>0 ? `<span class="sb sb-blue" style="cursor:default">● Azul</span>` : `<span class="sb sb-red" style="cursor:default">● Débito</span>`;
+
+    rowsDemonst += `<tr>
+      <td class="bold">${mes.competencia}</td>
+      <td style="font-family:var(--fm);font-size:12px">${mes.prazo}</td>
+      <td class="r">${fmt(mes.total)}</td>
+      <td class="r" style="color:var(--green);font-weight:600">${fmt(t.pago)}</td>
+      <td class="r" style="color:var(--red);font-weight:600">${fmt(t.debito)}</td>
+      <td class="r">
+        <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end">
+          <div style="width:60px;height:7px;background:#F0F4FA;border-radius:99px;overflow:hidden">
+            <div style="--bar-w:${pct}%;height:100%;background:${barColor};border-radius:99px" class="bar-anim"></div>
+          </div>
+          <span style="font-family:var(--fm);font-size:12px">${pct}%</span>
+        </div>
+      </td>
+      <td>${sitLabel}</td>
+    </tr>`;
+
+    // consolidado
+    const orgVals = ORGAOS.map(o=>{
+      let t=0;
+      for(const tp of TIPOS){ t+=parseFloat(mes.orgaos?.[o]?.[tp]?.valor||0); }
+      return `<td class="r">${fmtN(t)}</td>`;
+    }).join('');
+    rowsConsolidado += `<tr><td class="bold">${mes.competencia}</td>${orgVals}<td class="r bold">${fmt(mes.total)}</td></tr>`;
+  }
+
+  // Alertas dinâmicos
+  const alertas = buildAlertas(dados);
+  const pctGeral = totalGeral>0 ? ((totalPago/totalGeral)*100).toFixed(1) : 0;
+  const periodoLabel = meses.map(([k,m])=>m.competencia).join(' a ');
+
+  return `
+  <div class="main">
+    <!-- RESUMO EXECUTIVO -->
+    <div class="resumo-exec">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;stroke:var(--gold2)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M9 13h6M9 17h4M14 2v6h6"/></svg>
+        Resumo Executivo — IPASG · Goiandira/GO · ${periodoLabel}
+      </h3>
+      <p>
+        O presente relatório demonstra a situação dos repasses mensais efetuados pelo Município de <strong>Goiandira/GO</strong> ao <strong>IPASG</strong> no exercício de 2026, referente a <strong>${meses.length} competência(s)</strong>, totalizando <strong>${fmt(totalGeral)}</strong>.
+        <br><br>
+        Do total apurado, <strong>${fmt(totalPago)}</strong> (${pctGeral}%) foram repassados — sendo parte dentro do prazo legal e parte com acréscimos de <strong>multa de 2,5%</strong>, <strong>juros de mora de 1% ao mês</strong> e <strong>correção pelo INPC</strong>. O saldo em débito é de <strong>${fmt(totalDebito)}</strong>, referente a ${debitoTotal} guias não quitadas, situação que compromete o equilíbrio financeiro e atuarial do RPPS e sujeita o ente às penalidades do art. 7º da Lei 9.717/98, incluindo a <strong>suspensão do CRP</strong>.
+      </p>
+      <div class="re-tags">
+        <div class="re-tag g">✓ ${verdeTotal} guias no prazo</div>
+        <div class="re-tag b">⚠ ${azulTotal} guias com acréscimos</div>
+        <div class="re-tag r">✗ ${debitoTotal} guias em débito</div>
+        <div class="re-tag r">✗ ${fmt(totalDebito)} em atraso</div>
+        <div class="re-tag b">Lei 9.717/98 · Art. 2º e 7º</div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="stitle"><span class="slbl">alertas</span>Alertas Jurídicos</div>
+    <div class="alertas-section">${alertas}</div>
+
+    <!-- INDICADORES -->
+    <div class="stitle"><span class="slbl">indicadores</span>Indicadores Gerais</div>
+    <div class="cards">
+      <div class="card"><div class="clbl">Total acumulado</div><div class="cval">${fmt(totalGeral)}</div><div class="csub">${periodoLabel}</div><div class="cbdg bnav">${meses.length} meses</div></div>
+      <div class="card g"><div class="clbl">Pagas no prazo</div><div class="cval">${verdeTotal} guias</div><div class="csub">OK Verde</div><div class="cbdg bok">Sem acréscimos</div></div>
+      <div class="card b"><div class="clbl">Pagas com acréscimos</div><div class="cval">${azulTotal} guias</div><div class="csub">Multa 2,5% + Juros + INPC</div><div class="cbdg bblue">OK Azul</div></div>
+      <div class="card r"><div class="clbl">Em débito</div><div class="cval">${debitoTotal} guias</div><div class="csub">${fmt(totalDebito)}</div><div class="cbdg bred">Pendentes</div></div>
+    </div>
+
+    <!-- DEMONSTRATIVO -->
+    <div class="stitle"><span class="slbl">demonstrativo</span>Demonstrativo de Pagamentos por Competência</div>
+    <div class="box">
+      <table>
+        <thead><tr><th>Competência</th><th>Prazo Legal</th><th class="r">Total do Mês</th><th class="r">Valor Pago</th><th class="r">Valor em Débito</th><th class="r">% Pago</th><th>Situação</th></tr></thead>
+        <tbody id="tbody-demonst">${rowsDemonst}</tbody>
+        <tfoot><tr><td colspan="2">TOTAL ACUMULADO</td><td class="r">${fmt(totalGeral)}</td><td class="r">${fmt(totalPago)}</td><td class="r">${fmt(totalDebito)}</td><td class="r">${pctGeral}%</td><td></td></tr></tfoot>
+      </table>
+    </div>
+
+    <!-- CONSOLIDADO -->
+    <div class="stitle"><span class="slbl">consolidado</span>Consolidado por Mês e Órgão</div>
+    <div class="box">
+      <table>
+        <thead><tr><th>Competência</th><th class="r">FMAS</th><th class="r">FMS</th><th class="r">ADM</th><th class="r">FME</th><th class="r">FUNDEB</th><th class="r">Total</th></tr></thead>
+        <tbody>${rowsConsolidado}</tbody>
+      </table>
+    </div>
+
+    <div class="sign">
+      <div class="sinfo"><h3>${cfg.gestor||'Gestor do RPPS'}</h3><p>${cfg.orgao||'IPASG'} — ${cfg.ente||'Município de Goiandira/GO'}</p><p style="font-size:11px;color:#8A9AB5;margin-top:3px">Emitido em ${hoje.toLocaleDateString('pt-BR')}</p></div>
+      <div style="display:flex;gap:40px"><div class="sline">${cfg.gestor||'Gestor do RPPS'}</div><div class="sline">Presidente do Conselho</div></div>
+    </div>
+  </div>`;
+}
+
+function buildAlertas(dados) {
+  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const cfg = dados.config||{};
+  const multa = cfg.multa_percentual||2.5;
+  const juros = cfg.juros_mensal||1;
+  const indice = cfg.indice_correcao||'INPC';
+
+  let alertasHtml = `<div class="hand-hint"><span class="hand">👆</span> Clique em qualquer alerta para expandir detalhes e base legal</div>`;
+  let criticos=[], atencoes=[], oks=[], infos=[];
+
+  // Verificar débitos por mês
+  for(const [key,mes] of meses) {
+    const t = calcTotais(mes);
+    if(t.emDebito>0) {
+      criticos.push({
+        titulo: `Guias Lei e Patronal em Débito — ${mes.competencia}`,
+        texto: `${t.emDebito} guias não repassadas. Total em débito: <strong>${fmt(t.debito)}</strong>. Prazo vencido em ${mes.prazo}.`,
+        base: `• <strong>Lei 9.717/98, art. 2º, §1º</strong> — Repasse até o prazo legal.<br>• <strong>Lei 9.717/98, art. 7º</strong> — Descumprimento suspende o CRP.<br>• <strong>Lei 8.429/92</strong> — Responsabilização por improbidade administrativa.`
+      });
+    }
+    if(t.azul>0) {
+      atencoes.push({
+        titulo: `${mes.competencia} — ${t.azul} guia(s) paga(s) fora do prazo`,
+        texto: `Pagamentos realizados após ${mes.prazo}. Incidem <strong>multa de ${multa}%</strong>, <strong>juros de ${juros}% ao mês</strong> e <strong>correção pelo ${indice}</strong>.`,
+        base: `• <strong>Lei 9.717/98, art. 2º, §5º</strong> — Multa de ${multa}%, juros de ${juros}% ao mês e correção pelo ${indice}.<br>• <strong>Lei 9.717/98, art. 2º, §6º</strong> — RPPS pode inscrever débito em dívida ativa.<br>• <strong>Portaria MTP nº 1.467/2022</strong> — Regulamenta cobrança dos débitos.`
+      });
+    }
+    if(t.verde>0&&t.azul===0&&t.emDebito===0) {
+      oks.push({
+        titulo: `${mes.competencia} — Repasses em dia ✓`,
+        texto: `<strong>${t.verde} guias</strong> repassadas dentro do prazo legal. Total: <strong>${fmt(mes.total)}</strong>. Conformidade plena.`,
+        base: `• <strong>Lei 9.717/98, art. 2º, §1º</strong> — Repasse efetuado no prazo, sem acréscimos.<br>• <strong>Portaria MTP nº 1.467/2022</strong> — Regularidade para fins do CRP.`
+      });
+    }
+  }
+
+  // Total débito
+  let totalDeb=0, totalDebitoGuias=0;
+  for(const [k,m] of meses){const t=calcTotais(m);totalDeb+=t.debito;totalDebitoGuias+=t.emDebito;}
+  if(totalDebitoGuias>0) {
+    infos.push({
+      titulo: `Risco de Perda do CRP — ${totalDebitoGuias} guias em débito · ${fmt(totalDeb)}`,
+      texto: `Situação atual compromete o <strong>Certificado de Regularidade Previdenciária</strong>. Necessário regularização imediata ou formalização de plano de parcelamento.`,
+      base: `• <strong>Lei 9.717/98, art. 7º</strong> — Sem CRP: vedação de transferências, empréstimos e convênios federais.<br>• <strong>Decreto nº 10.188/2019</strong> — Emissão, suspensão e reabilitação do CRP.<br>• <strong>Portaria MTP nº 1.467/2022, art. 135</strong> — Parcelamento dos débitos previdenciários.<br>• <strong>Providência:</strong> Notificação formal ao Gestor + registro no CADPREV/DRPSP.`
+    });
+  }
+
+  // Montar HTML grid 2x2
+  const makeAlerta = (tipo, cssClass, icon, placa, a, i) => `
+    <div class="alerta ${cssClass}" onclick="toggleAlerta(this,event)">
+      <div class="alerta-header">
+        ${placa?`<span class="placa">${placa}</span>`:''}
+        <div class="alerta-icon">${icon}</div>
+        <div class="alerta-titulo">${a.titulo} <span class="alerta-arrow">▼</span></div>
+      </div>
+      <div class="alerta-content">
+        <div class="alerta-texto">${a.texto}</div>
+        <div class="alerta-base" style="margin-top:7px;display:block"><strong>Base Legal:</strong><br>${a.base}</div>
+      </div>
+    </div>`;
+
+  const allCriticos = criticos.map((a,i)=>makeAlerta('critico','critico','⚠','🚨',a,i));
+  const allAtencoes = atencoes.map((a,i)=>makeAlerta('atencao','atencao','⏱','⚠️',a,i));
+  const allOks = oks.map((a,i)=>makeAlerta('ok','ok-alert','✓','',a,i));
+  const allInfos = infos.map((a,i)=>makeAlerta('info','info-alert','ℹ','',a,i));
+
+  const combinados = [...allCriticos,...allAtencoes,...allOks];
+  let grid = '';
+  for(let i=0;i<combinados.length;i+=2) {
+    grid += `<div class="alertas-grid">${combinados[i]}${combinados[i+1]||''}</div>`;
+  }
+  const single = allInfos.map(a=>`<div class="alertas-single">${a}</div>`).join('');
+  return alertasHtml + grid + single;
+}
+
+function renderTudo(dados) {
+  // Atualizar config no header
+  const cfg = dados.config||{};
+  document.getElementById('sub-ente').textContent = cfg.ente||'Município de Goiandira — GO';
+  document.getElementById('sub-gestor').textContent = cfg.gestor||'Diego Camargo da Silva';
+  document.getElementById('sub-apos').textContent = cfg.aposentados||97;
+  document.getElementById('sub-pens').textContent = cfg.pensionistas||28;
+  document.getElementById('ftr-info').textContent = `Aposentados: ${cfg.aposentados||97} · Pensionistas: ${cfg.pensionistas||28}`;
+
+  // Abas
+  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const tabsBar = document.getElementById('tabs-bar');
+  const container = document.getElementById('panels-container');
+
+  // Limpar abas existentes (exceto geral)
+  tabsBar.querySelectorAll('.tab:not(:first-child)').forEach(t=>t.remove());
+  container.querySelectorAll('.tab-panel:not(#tab-geral)').forEach(p=>p.remove());
+
+  // Reconstruir aba geral
+  document.getElementById('tab-geral').innerHTML = buildGeral(dados);
+
+  // Abas mensais
+  for(const [key,mes] of meses) {
+    // Tab button
+    const btn = document.createElement('div');
+    btn.className='tab';
+    btn.textContent = mes.competencia;
+    btn.onclick = function(){ showTab(key,this); };
+    tabsBar.appendChild(btn);
+
+    // Panel
+    const panel = document.createElement('div');
+    panel.id = 'tab-'+key;
+    panel.className='tab-panel';
+    panel.innerHTML = buildTabMes(key,mes);
+    container.appendChild(panel);
+  }
+
+  // Aba pendentes
+  const mesesFeitos = new Set(meses.map(([k])=>k));
+  const todosMeses = ['janeiro_2026','fevereiro_2026','marco_2026','abril_2026','maio_2026','junho_2026','julho_2026','agosto_2026','setembro_2026','outubro_2026','novembro_2026','dezembro_2026'];
+  const nomes = {janeiro_2026:'Janeiro/2026',fevereiro_2026:'Fevereiro/2026',marco_2026:'Março/2026',abril_2026:'Abril/2026',maio_2026:'Maio/2026',junho_2026:'Junho/2026',julho_2026:'Julho/2026',agosto_2026:'Agosto/2026',setembro_2026:'Setembro/2026',outubro_2026:'Outubro/2026',novembro_2026:'Novembro/2026',dezembro_2026:'Dezembro/2026'};
+  const prazos = {janeiro_2026:'28/02/2026',fevereiro_2026:'31/03/2026',marco_2026:'30/04/2026',abril_2026:'31/05/2026',maio_2026:'30/06/2026',junho_2026:'31/07/2026',julho_2026:'31/08/2026',agosto_2026:'30/09/2026',setembro_2026:'31/10/2026',outubro_2026:'30/11/2026',novembro_2026:'31/12/2026',dezembro_2026:'31/01/2027'};
+
+  for(const key of todosMeses) {
+    if(mesesFeitos.has(key)) continue;
+    const btn = document.createElement('div');
+    btn.className='tab';
+    btn.textContent = nomes[key];
+    btn.style.color='#E65100';
+    btn.onclick = function(){ showTab(key,this); };
+    tabsBar.appendChild(btn);
+    const panel = document.createElement('div');
+    panel.id='tab-'+key;
+    panel.className='tab-panel';
+    panel.innerHTML=`<div class="main"><div style="text-align:center;padding:4rem 2rem"><div style="font-size:48px;margin-bottom:1rem">📂</div><h2 style="font-family:var(--fd);color:var(--navy);margin-bottom:.75rem">${nomes[key]} — Aguardando Planilha</h2><p style="color:var(--text2);font-size:14px">Envie a planilha ao Claude para consolidação dos dados.</p><div style="margin-top:1.5rem;display:inline-block;background:#FFF3E0;color:#E65100;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600">⏱ Prazo: ${prazos[key]}</div></div></div>`;
+    container.appendChild(panel);
+  }
+
+  document.getElementById('loading-geral').style.display='none';
+  animateTabContent('geral');
+  Chart.defaults.font.family='DM Sans';Chart.defaults.color='#4A5D78';
+}
+
+onValue(REF, snap => {
+  const dados = snap.val();
+  if(dados) {
+    renderTudo(dados);
+  } else {
+    // Primeira vez: salvar dados iniciais
+    const initial = {"meses":{"janeiro_2026":{"competencia":"Janeiro/2026","prazo":"28/02/2026","total":532934.95,"orgaos":{"FMAS":{"lei":{"valor":4771.61,"status":"debito","data_pgto":""},"patronal":{"valor":1908.65,"status":"debito","data_pgto":""},"servidor":{"valor":1214.59,"status":"verde","data_pgto":"27/01/2026"}},"FMS":{"lei":{"valor":95879.19,"status":"debito","data_pgto":""},"patronal":{"valor":38351.68,"status":"debito","data_pgto":""},"servidor":{"valor":24405.62,"status":"verde","data_pgto":"27/01/2026"}},"ADM":{"lei":{"valor":75650.66,"status":"debito","data_pgto":""},"patronal":{"valor":30260.27,"status":"debito","data_pgto":""},"servidor":{"valor":19256.54,"status":"verde","data_pgto":"27/01/2026"}},"FME":{"lei":{"valor":9762.50,"status":"debito","data_pgto":""},"patronal":{"valor":3905.00,"status":"debito","data_pgto":""},"servidor":{"valor":2485.00,"status":"verde","data_pgto":"27/01/2026"}},"FUNDEB":{"lei":{"valor":136039.56,"status":"debito","data_pgto":""},"patronal":{"valor":54415.83,"status":"debito","data_pgto":""},"servidor":{"valor":34628.25,"status":"verde","data_pgto":"27/01/2026"}}}},"fevereiro_2026":{"competencia":"Fevereiro/2026","prazo":"31/03/2026","total":603494.30,"orgaos":{"FMAS":{"lei":{"valor":5389.85,"status":"debito","data_pgto":""},"patronal":{"valor":2155.94,"status":"debito","data_pgto":""},"servidor":{"valor":1414.13,"status":"azul","data_pgto":"30/04/2026"}},"FMS":{"lei":{"valor":107629.50,"status":"debito","data_pgto":""},"patronal":{"valor":43051.80,"status":"debito","data_pgto":""},"servidor":{"valor":21427.95,"status":"azul","data_pgto":"30/04/2026"}},"ADM":{"lei":{"valor":81670.25,"status":"debito","data_pgto":""},"patronal":{"valor":32668.09,"status":"debito","data_pgto":""},"servidor":{"valor":19256.54,"status":"debito","data_pgto":""}},"FME":{"lei":{"valor":13138.92,"status":"debito","data_pgto":""},"patronal":{"valor":5255.57,"status":"debito","data_pgto":""},"servidor":{"valor":3550.54,"status":"azul","data_pgto":"30/04/2026"}},"FUNDEB":{"lei":{"valor":160545.00,"status":"debito","data_pgto":""},"patronal":{"valor":64218.00,"status":"debito","data_pgto":""},"servidor":{"valor":42122.22,"status":"azul","data_pgto":"30/04/2026"}}}},"marco_2026":{"competencia":"Março/2026","prazo":"30/04/2026","total":542127.19,"orgaos":{"FMAS":{"lei":{"valor":3009.21,"status":"debito","data_pgto":""},"patronal":{"valor":1203.69,"status":"debito","data_pgto":""},"servidor":{"valor":765.98,"status":"verde","data_pgto":"30/04/2026"}},"FMS":{"lei":{"valor":100012.28,"status":"debito","data_pgto":""},"patronal":{"valor":40004.92,"status":"debito","data_pgto":""},"servidor":{"valor":25457.67,"status":"azul","data_pgto":"08/05/2026"}},"ADM":{"lei":{"valor":63974.31,"status":"debito","data_pgto":""},"patronal":{"valor":25589.73,"status":"debito","data_pgto":""},"servidor":{"valor":16284.37,"status":"debito","data_pgto":""}},"FME":{"lei":{"valor":44346.55,"status":"debito","data_pgto":""},"patronal":{"valor":17738.62,"status":"debito","data_pgto":""},"servidor":{"valor":11288.22,"status":"verde","data_pgto":"30/04/2026"}},"FUNDEB":{"lei":{"valor":116316.92,"status":"debito","data_pgto":""},"patronal":{"valor":46526.77,"status":"debito","data_pgto":""},"servidor":{"valor":29607.95,"status":"verde","data_pgto":"30/04/2026"}}}}},"config":{"ente":"Município de Goiandira — GO","orgao":"IPASG","gestor":"Diego Camargo da Silva","aposentados":97,"pensionistas":28,"indice_correcao":"INPC","multa_percentual":2.5,"juros_mensal":1.0}};
+    set(REF, initial);
+  }
+});
+
+window.showTab = function(id,el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  const panel = document.getElementById('tab-'+id);
+  if(panel) panel.classList.add('active');
+  if(el) el.classList.add('active');
+  animateTabContent(id);
+  setTimeout(()=>buildChartMes(id, window._dadosFirebase?.meses?.[id]), 100);
+};
+
+window.toggleAlerta = function(el,e){
+  const content=el.querySelector('.alerta-content');
+  const arrow=el.querySelector('.alerta-arrow');
+  if(!content)return;
+  content.classList.toggle('open');
+  el.classList.toggle('expanded');
+  if(arrow)arrow.textContent=el.classList.contains('expanded')?'▲':'▼';
+  const rect=el.getBoundingClientRect();
+  el.style.setProperty('--rx',(e.clientX-rect.left)+'px');
+  el.style.setProperty('--ry',(e.clientY-rect.top)+'px');
+  el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');
+  setTimeout(()=>el.classList.remove('rippling'),600);
+};
+
+function animateCount(el,target,isR){
+  const dur=1200,start=performance.now();
+  function upd(now){
+    const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3),cur=target*e;
+    el.textContent=isR?('R$ '+cur.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})):(Math.floor(cur).toLocaleString('pt-BR'));
+    if(p<1)requestAnimationFrame(upd);
+  }
+  requestAnimationFrame(upd);
+}
+
+function animateTabContent(id){
+  const panel=document.getElementById('tab-'+id);
+  if(!panel)return;
+  panel.querySelectorAll('tbody tr').forEach((tr,i)=>{tr.classList.add('row-anim');tr.style.animationDelay=(0.03+i*0.04)+'s';});
+  panel.querySelectorAll('.cval').forEach(el=>{
+    const txt=el.textContent.trim();
+    if(txt.startsWith('R$')){const n=parseFloat(txt.replace('R$','').replace(/\./g,'').replace(',','.').trim());if(!isNaN(n))animateCount(el,n,true);}
+    else if(!isNaN(txt.replace(/[.,]/g,''))&&txt.length<5){animateCount(el,parseInt(txt),false);}
+  });
+}
+
+// Guardar dados globalmente para uso dos gráficos mensais
+const origOnValue = onValue;
+window._dadosFirebase = null;
+onValue(REF, snap=>{
+  window._dadosFirebase = snap.val();
+});
+</script>
+</body>
+</html>
