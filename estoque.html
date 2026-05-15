@@ -510,6 +510,23 @@ tbody td.r{text-align:right;font-weight:700;}
       <div><label>Qtd Inicial</label><input type="number" id="p-qtd" placeholder="0"></div>
       <div><label>Estoque Mínimo</label><input type="number" id="p-min" placeholder="5"></div>
     </div>
+    <div class="fg">
+      <label>Forma de Pagamento</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <div onclick="selecionarPgto('pix')" id="pgto-pix" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+          <div style="font-size:20px">💠</div>
+          <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">PIX</div>
+        </div>
+        <div onclick="selecionarPgto('cartao')" id="pgto-cartao" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+          <div style="font-size:20px">💳</div>
+          <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">Cartão</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg" id="campo-cartao" style="display:none">
+      <label>Últimos 4 dígitos do cartão</label>
+      <input type="text" id="p-cartao" placeholder="Ex: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" style="letter-spacing:4px;font-size:18px;font-weight:800;text-align:center">
+    </div>
     <div class="mbtns">
       <button class="mbtn s" onclick="fecharModal('prod')">Cancelar</button>
       <button class="mbtn p" onclick="salvarProduto()">Salvar</button>
@@ -524,6 +541,23 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="fg"><label>Produto</label><input type="text" id="m-nome" disabled style="background:#f8fafc"></div>
     <div class="fg"><label>Quantidade</label><input type="number" id="m-qtd" placeholder="0" min="1"></div>
     <div class="fg"><label>Observação (opcional)</label><input type="text" id="m-obs" placeholder="Ex: Cliente João"></div>
+    <div class="fg" id="mov-pgto-wrap" style="display:none">
+      <label>Forma de Pagamento</label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <div onclick="selecionarMovPgto('pix')" id="mpgto-pix" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+          <div style="font-size:18px">💠</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text2);margin-top:2px">PIX</div>
+        </div>
+        <div onclick="selecionarMovPgto('cartao')" id="mpgto-cartao" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+          <div style="font-size:18px">💳</div>
+          <div style="font-size:11px;font-weight:800;color:var(--text2);margin-top:2px">Cartão</div>
+        </div>
+      </div>
+    </div>
+    <div class="fg" id="mov-campo-cartao" style="display:none">
+      <label>Últimos 4 dígitos do cartão</label>
+      <input type="text" id="m-cartao" placeholder="Ex: 1234" maxlength="4" inputmode="numeric" pattern="[0-9]{4}" style="letter-spacing:4px;font-size:18px;font-weight:800;text-align:center">
+    </div>
     <div class="mbtns">
       <button class="mbtn s" onclick="fecharModal('mov')">Cancelar</button>
       <button class="mbtn p" onclick="confirmarMov()">Confirmar</button>
@@ -779,6 +813,49 @@ function initSwipe(card,id){
   },{passive:true});
 }
 
+// PAGAMENTO PRODUTO
+let pgtoSelecionado = '';
+
+// PAGAMENTO VENDA
+let movPgtoSelecionado = '';
+function selecionarMovPgto(tipo){
+  movPgtoSelecionado = tipo;
+  const pix=document.getElementById('mpgto-pix');
+  const cartao=document.getElementById('mpgto-cartao');
+  const campo=document.getElementById('mov-campo-cartao');
+  pix.style.borderColor='var(--border)';pix.style.background='#fff';
+  cartao.style.borderColor='var(--border)';cartao.style.background='#fff';
+  if(tipo==='pix'){
+    pix.style.borderColor='#06B6D4';pix.style.background='#ECFEFF';
+    campo.style.display='none';document.getElementById('m-cartao').value='';
+  } else {
+    cartao.style.borderColor='#7C3AED';cartao.style.background='#EDE9FE';
+    campo.style.display='block';setTimeout(()=>document.getElementById('m-cartao').focus(),100);
+  }
+}
+function selecionarPgto(tipo){
+  pgtoSelecionado = tipo;
+  const pix = document.getElementById('pgto-pix');
+  const cartao = document.getElementById('pgto-cartao');
+  const campo = document.getElementById('campo-cartao');
+  // Reset
+  pix.style.borderColor = 'var(--border)';
+  pix.style.background = '#fff';
+  cartao.style.borderColor = 'var(--border)';
+  cartao.style.background = '#fff';
+  if(tipo === 'pix'){
+    pix.style.borderColor = '#06B6D4';
+    pix.style.background = '#ECFEFF';
+    campo.style.display = 'none';
+    document.getElementById('p-cartao').value = '';
+  } else {
+    cartao.style.borderColor = '#7C3AED';
+    cartao.style.background = '#EDE9FE';
+    campo.style.display = 'block';
+    setTimeout(()=>document.getElementById('p-cartao').focus(), 100);
+  }
+}
+
 // PROXIES
 function salvarProduto(){if(window._sp)window._sp();else setTimeout(salvarProduto,150);}
 function confirmarMov(){if(window._cm)window._cm();else setTimeout(confirmarMov,150);}
@@ -832,6 +909,7 @@ function renderProd(){
       <div class="prod-venda">${fmt(p.preco_venda)}</div>
       <div class="prod-custo">Custo: ${fmt(p.preco_custo)}</div>
       ${fn}
+      ${p.pagamento&&p.pagamento!=='nao_informado'?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${p.pagamento==='pix'?'💠 PIX':'💳 Cartão '+(p.cartao_digitos?'**** '+p.cartao_digitos:'')}</div>`:''}
       <div class="estq-row">
         <div><div class="estq-num ${ec}">${p.estoque||0}</div><div style="font-size:9px;color:var(--text3);font-weight:700;text-transform:uppercase">un</div></div>
         <div style="text-align:right"><div style="font-size:9px;color:var(--text3)">Mínimo</div><div style="font-size:13px;font-weight:800;color:var(--text2)">${p.minimo||0}</div></div>
@@ -1041,9 +1119,34 @@ function atualizarSelects(){
 window._sp=async function(){
   const nome=document.getElementById('p-nome').value.trim();
   if(!nome){toast('Digite o nome!','tr');const i=document.getElementById('p-nome');i.style.animation='none';void i.offsetWidth;i.style.animation='shake .4s ease';return;}
-  await push(rP,{nome,categoria:document.getElementById('p-cat').value,fornecedor_id:document.getElementById('p-forn').value||'',preco_custo:parseFloat(document.getElementById('p-custo').value)||0,preco_venda:parseFloat(document.getElementById('p-venda').value)||0,estoque:parseInt(document.getElementById('p-qtd').value)||0,minimo:parseInt(document.getElementById('p-min').value)||5,criado:Date.now()});
-  fecharModal('prod');toast('✅ Produto cadastrado!','tg');
-  ['p-nome','p-custo','p-venda','p-qtd','p-min'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const pgto=window.pgtoSelecionado||'';
+  const cartao=document.getElementById('p-cartao').value.trim();
+  if(pgto==='cartao'&&cartao.length!==4){toast('Digite os 4 dígitos do cartão!','tr');document.getElementById('p-cartao').focus();return;}
+  const novoProd={
+    nome,
+    categoria:document.getElementById('p-cat').value,
+    fornecedor_id:document.getElementById('p-forn').value||'',
+    preco_custo:parseFloat(document.getElementById('p-custo').value)||0,
+    preco_venda:parseFloat(document.getElementById('p-venda').value)||0,
+    estoque:parseInt(document.getElementById('p-qtd').value)||0,
+    minimo:parseInt(document.getElementById('p-min').value)||5,
+    pagamento:pgto||'nao_informado',
+    cartao_digitos:pgto==='cartao'?cartao:'',
+    criado:Date.now()
+  };
+  await push(rP,novoProd);
+  fecharModal('prod');
+  toast('✅ Produto cadastrado!','tg');
+  // Resetar form
+  ['p-nome','p-custo','p-venda','p-qtd','p-min','p-cartao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  // Resetar pagamento
+  window.pgtoSelecionado='';
+  const pix=document.getElementById('pgto-pix');
+  const cartaoBtn=document.getElementById('pgto-cartao');
+  const campo=document.getElementById('campo-cartao');
+  if(pix){pix.style.borderColor='var(--border)';pix.style.background='#fff';}
+  if(cartaoBtn){cartaoBtn.style.borderColor='var(--border)';cartaoBtn.style.background='#fff';}
+  if(campo)campo.style.display='none';
 };
 
 window._am=function(id,tipo){
@@ -1054,6 +1157,19 @@ window._am=function(id,tipo){
   document.getElementById('m-qtd').value='';
   document.getElementById('m-obs').value='';
   document.getElementById('mov-titulo').textContent=tipo==='entrada'?'📥 Entrada de Estoque':'📤 Registrar Venda';
+  // Mostrar pagamento só na venda
+  const pw=document.getElementById('mov-pgto-wrap');
+  const cc=document.getElementById('mov-campo-cartao');
+  const mc=document.getElementById('m-cartao');
+  if(pw)pw.style.display=tipo==='saida'?'block':'none';
+  if(cc)cc.style.display='none';
+  if(mc)mc.value='';
+  // Reset botões pagamento
+  window.movPgtoSelecionado='';
+  const mp=document.getElementById('mpgto-pix');
+  const mc2=document.getElementById('mpgto-cartao');
+  if(mp){mp.style.borderColor='var(--border)';mp.style.background='#fff';}
+  if(mc2){mc2.style.borderColor='var(--border)';mc2.style.background='#fff';}
   abrirModal('mov');
 };
 
@@ -1064,9 +1180,22 @@ window._cm=async function(){
   if(qtd<=0){toast('Quantidade inválida!','tr');return;}
   const p=prods[id];if(!p)return;
   if(tipo==='saida'&&(p.estoque||0)<qtd){toast('Estoque insuficiente!','tr');return;}
+  // Validar pagamento na venda
+  const pgto=window.movPgtoSelecionado||'';
+  const cartaoDigitos=document.getElementById('m-cartao')?.value.trim()||'';
+  if(tipo==='saida'&&!pgto){toast('Selecione a forma de pagamento!','tr');return;}
+  if(tipo==='saida'&&pgto==='cartao'&&cartaoDigitos.length!==4){toast('Digite os 4 dígitos do cartão!','tr');document.getElementById('m-cartao').focus();return;}
   await update(ref(db,'loja/produtos/'+id),{estoque:(p.estoque||0)+(tipo==='entrada'?qtd:-qtd)});
-  await push(rM,{pid:id,prod:p.nome,cat:p.categoria,tipo,qtd,vunit:p.preco_venda,cunit:p.preco_custo,obs:document.getElementById('m-obs').value,ts:Date.now()});
+  await push(rM,{
+    pid:id,prod:p.nome,cat:p.categoria,tipo,qtd,
+    vunit:p.preco_venda,cunit:p.preco_custo,
+    obs:document.getElementById('m-obs').value,
+    pagamento:tipo==='saida'?pgto:'',
+    cartao_digitos:tipo==='saida'&&pgto==='cartao'?cartaoDigitos:'',
+    ts:Date.now()
+  });
   fecharModal('mov');
+  window.movPgtoSelecionado='';
   if(tipo==='saida'){celebrarVenda(p.nome,p.preco_venda,p.preco_custo,qtd);}
   else{toast('✅ Entrada registrada!','tg');}
 };
