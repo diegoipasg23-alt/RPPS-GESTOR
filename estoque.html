@@ -814,12 +814,12 @@ function initSwipe(card,id){
 }
 
 // PAGAMENTO PRODUTO
-let pgtoSelecionado = '';
+window.pgtoSelecionado = '';
 
 // PAGAMENTO VENDA
-let movPgtoSelecionado = '';
+window.movPgtoSelecionado = '';
 function selecionarMovPgto(tipo){
-  movPgtoSelecionado = tipo;
+  window.movPgtoSelecionado = tipo;
   const pix=document.getElementById('mpgto-pix');
   const cartao=document.getElementById('mpgto-cartao');
   const campo=document.getElementById('mov-campo-cartao');
@@ -834,7 +834,7 @@ function selecionarMovPgto(tipo){
   }
 }
 function selecionarPgto(tipo){
-  pgtoSelecionado = tipo;
+  window.pgtoSelecionado = tipo;
   const pix = document.getElementById('pgto-pix');
   const cartao = document.getElementById('pgto-cartao');
   const campo = document.getElementById('campo-cartao');
@@ -1118,35 +1118,51 @@ function atualizarSelects(){
 // AÇÕES
 window._sp=async function(){
   const nome=document.getElementById('p-nome').value.trim();
-  if(!nome){toast('Digite o nome!','tr');const i=document.getElementById('p-nome');i.style.animation='none';void i.offsetWidth;i.style.animation='shake .4s ease';return;}
+  if(!nome){
+    toast('Digite o nome do produto!','tr');
+    const i=document.getElementById('p-nome');
+    i.style.animation='none';void i.offsetWidth;i.style.animation='shake .4s ease';
+    return;
+  }
   const pgto=window.pgtoSelecionado||'';
-  const cartao=document.getElementById('p-cartao').value.trim();
-  if(pgto==='cartao'&&cartao.length!==4){toast('Digite os 4 dígitos do cartão!','tr');document.getElementById('p-cartao').focus();return;}
+  const cartaoEl=document.getElementById('p-cartao');
+  const cartao=cartaoEl?cartaoEl.value.trim():'';
+  if(pgto==='cartao'&&cartao.length>0&&cartao.length!==4){
+    toast('Digite os 4 dígitos do cartão!','tr');
+    if(cartaoEl)cartaoEl.focus();
+    return;
+  }
   const novoProd={
     nome,
-    categoria:document.getElementById('p-cat').value,
-    fornecedor_id:document.getElementById('p-forn').value||'',
-    preco_custo:parseFloat(document.getElementById('p-custo').value)||0,
-    preco_venda:parseFloat(document.getElementById('p-venda').value)||0,
-    estoque:parseInt(document.getElementById('p-qtd').value)||0,
-    minimo:parseInt(document.getElementById('p-min').value)||5,
-    pagamento:pgto||'nao_informado',
+    categoria:document.getElementById('p-cat').value||'cosmetico',
+    fornecedor_id:document.getElementById('p-forn')?.value||'',
+    preco_custo:parseFloat(document.getElementById('p-custo')?.value)||0,
+    preco_venda:parseFloat(document.getElementById('p-venda')?.value)||0,
+    estoque:parseInt(document.getElementById('p-qtd')?.value)||0,
+    minimo:parseInt(document.getElementById('p-min')?.value)||5,
+    pagamento:pgto||'',
     cartao_digitos:pgto==='cartao'?cartao:'',
     criado:Date.now()
   };
-  await push(rP,novoProd);
-  fecharModal('prod');
-  toast('✅ Produto cadastrado!','tg');
-  // Resetar form
-  ['p-nome','p-custo','p-venda','p-qtd','p-min','p-cartao'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  // Resetar pagamento
-  window.pgtoSelecionado='';
-  const pix=document.getElementById('pgto-pix');
-  const cartaoBtn=document.getElementById('pgto-cartao');
-  const campo=document.getElementById('campo-cartao');
-  if(pix){pix.style.borderColor='var(--border)';pix.style.background='#fff';}
-  if(cartaoBtn){cartaoBtn.style.borderColor='var(--border)';cartaoBtn.style.background='#fff';}
-  if(campo)campo.style.display='none';
+  try{
+    await push(rP,novoProd);
+    fecharModal('prod');
+    toast('✅ Produto cadastrado!','tg');
+    ['p-nome','p-custo','p-venda','p-qtd','p-min','p-cartao'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    window.pgtoSelecionado='';
+    window.movPgtoSelecionado='';
+    ['pgto-pix','pgto-cartao'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.style.borderColor='var(--border)';el.style.background='#fff';}
+    });
+    const campo=document.getElementById('campo-cartao');
+    if(campo)campo.style.display='none';
+  }catch(e){
+    console.error('Erro ao salvar produto:',e);
+    toast('Erro ao salvar! Verifique a conexão.','tr');
+  }
 };
 
 window._am=function(id,tipo){
@@ -1185,19 +1201,24 @@ window._cm=async function(){
   const cartaoDigitos=document.getElementById('m-cartao')?.value.trim()||'';
   if(tipo==='saida'&&!pgto){toast('Selecione a forma de pagamento!','tr');return;}
   if(tipo==='saida'&&pgto==='cartao'&&cartaoDigitos.length!==4){toast('Digite os 4 dígitos do cartão!','tr');document.getElementById('m-cartao').focus();return;}
-  await update(ref(db,'loja/produtos/'+id),{estoque:(p.estoque||0)+(tipo==='entrada'?qtd:-qtd)});
-  await push(rM,{
-    pid:id,prod:p.nome,cat:p.categoria,tipo,qtd,
-    vunit:p.preco_venda,cunit:p.preco_custo,
-    obs:document.getElementById('m-obs').value,
-    pagamento:tipo==='saida'?pgto:'',
-    cartao_digitos:tipo==='saida'&&pgto==='cartao'?cartaoDigitos:'',
-    ts:Date.now()
-  });
-  fecharModal('mov');
-  window.movPgtoSelecionado='';
-  if(tipo==='saida'){celebrarVenda(p.nome,p.preco_venda,p.preco_custo,qtd);}
-  else{toast('✅ Entrada registrada!','tg');}
+  try{
+    await update(ref(db,'loja/produtos/'+id),{estoque:(p.estoque||0)+(tipo==='entrada'?qtd:-qtd)});
+    await push(rM,{
+      pid:id,prod:p.nome,cat:p.categoria,tipo,qtd,
+      vunit:p.preco_venda,cunit:p.preco_custo,
+      obs:document.getElementById('m-obs').value||'',
+      pagamento:tipo==='saida'?pgto:'',
+      cartao_digitos:tipo==='saida'&&pgto==='cartao'?cartaoDigitos:'',
+      ts:Date.now()
+    });
+    fecharModal('mov');
+    window.movPgtoSelecionado='';
+    if(tipo==='saida'){celebrarVenda(p.nome,p.preco_venda,p.preco_custo,qtd);}
+    else{toast('✅ Entrada registrada!','tg');}
+  }catch(e){
+    console.error('Erro ao salvar movimentação:',e);
+    toast('Erro ao salvar! Verifique a conexão.','tr');
+  }
 };
 
 window._sf=async function(){
@@ -1205,4 +1226,41 @@ window._sf=async function(){
   if(!nome){toast('Digite o nome!','tr');return;}
   await push(rF,{nome,tel:document.getElementById('f-tel').value,cat:document.getElementById('f-cat').value,lead:parseInt(document.getElementById('f-lead').value)||0,min:parseFloat(document.getElementById('f-min').value)||0,obs:document.getElementById('f-obs').value,criado:Date.now()});
   fecharModal('forn');toast('✅ Fornecedor cadastrado!','tg');
-  ['f-nome','f-tel','f-lead','f-min','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';
+  ['f-nome','f-tel','f-lead','f-min','f-obs'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+};
+
+window._sm=async function(){
+  const val=parseFloat(document.getElementById('mt-val').value)||0;
+  const mes=document.getElementById('mt-mes').value;
+  if(!val||!mes){toast('Preencha os campos!','tr');return;}
+  try{
+    await update(rMt,{[mes]:{valor:val,criado:Date.now()}});
+    fecharModal('meta');toast('✅ Meta definida!','tg');
+  }catch(e){toast('Erro ao salvar meta!','tr');console.error(e);}
+};
+
+window._ep=async function(id){
+  if(!confirm('Excluir produto?'))return;
+  try{
+    const card=document.getElementById('pc-'+id);
+    if(card){card.style.transition='all .3s';card.style.opacity='0';card.style.transform='scale(.85)';setTimeout(async()=>{try{await remove(ref(db,'loja/produtos/'+id));}catch(e){console.error(e);}},280);}
+    else{await remove(ref(db,'loja/produtos/'+id));}
+    toast('🗑 Excluído','tr');
+  }catch(e){toast('Erro ao excluir!','tr');console.error(e);}
+};
+
+window._ef=async function(id){
+  if(!confirm('Excluir fornecedor?'))return;
+  try{
+    await remove(ref(db,'loja/fornecedores/'+id));
+    toast('🗑 Fornecedor excluído','tr');
+  }catch(e){toast('Erro ao excluir!','tr');console.error(e);}
+};
+
+// Datas iniciais
+const elMes=document.getElementById('mt-mes');
+if(elMes)elMes.value=new Date().toISOString().slice(0,7);
+
+</script>
+</body>
+</html>
