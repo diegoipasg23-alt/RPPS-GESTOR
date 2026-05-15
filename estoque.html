@@ -784,7 +784,7 @@ import{getDatabase,ref,push,onValue,update,remove}from"https://www.gstatic.com/f
 
 const fb={apiKey:"AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",authDomain:"rpps-gestor.firebaseapp.com",databaseURL:"https://rpps-gestor-default-rtdb.firebaseio.com",projectId:"rpps-gestor",storageBucket:"rpps-gestor.firebasestorage.app",messagingSenderId:"306067757224",appId:"1:306067757224:web:5f8acdc7c5199911774a9d"};
 const app=initializeApp(fb);const db=getDatabase(app);
-const rP=ref(db,'loja/produtos'),rM=ref(db,'loja/movs'),rF=ref(db,'loja/fornecedores'),rL=ref(db,'loja/lotes'),rMt=ref(db,'loja/meta');
+const rP=ref(db,'loja/produtos'),rM=ref(db,'loja/movimentacoes'),rF=ref(db,'loja/fornecedores'),rL=ref(db,'loja/lotes'),rMt=ref(db,'loja/meta');
 
 let prods={},movs={},forns={},lotes={},meta={};
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
@@ -858,15 +858,15 @@ function renderResumo(){
 // RENDER MOVIMENTAÇÕES
 function renderMovs(){
   const tb=document.getElementById('movs-tbody');
-  const l=Object.entries(movs).sort((a,b)=>b[1].ts-a[1].ts).slice(0,60);
+  const l=Object.entries(movs).sort((a,b)=>(b[1].ts||b[1].timestamp||0)-(a[1].ts||a[1].timestamp||0)).slice(0,60);
   if(!l.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma movimentação</td></tr>`;return;}
   const C=CATS;
   tb.innerHTML=l.map(([id,m])=>{
     const c=C[m.cat]||C.cosmetico;
-    const dt=new Date(m.ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
-    const tp=m.tipo==='entrada'?`<span style="color:var(--verde);font-weight:800">▲ Entrada</span>`:`<span style="color:var(--red);font-weight:800">▼ Venda</span>`;
-    const tot=parseFloat(m.vunit||0)*parseInt(m.qtd||0);
-    return `<tr><td style="font-size:11px;color:var(--text3)">${dt}</td><td style="font-weight:700">${m.prod}</td><td><span class="cat-mini ${c.mc}">${c.e}</span></td><td>${tp}</td><td class="r">${m.qtd}</td><td class="r">${fmt(m.vunit)}</td><td class="r" style="color:${m.tipo==='saida'?'var(--verde)':'var(--text2)'};font-weight:700">${fmt(tot)}</td></tr>`;
+    const dt=new Date(m.ts||m.timestamp||Date.now()).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const tp=(m.tipo==='entrada')?`<span style="color:var(--verde);font-weight:800">▲ Entrada</span>`:`<span style="color:var(--red);font-weight:800">▼ Venda</span>`;
+    const tot=parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0);
+    return `<tr><td style="font-size:11px;color:var(--text3)">${dt}</td><td style="font-weight:700">${m.prod||m.produto||'—'}</td><td><span class="cat-mini ${c.mc}">${c.e}</span></td><td>${tp}</td><td class="r">${m.qtd}</td><td class="r">${fmt((m.vunit||m.valor_unit||0))}</td><td class="r" style="color:${(m.tipo==='saida'||m.tipo==='venda')?'var(--verde)':'var(--text2)'};font-weight:700">${fmt(tot)}</td></tr>`;
   }).join('');
 }
 
@@ -894,9 +894,9 @@ function renderMarketing(){
 window.renderMarketing=renderMarketing;
 
 function renderRanking(){
-  const v=Object.values(movs).filter(m=>m.tipo==='saida');
+  const v=Object.values(movs).filter(m=>(m.tipo==='saida'||m.tipo==='venda'));
   const pp={};
-  v.forEach(m=>{if(!pp[m.pid]){pp[m.pid]={nome:m.prod,cat:m.cat,qtd:0,fat:0,cst:0};}pp[m.pid].qtd+=parseInt(m.qtd||0);pp[m.pid].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);pp[m.pid].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
+  v.forEach(m=>{if(!pp[(m.pid||m.produto_id||'')]){pp[(m.pid||m.produto_id||'')]={nome:m.prod||m.produto,cat:m.cat||m.categoria,qtd:0,fat:0,cst:0};}pp[(m.pid||m.produto_id||'')].qtd+=parseInt(m.qtd||0);pp[(m.pid||m.produto_id||'')].fat+=parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0);pp[(m.pid||m.produto_id||'')].cst+=parseFloat((m.cunit||m.custo_unit||0)||0)*parseInt(m.qtd||0);});
   const l=Object.entries(pp).sort((a,b)=>b[1].fat-a[1].fat);
   const tb=document.getElementById('rank-tbody');
   if(!l.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma venda</td></tr>`;return;}
@@ -912,7 +912,7 @@ function renderParados(){
   const dias=parseInt(document.getElementById('dias-inp')?.value||15);
   document.getElementById('parados-lbl').textContent=`+${dias} dias sem venda`;
   const lim=Date.now()-dias*86400000;
-  const ult={};Object.values(movs).forEach(m=>{if(!ult[m.pid]||m.ts>ult[m.pid])ult[m.pid]=m.ts;});
+  const ult={};Object.values(movs).forEach(m=>{if(!ult[(m.pid||m.produto_id||'')]||(m.ts||m.timestamp||0)>(ult[(m.pid||m.produto_id||'')]||0))ult[(m.pid||m.produto_id||'')]=(m.ts||m.timestamp||0);});
   const r=Object.entries(prods).filter(([id,p])=>(ult[id]||p.criado||0)<lim&&(p.estoque||0)>0);
   const d=document.getElementById('parados-list');
   if(!r.length){d.innerHTML=`<div style="background:var(--verde2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--verde);font-weight:700">✅ Nenhum produto parado!</div>`;return;}
@@ -931,9 +931,9 @@ window.renderParados=renderParados;
 
 function renderGraficos(){
   Chart.defaults.font.family='Nunito';
-  const v=Object.values(movs).filter(m=>m.tipo==='saida');
+  const v=Object.values(movs).filter(m=>(m.tipo==='saida'||m.tipo==='venda'));
   const cats={cosmetico:{fat:0,cst:0},chocolate:{fat:0,cst:0},utilidades:{fat:0,cst:0}};
-  v.forEach(m=>{if(cats[m.cat]){cats[m.cat].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);cats[m.cat].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);}});
+  v.forEach(m=>{if(cats[m.cat]){cats[m.cat].fat+=parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0);cats[m.cat].cst+=parseFloat((m.cunit||m.custo_unit||0)||0)*parseInt(m.qtd||0);}});
   const lbs=['Cosméticos','Chocolates','Utensílios'];
   const mgs=Object.values(cats).map(c=>c.fat>0?((c.fat-c.cst)/c.fat*100).toFixed(1):0);
   const fts=Object.values(cats).map(c=>c.fat);
@@ -941,7 +941,7 @@ function renderGraficos(){
   if(c1){if(cMarg)cMarg.destroy();cMarg=new Chart(c1,{type:'bar',data:{labels:lbs,datasets:[{label:'Margem %',data:mgs,backgroundColor:['#FF8FB1','#FDE68A','#A78BFA'],borderRadius:8}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Margem por Categoria (%)',font:{size:12,weight:'800'}}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}});}
   const c2=document.getElementById('chart-fat');
   if(c2){if(cFat)cFat.destroy();cFat=new Chart(c2,{type:'doughnut',data:{labels:lbs,datasets:[{data:fts,backgroundColor:['#FF6B9D','#F59E0B','#7C3AED'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:'Faturamento por Categoria',font:{size:12,weight:'800'}}}}});}
-  const sems={};v.forEach(m=>{const d=new Date(m.ts);const w=`S${Math.ceil(d.getDate()/7)}-${(d.getMonth()+1).toString().padStart(2,'0')}`;sems[w]=(sems[w]||0)+parseFloat(m.vunit||0)*parseInt(m.qtd||0);});
+  const sems={};v.forEach(m=>{const d=new Date(m.ts||m.timestamp||Date.now());const w=`S${Math.ceil(d.getDate()/7)}-${(d.getMonth()+1).toString().padStart(2,'0')}`;sems[w]=(sems[w]||0)+parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0);});
   const sl=Object.entries(sems).sort((a,b)=>a[0].localeCompare(b[0])).slice(-12);
   const c3=document.getElementById('chart-sazon');
   if(c3){if(cSaz)cSaz.destroy();cSaz=new Chart(c3,{type:'line',data:{labels:sl.map(s=>s[0]),datasets:[{label:'Faturamento',data:sl.map(s=>s[1]),borderColor:'#7C3AED',backgroundColor:'rgba(124,58,237,.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#7C3AED'}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Vendas por Semana',font:{size:12,weight:'800'}}},scales:{y:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(1)+'k'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}});}
@@ -992,8 +992,8 @@ function renderForn(){
 function renderMeta(){
   const mes=new Date().toISOString().slice(0,7);
   const mt=parseFloat((meta[mes]?.valor)||0);
-  const vend=Object.values(movs).filter(m=>m.tipo==='saida'&&new Date(m.ts).toISOString().slice(0,7)===mes);
-  const real=vend.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
+  const vend=Object.values(movs).filter(m=>(m.tipo==='saida'||m.tipo==='venda')&&new Date(m.ts||m.timestamp||Date.now()).toISOString().slice(0,7)===mes);
+  const real=vend.reduce((s,m)=>s+parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0),0);
   const pct=mt>0?Math.min((real/mt)*100,100).toFixed(1):0;
   const falta=Math.max(mt-real,0);
   document.getElementById('meta-val').textContent=fmt(mt);
@@ -1005,7 +1005,7 @@ function renderMeta(){
   if(metaAt&&!window._confDisp){window._confDisp=true;confetti();}
   else if(!metaAt){window._confDisp=false;}
   // tabela
-  const pp={};vend.forEach(m=>{if(!pp[m.pid]){pp[m.pid]={nome:m.prod,cat:m.cat,qtd:0,fat:0,cst:0};}pp[m.pid].qtd+=parseInt(m.qtd||0);pp[m.pid].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);pp[m.pid].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
+  const pp={};vend.forEach(m=>{if(!pp[(m.pid||m.produto_id||'')]){pp[(m.pid||m.produto_id||'')]={nome:m.prod||m.produto,cat:m.cat||m.categoria,qtd:0,fat:0,cst:0};}pp[(m.pid||m.produto_id||'')].qtd+=parseInt(m.qtd||0);pp[(m.pid||m.produto_id||'')].fat+=parseFloat((m.vunit||m.valor_unit||0)||0)*parseInt(m.qtd||0);pp[(m.pid||m.produto_id||'')].cst+=parseFloat((m.cunit||m.custo_unit||0)||0)*parseInt(m.qtd||0);});
   const tb=document.getElementById('meta-tbody');
   const l=Object.entries(pp).sort((a,b)=>b[1].fat-a[1].fat);
   if(!l.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3)">Nenhuma venda este mês</td></tr>`;return;}
