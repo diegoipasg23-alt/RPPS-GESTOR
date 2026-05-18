@@ -1337,12 +1337,9 @@ function gerarRelatorio(dias){
 🎯 *Ticket médio:* ${fmt(ticket)}
 ──────────────────
 🏆 *Top Produtos:*
-${top.map((p,i)=>`${i===0?'🥇':i===1?'🥈':'🥉'} ${p[0]}: ${fmt(p[1])}`).join('
-')||'Sem vendas no período'}
+${top.map((p,i)=>`${i===0?'🥇':i===1?'🥈':'🥉'} ${p[0]}: ${fmt(p[1])}`).join('\n')||'Sem vendas no período'}
 ──────────────────
-${alertas.length>0?`⚠️ *Estoque Baixo (${alertas.length} item${alertas.length>1?'s':''}):'*
-${alertas.slice(0,3).map(p=>`• ${p.nome}: ${p.estoque} un`).join('
-')}`:' ✅ *Estoque:* Tudo em dia!'}
+${alertas.length>0?`⚠️ *Estoque Baixo (${alertas.length} item${alertas.length>1?'s':''}):\n${alertas.slice(0,3).map(p=>`• ${p.nome}: ${p.estoque} un`).join('\n')}`:' ✅ Estoque: Tudo em dia!'}
 ──────────────────
 _Gerado pelo sistema Promoções Goiandira_`;
 
