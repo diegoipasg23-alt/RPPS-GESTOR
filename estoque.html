@@ -348,11 +348,6 @@ tbody td.r{text-align:right;font-weight:700;}
       <span class="sb-item-lbl">Estoque</span>
     </div>
 
-    <div class="sb-item" id="mi-venda" onclick="goPage('venda')">
-      <div class="sb-icon" style="background:#DC2626">🛒</div>
-      <span class="sb-item-lbl">Registrar Venda</span>
-    </div>
-
     <div class="sb-item" id="mi-movs" onclick="goPage('movs')">
       <div class="sb-icon" style="background:#059669">🔄</div>
       <span class="sb-item-lbl">Movimentações</span>
@@ -373,7 +368,7 @@ tbody td.r{text-align:right;font-weight:700;}
 
     <div class="sb-item" id="mi-fornecedores" onclick="goPage('fornecedores')">
       <div class="sb-icon" style="background:#0891B2">🤝</div>
-      <span class="sb-item-lbl">Fornecedores</span>
+      <span class="sb-item-lbl">Fornecedores / Clientes</span>
     </div>
 
     <div class="sb-item" id="mi-alertas" onclick="goPage('alertas')">
@@ -949,7 +944,7 @@ const PAGE_META={
   movs:{title:'Movimentações',sub:'Histórico de entradas e vendas',pri:null,sec:null},
   meta:{title:'Meta de Vendas',sub:'Acompanhamento mensal',pri:'+ Meta',sec:null},
   marketing:{title:'Marketing',sub:'Análise de vendas e promoções',pri:null,sec:null},
-  fornecedores:{title:'Fornecedores',sub:'Cadastro de fornecedores',pri:'+ Fornecedor',sec:null},
+  fornecedores:{title:'Fornecedores / Clientes',sub:'Gerencie fornecedores e clientes',pri:'+ Fornecedor',sec:null},
   relatorio:{title:'Relatório WhatsApp',sub:'Resumo semanal para envio',pri:null,sec:null},
   alertas:{title:'Alertas',sub:'Produtos com estoque crítico',pri:null,sec:null},
 };
@@ -1290,14 +1285,20 @@ function fazerBackup(){
 
 // ===== CLIENTES =====
 function setFornTab(tab,el){
-  document.getElementById('fp-forn').style.display=tab==='forn'?'block':'none';
-  document.getElementById('fp-cli').style.display=tab==='cli'?'block':'none';
+  const fpF=document.getElementById('fp-forn');
+  const fpC=document.getElementById('fp-cli');
+  if(fpF)fpF.style.display=tab==='forn'?'block':'none';
+  if(fpC)fpC.style.display=tab==='cli'?'block':'none';
   const bf=document.getElementById('ftab-forn');
   const bc=document.getElementById('ftab-cli');
   const bpri=document.getElementById('btn-pri');
   if(bf){bf.style.background=tab==='forn'?'var(--roxo)':'transparent';bf.style.color=tab==='forn'?'#fff':'var(--text3)';}
   if(bc){bc.style.background=tab==='cli'?'var(--roxo)':'transparent';bc.style.color=tab==='cli'?'#fff':'var(--text3)';}
-  if(bpri){bpri.textContent=tab==='forn'?'+ Fornecedor':'+ Cliente';bpri.style.display='inline-flex';}
+  if(bpri){
+    bpri.textContent=tab==='forn'?'+ Fornecedor':'+ Cliente';
+    bpri.style.display='inline-flex';
+    bpri.onclick=tab==='forn'?()=>abrirModal('forn'):()=>abrirModal('cli');
+  }
 }
 function salvarCliente(){if(window._sc)window._sc();else setTimeout(salvarCliente,150);}
 function excluirCliente(id){if(window._ec)window._ec(id);}
