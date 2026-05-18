@@ -427,12 +427,25 @@ tbody td.r{text-align:right;font-weight:700;}
           <div class="rcard"><div class="rcard-icon" style="background:#FEF3C7">⚠️</div><div><div class="rcard-val" id="r-bx">0</div><div class="rcard-lbl">Estoque Baixo</div></div></div>
           <div class="rcard"><div class="rcard-icon" style="background:#FEE2E2">🚫</div><div><div class="rcard-val" id="r-zr">0</div><div class="rcard-lbl">Sem Estoque</div></div></div>
         </div>
-        <div class="filtros">
-          <span class="filtros-label">Filtrar:</span>
-          <button class="fb active" onclick="setFiltro('todos',this)">Todos</button>
-          <button class="fb" onclick="setFiltro('cosmetico',this)">💄 Cosméticos</button>
-          <button class="fb" onclick="setFiltro('chocolate',this)">🍫 Chocolates</button>
-          <button class="fb" onclick="setFiltro('utilidades',this)">🏠 Utensílios</button>
+        <!-- FILTRO PERÍODO -->
+        <div style="background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:800;color:var(--text2)">📅 Entradas por período:</span>
+            <button id="fp-todos" onclick="setPeriodoProd('todos',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--roxo);background:var(--roxo);color:#fff;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">⭐ Recentes</button>
+            <button id="fp-1" onclick="setPeriodoProd('1',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">1 dia</button>
+            <button id="fp-7" onclick="setPeriodoProd('7',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
+            <button id="fp-30" onclick="setPeriodoProd('30',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
+            <button id="fp-ver" onclick="toggleVerTodos()" style="padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Ver todos</button>
+            <span id="prod-count" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:600"></span>
+          </div>
+          <!-- FILTRO CATEGORIA -->
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            <span style="font-size:11px;font-weight:700;color:var(--text3)">Categoria:</span>
+            <button class="fb active" onclick="setFiltro('todos',this)">Todos</button>
+            <button class="fb" onclick="setFiltro('cosmetico',this)">💄 Cosméticos</button>
+            <button class="fb" onclick="setFiltro('chocolate',this)">🍫 Chocolates</button>
+            <button class="fb" onclick="setFiltro('utilidades',this)">🏠 Utensílios</button>
+          </div>
         </div>
         <div class="grid" id="prod-grid"></div>
       </div>
