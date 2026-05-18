@@ -919,14 +919,7 @@ function logout(){
   setTimeout(()=>{ls.style.opacity='1';ls.style.transform='scale(1)';},10);
   voltarPerfil();
 }
-(function(){
-  if(sessionStorage.getItem('pg')==='prop'){
-    document.getElementById('login-screen').style.display='none';
-    setTimeout(iniciarEstrelas,600);
-  }
-  // Mobile menu button
-  if(window.innerWidth<=900)document.getElementById('mob-menu-btn').style.display='block';
-})();
+
 
 // ESTRELAS
 function dispararEstrelas(){
@@ -986,12 +979,16 @@ function goPage(id){
 }
 
 function acaoPrimaria(){
-  // Verificar se está na aba clientes dentro de fornecedores
   const fpCli=document.getElementById('fp-cli');
   if(paginaAtual==='fornecedores'&&fpCli&&fpCli.style.display!=='none'){
     abrirModal('cli');return;
   }
-  const acoes={estoque:()=>abrirModal('prod'),meta:()=>abrirModal('meta'),fornecedores:()=>abrirModal('forn')};
+  const acoes={
+    estoque:()=>abrirModal('prod'),
+    meta:()=>abrirModal('meta'),
+    fornecedores:()=>abrirModal('forn'),
+    relatorio:()=>{}
+  };
   if(acoes[paginaAtual])acoes[paginaAtual]();
 }
 function acaoSecundaria(){abrirModal('forn');}
@@ -1386,6 +1383,18 @@ function editarProd(id){if(window._editarProd)window._editarProd(id);}
 function salvarEdicao(){if(window._salvarEdicao)window._salvarEdicao();else setTimeout(salvarEdicao,150);}
 function excluirForn(id){if(window._ef)window._ef(id);}
 function renderParados(){if(window._rp)window._rp();}
+
+// Inicialização — roda após todas as funções estarem definidas
+(function(){
+  if(sessionStorage.getItem('pg')==='prop'){
+    document.getElementById('login-screen').style.display='none';
+    setTimeout(iniciarEstrelas, 600);
+  }
+  if(window.innerWidth<=900){
+    const btn=document.getElementById('mob-menu-btn');
+    if(btn)btn.style.display='block';
+  }
+})();
 </script>
 
 <!-- FIREBASE -->
@@ -1405,11 +1414,40 @@ let prods={},movs={},forns={},metaData={};
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 const CATS={cosmetico:{n:'Cosméticos',e:'💄',cc:'cc'},chocolate:{n:'Chocolates',e:'🍫',cc:'ch'},utilidades:{n:'Utensílios',e:'🏠',cc:'cu'}};
 
+// COMPARATIVO MÊS ANTERIOR
+function renderComparativo(){
+  const hoje=new Date();
+  const mesAtual=hoje.toISOString().slice(0,7);
+  const antD=new Date(hoje.getFullYear(),hoje.getMonth()-1,1);
+  const mesAnt=antD.toISOString().slice(0,7);
+  const calcMes=(mes)=>{
+    const v=Object.values(movs).filter(m=>m.tipo==='saida'&&new Date(m.ts||0).toISOString().slice(0,7)===mes);
+    const fat=v.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
+    const cst=v.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
+    return {fat,luc:fat-cst,qtd:v.length};
+  };
+  const atual=calcMes(mesAtual);
+  const ant=calcMes(mesAnt);
+  const variacao=(a,b)=>{
+    if(b===0)return a>0?'<span style="color:#059669;font-size:11px;font-weight:800">🆕 Novo</span>':'';
+    const pct=((a-b)/b*100).toFixed(1);
+    const cor=pct>=0?'#059669':'#DC2626';
+    const icn=pct>=0?'▲':'▼';
+    return `<span style="color:${cor};font-size:11px;font-weight:800">${icn} ${Math.abs(pct)}%</span>`;
+  };
+  const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  const setHTML=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
+  setEl('cmp-fat-atual',fmt(atual.fat));setEl('cmp-fat-ant',fmt(ant.fat));setHTML('cmp-fat-var',variacao(atual.fat,ant.fat));
+  setEl('cmp-luc-atual',fmt(atual.luc));setEl('cmp-luc-ant',fmt(ant.luc));setHTML('cmp-luc-var',variacao(atual.luc,ant.luc));
+  setEl('cmp-qtd-atual',atual.qtd+' vendas');setEl('cmp-qtd-ant',ant.qtd+' vendas');setHTML('cmp-qtd-var',variacao(atual.qtd,ant.qtd));
+}
+
 // LISTENERS TEMPO REAL
-onValue(rP,s=>{prods=s.val()||{};window._prods=prods;renderProd();renderResumo();renderAlertas();atualizarSelects();});
-onValue(rM,s=>{movs=s.val()||{};renderMovs();renderMeta();if(window._renderMkt)window._renderMkt();});
-onValue(rF,s=>{forns=s.val()||{};renderForn();atualizarSelects();});
-onValue(rMt,s=>{metaData=s.val()||{};renderMeta();});
+onValue(rP,s=>{try{prods=s.val()||{};window._prods=prods;renderProd();renderResumo();renderAlertas();atualizarSelects();}catch(e){console.error("Erro rP:",e);}});
+onValue(rM,s=>{try{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();if(window._renderMkt)window._renderMkt();}catch(e){console.error("Erro rM:",e);}});
+onValue(rF,s=>{try{forns=s.val()||{};window._forns=forns;renderForn();atualizarSelects();}catch(e){console.error("Erro rF:",e);}});
+onValue(rMt,s=>{try{metaData=s.val()||{};renderMeta();}catch(e){console.error("Erro rMt:",e);}});
 
 // RENDER PRODUTOS
 function renderProd(){
@@ -1668,8 +1706,25 @@ window._rp=renderParados2;
 
 // SELECTS
 function atualizarSelects(){
+  // Select fornecedor no cadastro
   const sf=document.getElementById('p-forn');
   if(sf)sf.innerHTML='<option value="">— Sem fornecedor —</option>'+Object.entries(forns).map(([id,f])=>`<option value="${id}">${f.nome}</option>`).join('');
+  // Select produtos na página de venda
+  const vp=document.getElementById('v-prod');
+  if(vp){
+    const atual=vp.value;
+    vp.innerHTML='<option value="">— Selecione um produto —</option>'+
+      Object.entries(prods).sort((a,b)=>(b[1].criado||0)-(a[1].criado||0))
+      .map(([id,p])=>`<option value="${id}">${p.nome} (${p.estoque||0} un)</option>`).join('');
+    if(atual)vp.value=atual;
+  }
+  // Select fornecedor na edição
+  const ef=document.getElementById('e-forn');
+  if(ef){
+    const atual=ef.value;
+    ef.innerHTML='<option value="">— Sem fornecedor —</option>'+Object.entries(forns).map(([id,f])=>`<option value="${id}">${f.nome}</option>`).join('');
+    if(atual)ef.value=atual;
+  }
 }
 
 // AÇÕES
@@ -1867,7 +1922,7 @@ window._salvarEdicao=async function(){
 // CLIENTES FIREBASE
 const rC=ref(db,'loja/clientes');
 let clis={};
-onValue(rC,s=>{clis=s.val()||{};window._clis=clis;renderCli();});
+onValue(rC,s=>{try{clis=s.val()||{};window._clis=clis;renderCli();}catch(e){console.error("Erro rC:",e);}});
 
 function renderCli(){
   const d=document.getElementById('cli-lista');if(!d)return;
@@ -1907,38 +1962,60 @@ window._ec=async function(id){
   catch(e){toast('Erro!','tr');}
 };
 
-// EXPOR MOVS E FORNS GLOBALMENTE
-onValue(rM,s=>{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();if(window._renderMkt)window._renderMkt();});
-onValue(rF,s=>{forns=s.val()||{};window._forns=forns;renderForn();atualizarSelects();});
+// onValue de rM e rF já definidos acima
 
-// COMPARATIVO MÊS ANTERIOR
-function renderComparativo(){
-  const hoje=new Date();
-  const mesAtual=hoje.toISOString().slice(0,7);
-  const antD=new Date(hoje.getFullYear(),hoje.getMonth()-1,1);
-  const mesAnt=antD.toISOString().slice(0,7);
-  const calcMes=(mes)=>{
-    const v=Object.values(movs).filter(m=>m.tipo==='saida'&&new Date(m.ts||0).toISOString().slice(0,7)===mes);
-    const fat=v.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
-    const cst=v.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
-    return {fat,luc:fat-cst,qtd:v.length};
-  };
-  const atual=calcMes(mesAtual);
-  const ant=calcMes(mesAnt);
-  const variacao=(a,b)=>{
-    if(b===0)return a>0?'<span style="color:#059669;font-size:11px;font-weight:800">🆕 Novo</span>':'';
-    const pct=((a-b)/b*100).toFixed(1);
-    const cor=pct>=0?'#059669':'#DC2626';
-    const icn=pct>=0?'▲':'▼';
-    return `<span style="color:${cor};font-size:11px;font-weight:800">${icn} ${Math.abs(pct)}%</span>`;
-  };
-  const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  const setEl=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
-  const setHTML=(id,val)=>{const el=document.getElementById(id);if(el)el.innerHTML=val;};
-  setEl('cmp-fat-atual',fmt(atual.fat));setEl('cmp-fat-ant',fmt(ant.fat));setHTML('cmp-fat-var',variacao(atual.fat,ant.fat));
-  setEl('cmp-luc-atual',fmt(atual.luc));setEl('cmp-luc-ant',fmt(ant.luc));setHTML('cmp-luc-var',variacao(atual.luc,ant.luc));
-  setEl('cmp-qtd-atual',atual.qtd+' vendas');setEl('cmp-qtd-ant',ant.qtd+' vendas');setHTML('cmp-qtd-var',variacao(atual.qtd,ant.qtd));
-}
+
+// REGISTRAR VENDA
+window._rv=async function(){
+  const pid=document.getElementById('v-prod')?.value;
+  const qtd=parseInt(document.getElementById('v-qtd')?.value)||0;
+  const preco=parseFloat(document.getElementById('v-preco')?.value)||0;
+  const pgto=window.vendaPgtoSel||'';
+  const cartao=document.getElementById('v-cartao')?.value.trim()||'';
+  const obs=document.getElementById('v-obs')?.value||'';
+
+  if(!pid){toast('Selecione um produto!','tr');return;}
+  if(qtd<=0){toast('Quantidade inválida!','tr');return;}
+  if(preco<=0){toast('Informe o preço de venda!','tr');return;}
+  if(!pgto){toast('Selecione a forma de pagamento!','tr');return;}
+  if((pgto==='debito'||pgto==='credito')&&cartao.length!==4){
+    toast('Digite os 4 dígitos do cartão!','tr');
+    document.getElementById('v-cartao')?.focus();return;
+  }
+  const p=prods[pid];
+  if(!p){toast('Produto não encontrado!','tr');return;}
+  if((p.estoque||0)<qtd){toast('Estoque insuficiente!','tr');return;}
+
+  try{
+    await update(ref(db,'loja/produtos/'+pid),{estoque:(p.estoque||0)-qtd});
+    await push(rM,{
+      pid,prod:p.nome,cat:p.categoria,tipo:'saida',qtd,
+      vunit:preco,cunit:p.preco_custo||0,
+      pagamento:pgto,cartao_digitos:(pgto==='debito'||pgto==='credito')?cartao:'',
+      obs,ts:Date.now()
+    });
+    // Resetar form
+    document.getElementById('v-prod').value='';
+    document.getElementById('v-qtd').value='1';
+    document.getElementById('v-preco').value='';
+    document.getElementById('v-obs').value='';
+    if(document.getElementById('v-cartao'))document.getElementById('v-cartao').value='';
+    document.getElementById('v-prod-info').style.display='none';
+    document.getElementById('v-preview').style.display='none';
+    // Reset pagamento
+    window.vendaPgtoSel='';
+    ['v-pix','v-debito','v-credito','v-dinheiro'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el){el.style.borderColor='var(--border)';el.style.background='#fff';}
+    });
+    document.getElementById('v-campo-cartao').style.display='none';
+    celebrarVenda(p.nome,preco,p.preco_custo||0,qtd);
+    toast('✅ Venda registrada!','tg');
+  }catch(e){
+    console.error('Erro ao registrar venda:',e);
+    toast('Erro ao registrar venda!','tr');
+  }
+};
 
 // Datas iniciais
 const elMes=document.getElementById('mt-mes');
