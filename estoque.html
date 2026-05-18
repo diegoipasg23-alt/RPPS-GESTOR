@@ -348,6 +348,11 @@ tbody td.r{text-align:right;font-weight:700;}
       <span class="sb-item-lbl">Estoque</span>
     </div>
 
+    <div class="sb-item" id="mi-venda" onclick="goPage('venda')">
+      <div class="sb-icon" style="background:#DC2626">🛒</div>
+      <span class="sb-item-lbl">Registrar Venda</span>
+    </div>
+
     <div class="sb-item" id="mi-movs" onclick="goPage('movs')">
       <div class="sb-icon" style="background:#059669">🔄</div>
       <span class="sb-item-lbl">Movimentações</span>
@@ -432,6 +437,109 @@ tbody td.r{text-align:right;font-weight:700;}
         <div class="grid" id="prod-grid"></div>
       </div>
 
+      <!-- REGISTRAR VENDA -->
+      <div id="pg-venda" style="display:none">
+        <div style="max-width:500px;margin:0 auto">
+
+          <!-- SELECIONAR PRODUTO -->
+          <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+            <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px">
+              <span style="width:28px;height:28px;background:#FEE2E2;border-radius:7px;display:flex;align-items:center;justify-content:center">🛒</span>
+              Registrar Nova Venda
+            </div>
+
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Produto</label>
+              <select id="v-prod" onchange="selecionarProdutoVenda(this.value)" style="width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none">
+                <option value="">— Selecione um produto —</option>
+              </select>
+            </div>
+
+            <!-- Info do produto selecionado -->
+            <div id="v-prod-info" style="display:none;background:#F8FAFC;border-radius:10px;padding:12px;margin-bottom:12px;border:1px solid var(--border)">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div style="text-align:center;background:#fff;border-radius:8px;padding:8px">
+                  <div style="font-size:11px;color:var(--text3);font-weight:600">Preço de Custo</div>
+                  <div id="v-custo-info" style="font-size:16px;font-weight:900;color:var(--red)">R$ 0,00</div>
+                </div>
+                <div style="text-align:center;background:#fff;border-radius:8px;padding:8px">
+                  <div style="font-size:11px;color:var(--text3);font-weight:600">Em Estoque</div>
+                  <div id="v-estoque-info" style="font-size:16px;font-weight:900;color:var(--verde)">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <div>
+                <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Quantidade</label>
+                <input type="number" id="v-qtd" placeholder="1" min="1" value="1" oninput="calcularVenda()" style="width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none">
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Preço de Venda (R$)</label>
+                <input type="number" id="v-preco" placeholder="0.00" step="0.01" oninput="calcularVenda()" style="width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none">
+              </div>
+            </div>
+
+            <!-- Prévia do lucro -->
+            <div id="v-preview" style="display:none;background:linear-gradient(135deg,#1E1B4B,#7C3AED);border-radius:10px;padding:14px;margin-bottom:14px;color:#fff">
+              <div style="font-size:11px;opacity:.7;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Prévia da Venda</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+                <div style="text-align:center">
+                  <div style="font-size:11px;opacity:.7;font-weight:600">Total Venda</div>
+                  <div id="v-total" style="font-size:16px;font-weight:900;color:#4ade80">R$ 0,00</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:11px;opacity:.7;font-weight:600">Lucro</div>
+                  <div id="v-lucro" style="font-size:16px;font-weight:900;color:#fbbf24">R$ 0,00</div>
+                </div>
+                <div style="text-align:center">
+                  <div style="font-size:11px;opacity:.7;font-weight:600">Margem</div>
+                  <div id="v-margem" style="font-size:16px;font-weight:900;color:#a78bfa">0%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forma de pagamento -->
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Forma de Pagamento</label>
+              <div style="display:flex;gap:8px">
+                <div onclick="selVendaPgto('pix')" id="v-pix" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+                  <div style="font-size:20px">💠</div>
+                  <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">PIX</div>
+                </div>
+                <div onclick="selVendaPgto('debito')" id="v-debito" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+                  <div style="font-size:20px">💳</div>
+                  <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">Débito</div>
+                </div>
+                <div onclick="selVendaPgto('credito')" id="v-credito" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+                  <div style="font-size:20px">💳</div>
+                  <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">Crédito</div>
+                </div>
+                <div onclick="selVendaPgto('dinheiro')" id="v-dinheiro" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+                  <div style="font-size:20px">💵</div>
+                  <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">Dinheiro</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Últimos 4 dígitos cartão -->
+            <div id="v-campo-cartao" style="display:none;margin-bottom:12px">
+              <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Últimos 4 dígitos do cartão</label>
+              <input type="text" id="v-cartao" placeholder="1234" maxlength="4" inputmode="numeric" style="width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:18px;font-weight:800;text-align:center;letter-spacing:4px;font-family:var(--fn);color:var(--text);outline:none">
+            </div>
+
+            <div style="margin-bottom:12px">
+              <label style="display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Observação (opcional)</label>
+              <input type="text" id="v-obs" placeholder="Ex: Cliente João" style="width:100%;padding:10px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none">
+            </div>
+
+            <button onclick="registrarVenda()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#DC2626,#FF6B9D);color:#fff;font-size:15px;font-weight:900;cursor:pointer;font-family:var(--fn);transition:all .2s;box-shadow:0 4px 14px rgba(220,38,38,.3)">
+              🛒 Confirmar Venda
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- MOVIMENTAÇÕES -->
       <div id="pg-movs" style="display:none">
         <div class="mov-header-cards">
@@ -502,9 +610,9 @@ tbody td.r{text-align:right;font-weight:700;}
       <select id="p-cat"><option value="cosmetico">💄 Cosméticos</option><option value="chocolate">🍫 Chocolates</option><option value="utilidades">🏠 Utensílios do Lar</option></select>
     </div>
     <div class="fg"><label>Fornecedor</label><select id="p-forn"><option value="">— Sem fornecedor —</option></select></div>
-    <div class="fg row">
-      <div><label>Preço de Custo (R$)</label><input type="number" id="p-custo" placeholder="0.00" step="0.01"></div>
-      <div><label>Preço de Venda (R$)</label><input type="number" id="p-venda" placeholder="0.00" step="0.01"></div>
+    <div class="fg">
+      <label>Preço de Custo (R$)</label>
+      <input type="number" id="p-custo" placeholder="0.00" step="0.01">
     </div>
     <div class="fg row">
       <div><label>Qtd Inicial</label><input type="number" id="p-qtd" placeholder="0"></div>
@@ -530,6 +638,34 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="mbtns">
       <button class="mbtn s" onclick="fecharModal('prod')">Cancelar</button>
       <button class="mbtn p" onclick="salvarProduto()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-edit">
+  <div class="modal">
+    <h2>✏️ Editar Produto</h2>
+    <input type="hidden" id="e-id">
+    <div class="fg"><label>Nome</label><input type="text" id="e-nome" placeholder="Nome do produto"></div>
+    <div class="fg"><label>Categoria</label>
+      <select id="e-cat">
+        <option value="cosmetico">💄 Cosméticos</option>
+        <option value="chocolate">🍫 Chocolates</option>
+        <option value="utilidades">🏠 Utensílios do Lar</option>
+      </select>
+    </div>
+    <div class="fg"><label>Fornecedor</label><select id="e-forn"><option value="">— Sem fornecedor —</option></select></div>
+    <div class="fg row">
+      <div><label>Preço de Custo (R$)</label><input type="number" id="e-custo" placeholder="0.00" step="0.01"></div>
+      <div><label>Estoque Atual</label><input type="number" id="e-estoque" placeholder="0"></div>
+    </div>
+    <div class="fg">
+      <label>Estoque Mínimo</label>
+      <input type="number" id="e-min" placeholder="5">
+    </div>
+    <div class="mbtns">
+      <button class="mbtn s" onclick="fecharModal('edit')">Cancelar</button>
+      <button class="mbtn p" onclick="salvarEdicao()">Salvar Alterações</button>
     </div>
   </div>
 </div>
@@ -674,6 +810,7 @@ function iniciarEstrelas(){dispararEstrelas();setInterval(dispararEstrelas,3000)
 // NAVEGAÇÃO
 const PAGE_META={
   estoque:{title:'Estoque',sub:'Controle de produtos',pri:'+ Produto',sec:null},
+  venda:{title:'Registrar Venda',sub:'Nova venda com cálculo de lucro',pri:null,sec:null},
   movs:{title:'Movimentações',sub:'Histórico de entradas e vendas',pri:null,sec:null},
   meta:{title:'Meta de Vendas',sub:'Acompanhamento mensal',pri:'+ Meta',sec:null},
   marketing:{title:'Marketing',sub:'Análise de vendas e promoções',pri:null,sec:null},
@@ -856,6 +993,63 @@ function selecionarPgto(tipo){
   }
 }
 
+// ===== VENDA =====
+window.vendaPgtoSel = '';
+
+function selVendaPgto(tipo){
+  window.vendaPgtoSel = tipo;
+  const ids = ['v-pix','v-debito','v-credito','v-dinheiro'];
+  const cores = {pix:'#06B6D4',debito:'#7C3AED',credito:'#DC2626',dinheiro:'#059669'};
+  const bgs = {pix:'#ECFEFF',debito:'#EDE9FE',credito:'#FEE2E2',dinheiro:'#D1FAE5'};
+  ids.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.borderColor='var(--border)';el.style.background='#fff';}
+  });
+  const sel=document.getElementById('v-'+tipo);
+  if(sel){sel.style.borderColor=cores[tipo]||'var(--roxo)';sel.style.background=bgs[tipo]||'#EDE9FE';}
+  const cc=document.getElementById('v-campo-cartao');
+  if(cc)cc.style.display=(tipo==='debito'||tipo==='credito')?'block':'none';
+  if(tipo==='debito'||tipo==='credito')setTimeout(()=>document.getElementById('v-cartao')?.focus(),100);
+  else if(document.getElementById('v-cartao'))document.getElementById('v-cartao').value='';
+}
+
+function selecionarProdutoVenda(id){
+  const prods=window._prods||{};
+  const p=prods[id];
+  const info=document.getElementById('v-prod-info');
+  if(!p||!id){if(info)info.style.display='none';return;}
+  if(info)info.style.display='block';
+  const ci=document.getElementById('v-custo-info');
+  const ei=document.getElementById('v-estoque-info');
+  if(ci)ci.textContent='R$ '+parseFloat(p.preco_custo||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  if(ei){ei.textContent=p.estoque||0;ei.style.color=p.estoque<=0?'var(--red)':p.estoque<=p.minimo?'var(--amber)':'var(--verde)';}
+  calcularVenda();
+}
+
+function calcularVenda(){
+  const id=document.getElementById('v-prod')?.value;
+  const qtd=parseInt(document.getElementById('v-qtd')?.value)||0;
+  const preco=parseFloat(document.getElementById('v-preco')?.value)||0;
+  const prods=window._prods||{};
+  const p=prods[id];
+  const prev=document.getElementById('v-preview');
+  if(!p||!qtd||!preco){if(prev)prev.style.display='none';return;}
+  const custo=parseFloat(p.preco_custo||0);
+  const total=preco*qtd;
+  const custoTotal=custo*qtd;
+  const lucro=total-custoTotal;
+  const margem=total>0?((lucro/total)*100).toFixed(1):0;
+  if(prev)prev.style.display='block';
+  const vt=document.getElementById('v-total');
+  const vl=document.getElementById('v-lucro');
+  const vm=document.getElementById('v-margem');
+  if(vt)vt.textContent='R$ '+total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+  if(vl){vl.textContent='R$ '+lucro.toLocaleString('pt-BR',{minimumFractionDigits:2});vl.style.color=lucro>=0?'#fbbf24':'#f87171';}
+  if(vm)vm.textContent=margem+'%';
+}
+
+function registrarVenda(){if(window._rv)window._rv();else setTimeout(registrarVenda,150);}
+
 // PROXIES
 function salvarProduto(){if(window._sp)window._sp();else setTimeout(salvarProduto,150);}
 function confirmarMov(){if(window._cm)window._cm();else setTimeout(confirmarMov,150);}
@@ -863,6 +1057,8 @@ function salvarForn(){if(window._sf)window._sf();else setTimeout(salvarForn,150)
 function salvarMeta(){if(window._sm)window._sm();else setTimeout(salvarMeta,150);}
 function abrirMov(id,tipo){if(window._am)window._am(id,tipo);}
 function excluirProd(id){if(window._ep)window._ep(id);}
+function editarProd(id){if(window._editarProd)window._editarProd(id);}
+function salvarEdicao(){if(window._salvarEdicao)window._salvarEdicao();else setTimeout(salvarEdicao,150);}
 function excluirForn(id){if(window._ef)window._ef(id);}
 function renderParados(){if(window._rp)window._rp();}
 </script>
@@ -916,7 +1112,7 @@ function renderProd(){
       </div>
       <div class="acoes">
         <button class="abtn abtn-e" onclick="abrirMov('${id}','entrada')">+ Entrada</button>
-        <button class="abtn abtn-s" onclick="abrirMov('${id}','saida')">- Venda</button>
+        <button class="abtn" onclick="editarProd('${id}')" style="flex:1;background:#EDE9FE;color:#5B21B6;padding:9px 4px;border-radius:8px;border:none;font-size:11px;font-weight:800;cursor:pointer;transition:all .2s">✏️ Editar</button>
         <button class="abtn abtn-d" onclick="excluirProd('${id}')">🗑</button>
       </div>
     </div>`;
@@ -1255,6 +1451,56 @@ window._ef=async function(id){
     await remove(ref(db,'loja/fornecedores/'+id));
     toast('🗑 Fornecedor excluído','tr');
   }catch(e){toast('Erro ao excluir!','tr');console.error(e);}
+};
+
+// EDITAR PRODUTO
+window._editarProd=function(id){
+  const p=prods[id];
+  if(!p)return;
+  // Preencher campos com dados atuais
+  document.getElementById('e-id').value=id;
+  document.getElementById('e-nome').value=p.nome||'';
+  document.getElementById('e-custo').value=p.preco_custo||'';
+  document.getElementById('e-estoque').value=p.estoque||0;
+  document.getElementById('e-min').value=p.minimo||5;
+  // Categoria
+  const catEl=document.getElementById('e-cat');
+  if(catEl)catEl.value=p.categoria||'cosmetico';
+  // Fornecedor
+  const fornEl=document.getElementById('e-forn');
+  if(fornEl){
+    fornEl.innerHTML='<option value="">— Sem fornecedor —</option>'+
+      Object.entries(forns).map(([fid,f])=>`<option value="${fid}">${f.nome}</option>`).join('');
+    fornEl.value=p.fornecedor_id||'';
+  }
+  abrirModal('edit');
+};
+
+window._salvarEdicao=async function(){
+  const id=document.getElementById('e-id').value;
+  const nome=document.getElementById('e-nome').value.trim();
+  if(!nome){
+    toast('Digite o nome!','tr');
+    const i=document.getElementById('e-nome');
+    i.style.animation='none';void i.offsetWidth;i.style.animation='shake .4s ease';
+    return;
+  }
+  const dados={
+    nome,
+    categoria:document.getElementById('e-cat').value||'cosmetico',
+    fornecedor_id:document.getElementById('e-forn')?.value||'',
+    preco_custo:parseFloat(document.getElementById('e-custo').value)||0,
+    estoque:parseInt(document.getElementById('e-estoque').value)||0,
+    minimo:parseInt(document.getElementById('e-min').value)||5,
+  };
+  try{
+    await update(ref(db,'loja/produtos/'+id),dados);
+    fecharModal('edit');
+    toast('✅ Produto atualizado!','tg');
+  }catch(e){
+    console.error('Erro ao editar:',e);
+    toast('Erro ao salvar alterações!','tr');
+  }
 };
 
 // Datas iniciais
