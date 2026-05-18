@@ -106,6 +106,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .tbtn-outline:hover{border-color:var(--roxo);color:var(--roxo);}
 .sync-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:bl 2s infinite;}
 @keyframes bl{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes gfDot{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
 
 /* Busca topbar */
 .search-wrap{position:relative;margin-left:8px;}
@@ -314,7 +315,7 @@ tbody td.r{text-align:right;font-weight:700;}
         <div><div class="lp-back-nome">Proprietária</div><div class="lp-back-sub">← Trocar perfil</div></div>
       </div>
       <label class="lp-label">Senha</label>
-      <input class="lp-input" type="password" id="lp-senha" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')login()">
+      <input class="lp-input" type="password" id="lp-senha" placeholder="Digite sua senha" onkeydown="handleLoginKey(event)">
       <div class="lp-erro" id="lp-erro">❌ Senha incorreta!</div>
       <button class="lp-btn" onclick="login()">Entrar 🚀</button>
     </div>
@@ -456,7 +457,7 @@ tbody td.r{text-align:right;font-weight:700;}
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="font-size:16px">💵</span>
             <span style="font-size:13px;font-weight:800;color:var(--text)">Calculadora de Troco</span>
-            <button onclick="document.getElementById('troco-box').style.display='none'" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px">✕</button>
+            <button onclick="fecharTroco()" style="margin-left:auto;background:none;border:none;cursor:pointer;color:var(--text3);font-size:16px">✕</button>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;align-items:end">
             <div>
@@ -522,6 +523,51 @@ tbody td.r{text-align:right;font-weight:700;}
         </div>
 
         <div class="mov-list" id="movs-lista"></div>
+
+        <!-- GESTOR FINANCEIRO IA -->
+        <div style="margin-top:20px">
+          <div style="background:linear-gradient(135deg,#0F172A,#1E1B4B,#312E81);border-radius:14px;overflow:hidden">
+            <!-- Header -->
+            <div style="padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)">
+              <div style="width:40px;height:40px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧠</div>
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:900;color:#fff;letter-spacing:.02em">GESTOR FINANCEIRO</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">IA consultora especializada na sua loja · Online</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:bl 2s infinite"></div>
+                <span style="font-size:10px;color:#4ade80;font-weight:700">AO VIVO</span>
+              </div>
+            </div>
+
+            <!-- Filtro período análise -->
+            <div style="padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700">Analisar:</span>
+              <button onclick="setGFPeriodo(7,this)" class="gf-btn-p active" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(124,58,237,.6);color:#fff;transition:all .2s">7 dias</button>
+              <button onclick="setGFPeriodo(30,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">30 dias</button>
+              <button onclick="setGFPeriodo(0,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">Este mês</button>
+              <button onclick="setGFPeriodo(-1,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">Tudo</button>
+              <button onclick="rodarGestorFinanceiro()" style="margin-left:auto;padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;transition:all .2s">⚡ Analisar Agora</button>
+            </div>
+
+            <!-- Chat -->
+            <div id="gf-chat" style="padding:14px 18px;min-height:120px;max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:10px;align-items:flex-start">
+                <div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div>
+                <div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:10px 13px;max-width:85%">
+                  <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.6">Olá! Sou o <strong style="color:#a78bfa">Gestor Financeiro</strong> da Promoções Goiandira. Estou monitorando seus dados em tempo real.<br><br>Selecione um período e clique em <strong style="color:#4ade80">⚡ Analisar Agora</strong> para receber um diagnóstico completo, ou me faça uma pergunta diretamente.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Input -->
+            <div style="padding:10px 18px 14px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.06)">
+              <input id="gf-input" type="text" placeholder="Pergunte algo... ex: Qual produto da mais lucro?" onkeydown="handleGFKey(event)"
+                style="flex:1;padding:9px 13px;border-radius:9px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-family:var(--fn);outline:none">
+              <button onclick="enviarGF()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-size:13px;cursor:pointer;font-weight:800">➤</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- META -->
@@ -1131,6 +1177,17 @@ function calcularVenda(){
 function registrarVenda(){if(window._rv)window._rv();else setTimeout(registrarVenda,150);}
 
 // ===== TROCO =====
+function abrirWhatsApp(el,tel){
+  const num=tel.replace(/[^0-9]/g,'');
+  window.open('https://wa.me/55'+num,'_blank');
+  return false;
+}
+function handleLoginKey(e){if(e.key==='Enter')login();}
+function handleGFKey(e){if(e.key==='Enter')enviarGF();}
+function fecharTroco(){
+  const box=document.getElementById('troco-box');
+  if(box)box.style.display='none';
+}
 function toggleTroco(){
   const box=document.getElementById('troco-box');
   if(!box)return;
@@ -1264,6 +1321,220 @@ function enviarWhatsApp(){
   const txt=encodeURIComponent(window._textoRelatorio);
   const url=num?`https://wa.me/55${num}?text=${txt}`:`https://wa.me/?text=${txt}`;
   window.open(url,'_blank');
+}
+
+// ===== GESTOR FINANCEIRO IA =====
+window.gfPeriodo = 7;
+
+function setGFPeriodo(dias, el){
+  window.gfPeriodo = dias;
+  document.querySelectorAll('.gf-btn-p').forEach(b=>{
+    b.style.background='rgba(255,255,255,.08)';
+    b.style.color='rgba(255,255,255,.6)';
+  });
+  if(el){el.style.background='rgba(124,58,237,.6)';el.style.color='#fff';}
+}
+
+function coletarDadosLoja(dias){
+  const prods = window._prods||{};
+  const movs = window._movs||{};
+  const agora = Date.now();
+  const lim = dias===0
+    ? new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime()
+    : dias===-1 ? 0
+    : agora-(dias*86400000);
+
+  const movsF = Object.values(movs).filter(m=>(m.ts||0)>=lim);
+  const vendas = movsF.filter(m=>m.tipo==='saida');
+  const entradas = movsF.filter(m=>m.tipo==='entrada');
+
+  // Por categoria
+  const cats = {cosmetico:{fat:0,cst:0,qtd:0,nome:'Cosméticos'},chocolate:{fat:0,cst:0,qtd:0,nome:'Chocolates'},utilidades:{fat:0,cst:0,qtd:0,nome:'Utensílios'}};
+  vendas.forEach(m=>{
+    const cat=m.cat||'cosmetico';
+    if(cats[cat]){
+      cats[cat].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);
+      cats[cat].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);
+      cats[cat].qtd+=parseInt(m.qtd||0);
+    }
+  });
+
+  // Por produto
+  const pp={};
+  vendas.forEach(m=>{
+    if(!pp[m.pid]){pp[m.pid]={nome:m.prod,cat:m.cat,fat:0,cst:0,qtd:0};}
+    pp[m.pid].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);
+    pp[m.pid].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);
+    pp[m.pid].qtd+=parseInt(m.qtd||0);
+  });
+
+  const fat=vendas.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
+  const cst=vendas.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
+  const lucro=fat-cst;
+  const mg=fat>0?((lucro/fat)*100).toFixed(1):0;
+  const nVendas=vendas.length;
+  const ticket=nVendas>0?(fat/nVendas).toFixed(2):0;
+
+  // Estoque atual
+  const estqTotal=Object.values(prods).reduce((s,p)=>s+parseFloat(p.preco_custo||0)*(p.estoque||0),0);
+  const estqBaixo=Object.values(prods).filter(p=>p.estoque<=p.minimo).length;
+  const estqZero=Object.values(prods).filter(p=>!p.estoque||p.estoque<=0).length;
+  const totalProds=Object.values(prods).length;
+
+  // Formas de pagamento
+  const pgtos={pix:0,debito:0,credito:0,dinheiro:0};
+  vendas.forEach(m=>{if(pgtos[m.pagamento]!==undefined)pgtos[m.pagamento]+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);});
+
+  // Produtos parados (>30 dias)
+  const ultMov={};
+  Object.values(movs).forEach(m=>{const pid=m.pid||'';if(!ultMov[pid]||m.ts>ultMov[pid])ultMov[pid]=m.ts;});
+  const parados=Object.entries(prods).filter(([id,p])=>(ultMov[id]||p.criado||0)<(agora-30*86400000)&&(p.estoque||0)>0).length;
+
+  const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+
+  return {fat,cst,lucro,mg,nVendas,ticket,cats,pp,estqTotal,estqBaixo,estqZero,totalProds,parados,pgtos,fmt,dias,prods,movs};
+}
+
+async function rodarGestorFinanceiro(){
+  const d = coletarDadosLoja(window.gfPeriodo);
+  const periodoLabel = window.gfPeriodo===0?'este mês':window.gfPeriodo===-1?'todo o período':`últimos ${window.gfPeriodo} dias`;
+
+  // Montar contexto rico para a IA
+  const catResumo = Object.entries(d.cats).map(([k,v])=>{
+    const mg=v.fat>0?((v.fat-v.cst)/v.fat*100).toFixed(1):0;
+    return `${v.nome}: Fat=${d.fmt(v.fat)}, Custo=${d.fmt(v.cst)}, Margem=${mg}%, Qtd=${v.qtd}`;
+  }).join(' | ');
+
+  const top5=Object.values(d.pp).sort((a,b)=>b.fat-a.fat).slice(0,5).map(p=>{
+    const mg=p.fat>0?((p.fat-p.cst)/p.fat*100).toFixed(1):0;
+    return `${p.nome}: Fat=${d.fmt(p.fat)}, Margem=${mg}%`;
+  }).join(' | ');
+
+  const pgtoResumo=Object.entries(d.pgtos).map(([k,v])=>`${k}=${d.fmt(v)}`).join(', ');
+
+  const contexto = `DADOS DA LOJA (${periodoLabel}):
+Faturamento: ${d.fmt(d.fat)}
+Custo total: ${d.fmt(d.cst)}
+Lucro bruto: ${d.fmt(d.lucro)}
+Margem bruta: ${d.mg}%
+Número de vendas: ${d.nVendas}
+Ticket médio: ${d.fmt(d.ticket)}
+Por categoria: ${catResumo}
+Top 5 produtos: ${top5}
+Formas de pagamento: ${pgtoResumo}
+Estoque (valor custo): ${d.fmt(d.estqTotal)}
+Total de produtos: ${d.totalProds}
+Produtos com estoque baixo/zerado: ${d.estqBaixo+d.estqZero}
+Produtos parados >30 dias: ${d.parados}`;
+
+  const prompt = `${contexto}
+
+Analise esses dados como consultor financeiro especializado nesta loja. Responda com:
+1. Resumo financeiro (números principais)
+2. Diagnóstico geral (saúde do negócio)
+3. Análise por categoria (chocolates, cosméticos, utensílios)
+4. Situação do estoque
+5. Recomendações práticas (máximo 4, diretas)
+6. Conclusão objetiva em 2 linhas
+
+Use linguagem clara e direta. Sem jargão. Seja honesto se algo estiver ruim.`;
+
+  adicionarMsgGF('usuario', `📊 Análise completa — ${periodoLabel}`);
+  adicionarMsgGF('loading', '');
+  await chamarIA(prompt);
+}
+
+async function enviarGF(){
+  const input = document.getElementById('gf-input');
+  if(!input||!input.value.trim())return;
+  const pergunta = input.value.trim();
+  input.value='';
+
+  const d = coletarDadosLoja(window.gfPeriodo);
+  const periodoLabel = window.gfPeriodo===0?'este mês':window.gfPeriodo===-1?'todo o período':`últimos ${window.gfPeriodo} dias`;
+
+  const catResumo = Object.entries(d.cats).map(([k,v])=>{
+    const mg=v.fat>0?((v.fat-v.cst)/v.fat*100).toFixed(1):0;
+    return `${v.nome}: Fat=${d.fmt(v.fat)}, Margem=${mg}%`;
+  }).join(' | ');
+
+  const top5=Object.values(d.pp).sort((a,b)=>b.fat-a.fat).slice(0,5).map(p=>{
+    const mg=p.fat>0?((p.fat-p.cst)/p.fat*100).toFixed(1):0;
+    return `${p.nome}: ${d.fmt(p.fat)} (margem ${mg}%)`;
+  }).join(', ');
+
+  const contexto = `Dados da loja (${periodoLabel}): Fat=${d.fmt(d.fat)}, Custo=${d.fmt(d.cst)}, Lucro=${d.fmt(d.lucro)}, Margem=${d.mg}%, Vendas=${d.nVendas}, Ticket=${d.fmt(d.ticket)}, Categorias=[${catResumo}], Top produtos=[${top5}], Estoque valor=${d.fmt(d.estqTotal)}, Produtos parados=${d.parados}.`;
+
+  const prompt = `${contexto}
+
+Pergunta do gestor: "${pergunta}"
+
+Responda de forma direta, prática e específica para esta loja. Use os dados acima na resposta.`;
+
+  adicionarMsgGF('usuario', pergunta);
+  adicionarMsgGF('loading', '');
+  await chamarIA(prompt);
+}
+
+function adicionarMsgGF(tipo, texto){
+  const chat = document.getElementById('gf-chat');
+  if(!chat)return;
+  // Remover loading anterior
+  const loading = chat.querySelector('.gf-loading');
+  if(loading)loading.remove();
+
+  if(tipo==='loading'){
+    const div=document.createElement('div');
+    div.className='gf-loading';
+    div.style.cssText='display:flex;gap:10px;align-items:flex-start';
+    div.innerHTML=`<div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div><div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:10px 13px"><div style="display:flex;gap:5px;align-items:center"><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s .2s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s .4s infinite"></div></div></div>`;
+    chat.appendChild(div);
+  } else if(tipo==='usuario'){
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;justify-content:flex-end';
+    div.innerHTML=`<div style="background:rgba(124,58,237,.4);border-radius:10px 0 10px 10px;padding:9px 12px;max-width:80%"><div style="font-size:12px;color:rgba(255,255,255,.9)">${texto}</div></div>`;
+    chat.appendChild(div);
+  } else if(tipo==='ia'){
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;gap:10px;align-items:flex-start';
+    const formatado=texto.replace(/\*\*(.*?)\*\*/g,'<strong style="color:#a78bfa">$1</strong>').replace(/
+
+/g,'<br><br>').replace(/
+/g,'<br>').replace(/(\d+\. )/g,'<br><strong style="color:#4ade80">$1</strong>');
+    div.innerHTML=`<div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div><div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:11px 14px;max-width:85%"><div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.7">${formatado}</div></div>`;
+    chat.appendChild(div);
+  }
+  chat.scrollTop=chat.scrollHeight;
+}
+
+async function chamarIA(prompt){
+  const SYSTEM = `Atue como consultor financeiro de uma pequena loja de presentes, casa e cuidado pessoal, que vende produtos de casa, chocolates de marca conhecida, cosméticos e kits. Analise sempre faturamento, valor recebido, custo da mercadoria, lucro bruto, margem bruta, taxas, embalagens, perdas, despesas fixas, impostos, lucro líquido, estoque, caixa, contas a pagar e contas a receber. Nunca confunda faturamento com lucro. A loja vive do que sobra, não do que vende. Margens de referência: Chocolates 25-40%, Produtos de casa 40-60%, Cosméticos 50-70%, Kits 50-80%. Margem média saudável 45-55%. Margem líquida desejável 8-15% no início e 12-20% com a loja madura. Calcule preço por: Preço de venda = custo total / (1 - margem desejada). Controle estoque por Curva ABC: A=campeões não podem faltar, B=bons recomprar com moderação, C=lentos comprar pouco, D=problemas promover ou parar. Gere alertas quando: margem bruta abaixo de 40%, margem líquida abaixo de 8%, estoque parado >60 dias, caixa menor que 1 mês de despesas. Princípio: Chocolate traz movimento. Cosmético traz margem. Produto de casa traz recorrência. Kit aumenta lucro. Caixa garante sobrevivência. Faturamento sem margem é vaidade. Use linguagem clara, direta e prática. Evite jargão.`;
+
+  try{
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:SYSTEM,
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data = await resp.json();
+    const texto = data?.content?.[0]?.text||'Não foi possível processar. Tente novamente.';
+    // Remover loading
+    const chat=document.getElementById('gf-chat');
+    const loading=chat?.querySelector('.gf-loading');
+    if(loading)loading.remove();
+    adicionarMsgGF('ia', texto);
+  }catch(e){
+    const chat=document.getElementById('gf-chat');
+    const loading=chat?.querySelector('.gf-loading');
+    if(loading)loading.remove();
+    adicionarMsgGF('ia','⚠️ Erro ao conectar com a IA. Verifique a conexão e tente novamente.');
+    console.error('GF erro:',e);
+  }
 }
 
 // PROXIES
@@ -1841,7 +2112,7 @@ function renderCli(){
         <div style="font-size:12px;color:var(--text3);margin-top:2px">${cl.telefone?`📞 ${cl.telefone}`:''}${aniv?` · 🎂 ${aniv}`:''}</div>
         ${cl.obs?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${cl.obs}</div>`:''}
       </div>
-      ${cl.telefone?`<a href="https://wa.me/55${cl.telefone.replace(/\D/g,'')}" target="_blank" style="width:36px;height:36px;background:#25D366;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;flex-shrink:0">📲</a>`:''}
+      ${cl.telefone?`<a href="#" onclick="abrirWhatsApp(this,'${cl.telefone}')"  target="_blank" style="width:36px;height:36px;background:#25D366;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;text-decoration:none;flex-shrink:0">📲</a>`:''}
       <button onclick="excluirCliente('${id}')" style="width:34px;height:34px;background:#FEE2E2;border:none;border-radius:9px;cursor:pointer;font-size:14px;flex-shrink:0">🗑</button>
     </div>`;
   }).join('');
