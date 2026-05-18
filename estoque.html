@@ -542,6 +542,15 @@ tbody td.r{text-align:right;font-weight:700;}
 
       <!-- MOVIMENTAÇÕES -->
       <div id="pg-movs" style="display:none">
+        <!-- FILTRO PERÍODO MOVS -->
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <span style="font-size:12px;font-weight:800;color:var(--text2)">📅 Período:</span>
+          <button id="mp-1" onclick="setPeriodoMovs('1',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Hoje</button>
+          <button id="mp-7" onclick="setPeriodoMovs('7',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
+          <button id="mp-30" onclick="setPeriodoMovs('30',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
+          <button id="mp-todos" onclick="setPeriodoMovs('todos',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--roxo);background:var(--roxo);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Todos</button>
+          <span id="movs-count" style="margin-left:auto;font-size:11px;color:var(--text3)"></span>
+        </div>
         <div class="mov-header-cards">
           <div class="mov-hcard"><div class="mov-hcard-val" id="fat-t" style="color:var(--verde)">R$ 0,00</div><div class="mov-hcard-lbl">Faturamento Total</div></div>
           <div class="mov-hcard"><div class="mov-hcard-val" id="cst-t" style="color:var(--red)">R$ 0,00</div><div class="mov-hcard-lbl">Custo Total</div></div>
@@ -859,6 +868,49 @@ function closeSidebar(){
 
 // FILTRO
 window._filtro='todos';
+window._periodoProd='todos';
+window._periodoMovs='todos';
+window._verTodos=false;
+
+function setPeriodoProd(p,el){
+  window._periodoProd=p;
+  window._verTodos=false;
+  // Reset botões
+  ['fp-todos','fp-1','fp-7','fp-30','fp-ver'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.background='#fff';b.style.color='var(--text2)';b.style.borderColor='var(--border)';}
+  });
+  if(el){el.style.background='var(--roxo)';el.style.color='#fff';el.style.borderColor='var(--roxo)';}
+  if(window._renderProd)window._renderProd();
+}
+
+function toggleVerTodos(){
+  window._verTodos=!window._verTodos;
+  window._periodoProd='todos';
+  const btn=document.getElementById('fp-ver');
+  // Reset todos
+  ['fp-todos','fp-1','fp-7','fp-30'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.background='#fff';b.style.color='var(--text2)';b.style.borderColor='var(--border)';}
+  });
+  if(btn){
+    btn.textContent=window._verTodos?'← Mostrar 5':'Ver todos';
+    btn.style.borderStyle=window._verTodos?'solid':'dashed';
+    btn.style.borderColor=window._verTodos?'var(--roxo)':'var(--border)';
+    btn.style.color=window._verTodos?'var(--roxo)':'var(--text3)';
+  }
+  if(window._renderProd)window._renderProd();
+}
+
+function setPeriodoMovs(p,el){
+  window._periodoMovs=p;
+  ['mp-1','mp-7','mp-30','mp-todos'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.background='#fff';b.style.color='var(--text2)';b.style.borderColor='var(--border)';}
+  });
+  if(el){el.style.background='var(--roxo)';el.style.color='#fff';el.style.borderColor='var(--roxo)';}
+  if(window._renderMovs)window._renderMovs();
+}
 function setFiltro(cat,el){
   window._filtro=cat;
   document.querySelectorAll('.filtros .fb').forEach(b=>b.classList.remove('active'));
@@ -1090,8 +1142,20 @@ onValue(rMt,s=>{metaData=s.val()||{};renderMeta();});
 function renderProd(){
   const g=document.getElementById('prod-grid');if(!g)return;
   const cat=window._filtro||'todos';
-  const lista=Object.entries(prods).filter(([k,p])=>cat==='todos'||p.categoria===cat);
-  if(!lista.length){g.innerHTML=`<div class="empty"><div class="ico">📦</div><p>Nenhum produto.<br>Clique em <strong>+ Produto</strong>!</p></div>`;return;}
+  const periodo=window._periodoProd||'todos';
+  const agora=Date.now();
+  const limites={'1':86400000,'7':7*86400000,'30':30*86400000};
+  let lista=Object.entries(prods).filter(([k,p])=>cat==='todos'||p.categoria===cat);
+  // Filtrar por período se selecionado
+  if(periodo!=='todos'&&limites[periodo]){
+    lista=lista.filter(([k,p])=>(p.criado||0)>=(agora-limites[periodo]));
+  }
+  // Ordenar por mais recente
+  lista.sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
+  // Mostrar só os 5 mais recentes na página principal
+  const exibindo5=periodo==='todos'&&!window._verTodos;
+  if(exibindo5)lista=lista.slice(0,5);
+  if(!lista.length){g.innerHTML=`<div class="empty"><div class="ico">📦</div><p>Nenhum produto encontrado.</p></div>`;return;}
   g.innerHTML=lista.map(([id,p],i)=>{
     const c=CATS[p.categoria]||CATS.cosmetico;
     const ec=p.estoque<=0?'bzero':p.estoque<=p.minimo?'blow':'bok';
@@ -1117,7 +1181,17 @@ function renderProd(){
       </div>
     </div>`;
   }).join('');
-  lista.forEach(([id])=>{const c=document.getElementById('pc-'+id);if(c)initSwipe(c,id);});
+  lista.forEach(([id])=>{const card=document.getElementById('pc-'+id);if(card)initSwipe(card,id);});
+  // Mostrar contador
+  const total=Object.values(prods).filter(p=>cat==='todos'||p.categoria===cat).length;
+  const cnt=document.getElementById('prod-count');
+  if(cnt){
+    if(exibindo5&&total>5){
+      cnt.innerHTML=`Exibindo <strong>5</strong> de <strong>${total}</strong> produtos`;
+    } else {
+      cnt.innerHTML=`<strong>${lista.length}</strong> produto(s) encontrado(s)`;
+    }
+  }
 }
 window._renderProd=renderProd;
 
@@ -1139,15 +1213,27 @@ function renderResumo(){
 // RENDER MOVIMENTAÇÕES
 function renderMovs(){
   const lista=document.getElementById('movs-lista');if(!lista)return;
-  const vendas=Object.values(movs).filter(m=>m.tipo==='saida');
+  const periodo=window._periodoMovs||'todos';
+  const agora=Date.now();
+  const limites={'1':86400000,'7':7*86400000,'30':30*86400000};
+  // Filtrar por período
+  let todasMovs=Object.entries(movs);
+  if(periodo!=='todos'&&limites[periodo]){
+    todasMovs=todasMovs.filter(([k,m])=>(m.ts||0)>=(agora-limites[periodo]));
+  }
+  todasMovs.sort((a,b)=>(b[1].ts||0)-(a[1].ts||0));
+  const vendas=todasMovs.filter(([k,m])=>m.tipo==='saida').map(([k,m])=>m);
   const fatT=vendas.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
   const cstT=vendas.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
   const lucT=fatT-cstT;
   animNum(document.getElementById('fat-t'),fatT,'R$ ',true);
   animNum(document.getElementById('cst-t'),cstT,'R$ ',true);
   animNum(document.getElementById('luc-t'),lucT,'R$ ',true);
-  const l=Object.entries(movs).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0)).slice(0,40);
-  if(!l.length){lista.innerHTML=`<div class="empty"><div class="ico">🔄</div><p>Nenhuma movimentação ainda.</p></div>`;return;}
+  // Contador
+  const cnt=document.getElementById('movs-count');
+  if(cnt)cnt.textContent=`${todasMovs.length} movimentação(ões) no período`;
+  const l=todasMovs.slice(0,60);
+  if(!l.length){lista.innerHTML=`<div class="empty"><div class="ico">🔄</div><p>Nenhuma movimentação no período.</p></div>`;return;}
   lista.innerHTML=l.map(([id,m])=>{
     const dt=new Date(m.ts||Date.now());
     const hora=dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
@@ -1213,6 +1299,8 @@ function renderMeta(){
     </div>`;
   }).join('');
 }
+
+window._renderMovs=renderMovs;
 
 // RENDER ALERTAS
 function renderAlertas(){
