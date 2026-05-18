@@ -529,60 +529,43 @@ tbody td.r{text-align:right;font-weight:700;}
           <div style="background:linear-gradient(135deg,#0F172A,#1E1B4B,#312E81);border-radius:14px;overflow:hidden">
             <!-- Header -->
             <div style="padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.08)">
-              <div style="width:40px;height:40px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🧠</div>
+              <div style="width:38px;height:38px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🧠</div>
               <div style="flex:1">
-                <div style="font-size:14px;font-weight:900;color:#fff;letter-spacing:.02em">GESTOR FINANCEIRO</div>
-                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">IA consultora especializada na sua loja · Online</div>
+                <div style="font-size:14px;font-weight:900;color:#fff">GESTOR FINANCEIRO</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:1px">IA consultora · Analisa seus dados em tempo real</div>
               </div>
-              <div style="display:flex;align-items:center;gap:6px">
+              <div style="display:flex;align-items:center;gap:5px">
                 <div style="width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;animation:bl 2s infinite"></div>
                 <span style="font-size:10px;color:#4ade80;font-weight:700">AO VIVO</span>
               </div>
             </div>
-
-            <!-- Filtro período análise -->
-            <div style="padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-size:11px;color:rgba(255,255,255,.5);font-weight:700">Analisar:</span>
-              <button onclick="setGFPeriodo(7,this)" class="gf-btn-p active" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(124,58,237,.6);color:#fff;transition:all .2s">7 dias</button>
-              <button onclick="setGFPeriodo(30,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">30 dias</button>
-              <button onclick="setGFPeriodo(0,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">Este mês</button>
-              <button onclick="setGFPeriodo(-1,this)" class="gf-btn-p" style="padding:4px 12px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);transition:all .2s">Tudo</button>
-              <button onclick="rodarGestorFinanceiro()" style="margin-left:auto;padding:6px 16px;border-radius:7px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;transition:all .2s">⚡ Analisar Agora</button>
+            <!-- Período -->
+            <div style="padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-size:11px;color:rgba(255,255,255,.4);font-weight:700">Período:</span>
+              <button onclick="gfSetP(7,this)" id="gfp7" style="padding:4px 11px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(124,58,237,.6);color:#fff">7 dias</button>
+              <button onclick="gfSetP(30,this)" id="gfp30" style="padding:4px 11px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">30 dias</button>
+              <button onclick="gfSetP(0,this)" id="gfp0" style="padding:4px 11px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">Este mês</button>
+              <button onclick="gfSetP(-1,this)" id="gfpT" style="padding:4px 11px;border-radius:6px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)">Tudo</button>
+              <button onclick="gfAnalisar()" style="margin-left:auto;padding:6px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn)">⚡ Analisar</button>
             </div>
-
             <!-- Chat -->
-            <div id="gf-chat" style="padding:14px 18px;min-height:120px;max-height:500px;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
-              <div style="display:flex;gap:10px;align-items:flex-start">
+            <div id="gf-chat" style="padding:14px 18px;min-height:100px;max-height:420px;overflow-y:auto;display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:9px">
                 <div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div>
                 <div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:10px 13px;max-width:85%">
-                  <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.6">Olá! Sou o <strong style="color:#a78bfa">Gestor Financeiro</strong> da Promoções Goiandira. Estou monitorando seus dados em tempo real.<br><br>Selecione um período e clique em <strong style="color:#4ade80">⚡ Analisar Agora</strong> para receber um diagnóstico completo, ou me faça uma pergunta diretamente.</div>
+                  <div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.6">Olá! Sou o <strong style="color:#a78bfa">Gestor Financeiro</strong> da Promoções Goiandira.<br>Selecione o período e clique em <strong style="color:#4ade80">⚡ Analisar</strong>, ou me faça uma pergunta direta.</div>
                 </div>
               </div>
             </div>
-
             <!-- Input -->
             <div style="padding:10px 18px 14px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.06)">
-              <input id="gf-input" type="text" placeholder="Pergunte algo... ex: Qual produto da mais lucro?" onkeydown="handleGFKey(event)"
+              <input id="gf-inp" type="text" placeholder="Pergunte algo sobre suas finanças..."
+                onkeydown="handleGFKey(event)"
                 style="flex:1;padding:9px 13px;border-radius:9px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:12px;font-family:var(--fn);outline:none">
-              <button onclick="enviarGF()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-size:13px;cursor:pointer;font-weight:800">➤</button>
+              <button onclick="gfEnviar()" style="padding:9px 16px;border-radius:9px;border:none;background:linear-gradient(135deg,#4F46E5,#7C3AED);color:#fff;font-size:14px;cursor:pointer">➤</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- META -->
-      <div id="pg-meta" style="display:none">
-        <div class="meta-box">
-          <div class="meta-row">
-            <div><div class="meta-lbl">Meta do Mês</div><div class="meta-val" id="meta-meta">R$ 0,00</div></div>
-            <div style="text-align:right"><div class="meta-lbl">Realizado</div><div class="meta-val" id="meta-real">R$ 0,00</div></div>
-          </div>
-          <div class="meta-bar-bg"><div class="meta-bar-fill" id="meta-bar" style="width:0%"></div></div>
-          <div class="meta-pct-row"><span id="meta-pct">0% atingido</span><span id="meta-falta">Falta R$ 0,00</span></div>
-        </div>
-        <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">Vendas do Mês Atual</div>
-        <div class="meta-prod-list" id="meta-lista"></div>
-      </div>
+        </div>>
 
       <!-- MARKETING -->
       <div id="pg-marketing" style="display:none">
@@ -1180,6 +1163,104 @@ function registrarVenda(){if(window._rv)window._rv();else setTimeout(registrarVe
 function abrirWhatsApp(el,tel){
   var num=tel.replace(/[^0-9]/g,'');window.open('https://wa.me/55'+num,'_blank');return false;
 }
+// ===== GESTOR FINANCEIRO =====
+window.gfPeriodo = 7;
+
+function gfSetP(p, el){
+  window.gfPeriodo = p;
+  ['gfp7','gfp30','gfp0','gfpT'].forEach(id=>{
+    const b=document.getElementById(id);
+    if(b){b.style.background='rgba(255,255,255,.08)';b.style.color='rgba(255,255,255,.6)';}
+  });
+  if(el){el.style.background='rgba(124,58,237,.6)';el.style.color='#fff';}
+}
+
+function gfColetarDados(){
+  const prods=window._prods||{};
+  const movs=window._movs||{};
+  const agora=Date.now();
+  const p=window.gfPeriodo;
+  const lim=p===0?new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime():p===-1?0:agora-(p*86400000);
+  const vendas=Object.values(movs).filter(m=>m.tipo==='saida'&&(m.ts||0)>=lim);
+  const fat=vendas.reduce((s,m)=>s+parseFloat(m.vunit||0)*parseInt(m.qtd||0),0);
+  const cst=vendas.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
+  const luc=fat-cst;
+  const mg=fat>0?((luc/fat)*100).toFixed(1):0;
+  const nV=vendas.length;
+  const ticket=nV>0?(fat/nV).toFixed(2):0;
+  const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const cats={cosmetico:{fat:0,cst:0,qtd:0},chocolate:{fat:0,cst:0,qtd:0},utilidades:{fat:0,cst:0,qtd:0}};
+  vendas.forEach(m=>{const cat=m.cat||'cosmetico';if(cats[cat]){cats[cat].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);cats[cat].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);cats[cat].qtd+=parseInt(m.qtd||0);}});
+  const pp={};
+  vendas.forEach(m=>{if(!pp[m.pid]){pp[m.pid]={nome:m.prod,fat:0,cst:0};}pp[m.pid].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);pp[m.pid].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
+  const top=Object.values(pp).sort((a,b)=>b.fat-a.fat).slice(0,5).map(p=>{const mg=p.fat>0?((p.fat-p.cst)/p.fat*100).toFixed(1):0;return p.nome+': '+fmt(p.fat)+' ('+mg+'%)';}).join(', ');
+  const estqVal=Object.values(prods).reduce((s,p)=>s+parseFloat(p.preco_custo||0)*(p.estoque||0),0);
+  const baixo=Object.values(prods).filter(p=>p.estoque>0&&p.estoque<=p.minimo).length;
+  const zero=Object.values(prods).filter(p=>!p.estoque||p.estoque<=0).length;
+  const ult={};Object.values(movs).forEach(m=>{const pid=m.pid||'';if(!ult[pid]||m.ts>ult[pid])ult[pid]=m.ts;});
+  const parados=Object.entries(prods).filter(([id,p])=>(ult[id]||p.criado||0)<(agora-30*86400000)&&(p.estoque||0)>0).length;
+  const nNomes={cosmetico:'Cosmeticos',chocolate:'Chocolates',utilidades:'Utensilios'};
+  const catR=Object.entries(cats).map(([k,v])=>{const mg=v.fat>0?((v.fat-v.cst)/v.fat*100).toFixed(1):0;return nNomes[k]+': Fat='+fmt(v.fat)+', Margem='+mg+'%, Qtd='+v.qtd;}).join(' | ');
+  const lbl=p===0?'este mes':p===-1?'tudo':'ultimos '+p+' dias';
+  return {fat,cst,luc,mg,nV,ticket,top,catR,estqVal,baixo,zero,parados,fmt,lbl,nProds:Object.keys(prods).length};
+}
+
+function gfAddMsg(tipo,texto){
+  const chat=document.getElementById('gf-chat');
+  if(!chat)return;
+  const loading=chat.querySelector('.gf-load');
+  if(loading)loading.remove();
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;gap:9px;'+(tipo==='user'?'flex-direction:row-reverse':'');
+  if(tipo==='loading'){
+    div.className='gf-load';
+    div.innerHTML='<div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div><div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:10px 13px"><div style="display:flex;gap:5px"><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s .2s infinite"></div><div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:gfDot 1.2s .4s infinite"></div></div></div>';
+  } else if(tipo==='user'){
+    div.innerHTML='<div style="background:rgba(124,58,237,.35);border-radius:10px 0 10px 10px;padding:9px 12px;max-width:82%"><div style="font-size:12px;color:rgba(255,255,255,.9)">'+texto+'</div></div>';
+  } else {
+    const fmt_txt=texto.replace(/\*\*(.*?)\*\*/g,'<strong style="color:#a78bfa">$1</strong>').replace(/([0-9]+\. )/g,'<br><strong style="color:#4ade80">$1</strong>').replace(/
+/g,'<br>');
+    div.innerHTML='<div style="width:28px;height:28px;background:linear-gradient(135deg,#4F46E5,#7C3AED);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div><div style="background:rgba(255,255,255,.06);border-radius:0 10px 10px 10px;padding:10px 13px;max-width:85%"><div style="font-size:12px;color:rgba(255,255,255,.85);line-height:1.7">'+fmt_txt+'</div></div>';
+  }
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+async function gfChamarIA(prompt){
+  const SYSTEM='Atue como consultor financeiro de uma pequena loja de presentes, casa e cuidado pessoal. Analise faturamento, custo, lucro, margem, estoque. Nunca confunda faturamento com lucro. Margens: Chocolates 25-40%, Produtos de casa 40-60%, Cosmeticos 50-70%, Kits 50-80%. Margem saudavel 45-55%. Use linguagem clara e direta. Seja objetivo.';
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:SYSTEM,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    return data?.content?.[0]?.text||'Nao foi possivel processar.';
+  }catch(e){
+    return 'Erro ao conectar. Tente novamente.';
+  }
+}
+
+function gfAnalisar(){
+  const d=gfColetarDados();
+  const prompt=d.fmt(d.fat)+' fat, '+d.fmt(d.cst)+' custo, '+d.fmt(d.luc)+' lucro, '+d.mg+'% margem, '+d.nV+' vendas, ticket '+d.fmt(d.ticket)+'. Categorias: '+d.catR+'. Top: '+(d.top||'nenhum')+'. Estoque valor '+d.fmt(d.estqVal)+', '+d.nProds+' prods, '+String(d.baixo+d.zero)+' com estoque critico, '+d.parados+' parados. Dados do periodo: '+d.lbl+'. Faca analise completa: 1.Resumo 2.Diagnostico 3.Categorias 4.Estoque 5.Recomendacoes 6.Conclusao';
+  gfAddMsg('user','Analise completa - '+d.lbl);
+  gfAddMsg('loading','');
+  gfChamarIA(prompt).then(function(r){gfAddMsg('ia',r);});
+}
+
+function gfEnviar(){
+  const inp=document.getElementById('gf-inp');
+  if(!inp||!inp.value.trim())return;
+  const txt=inp.value.trim();
+  inp.value='';
+  const d=gfColetarDados();
+  const ctx=d.fmt(d.fat)+' fat, '+d.fmt(d.luc)+' lucro, '+d.mg+'% margem, '+d.nV+' vendas, categorias ['+d.catR+'], top ['+d.top+'], '+d.parados+' parados. Periodo: '+d.lbl;
+  gfAddMsg('user',txt);
+  gfAddMsg('loading','');
+  gfChamarIA('Contexto da loja: '+ctx+'. Pergunta do gestor: '+txt+'. Responda direto e use os dados.').then(function(r){gfAddMsg('ia',r);});
+}
+
 function handleLoginKey(e){if(e.key==='Enter')login();}
 function handleGFKey(e){if(e.key==='Enter')enviarGF();}
 function fecharTroco(){
@@ -1503,33 +1584,44 @@ function adicionarMsgGF(tipo, texto){
 }
 
 async function chamarIA(prompt){
-  const SYSTEM = `Atue como consultor financeiro de uma pequena loja de presentes, casa e cuidado pessoal, que vende produtos de casa, chocolates de marca conhecida, cosméticos e kits. Analise sempre faturamento, valor recebido, custo da mercadoria, lucro bruto, margem bruta, taxas, embalagens, perdas, despesas fixas, impostos, lucro líquido, estoque, caixa, contas a pagar e contas a receber. Nunca confunda faturamento com lucro. A loja vive do que sobra, não do que vende. Margens de referência: Chocolates 25-40%, Produtos de casa 40-60%, Cosméticos 50-70%, Kits 50-80%. Margem média saudável 45-55%. Margem líquida desejável 8-15% no início e 12-20% com a loja madura. Calcule preço por: Preço de venda = custo total / (1 - margem desejada). Controle estoque por Curva ABC: A=campeões não podem faltar, B=bons recomprar com moderação, C=lentos comprar pouco, D=problemas promover ou parar. Gere alertas quando: margem bruta abaixo de 40%, margem líquida abaixo de 8%, estoque parado >60 dias, caixa menor que 1 mês de despesas. Princípio: Chocolate traz movimento. Cosmético traz margem. Produto de casa traz recorrência. Kit aumenta lucro. Caixa garante sobrevivência. Faturamento sem margem é vaidade. Use linguagem clara, direta e prática. Evite jargão.`;
-
-  try{
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:SYSTEM,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await resp.json();
-    const texto = data?.content?.[0]?.text||'Não foi possível processar. Tente novamente.';
-    // Remover loading
+  // Usar iframe com artifact do Claude que tem acesso à API
+  window._gfPromptPendente = prompt;
+  const iframe = document.getElementById('gf-iframe');
+  if(iframe){
+    iframe.contentWindow.postMessage({tipo:'analisar', prompt:prompt}, '*');
+  } else {
+    // Fallback: análise local sem IA
     const chat=document.getElementById('gf-chat');
     const loading=chat?.querySelector('.gf-loading');
     if(loading)loading.remove();
-    adicionarMsgGF('ia', texto);
-  }catch(e){
-    const chat=document.getElementById('gf-chat');
-    const loading=chat?.querySelector('.gf-loading');
-    if(loading)loading.remove();
-    adicionarMsgGF('ia','⚠️ Erro ao conectar com a IA. Verifique a conexão e tente novamente.');
-    console.error('GF erro:',e);
+    adicionarMsgGF('ia', gerarAnaliseLocal(prompt));
   }
+}
+
+function gerarAnaliseLocal(prompt){
+  const d = coletarDadosLoja(window.gfPeriodo);
+  const mg = parseFloat(d.mg);
+  const alertas = [];
+  if(mg < 40) alertas.push('⚠️ Margem bruta abaixo de 40% — revise preços ou reduza custos');
+  if(mg >= 45 && mg <= 55) alertas.push('✅ Margem dentro da faixa saudável (45-55%)');
+  if(d.parados > 0) alertas.push(`⚠️ ${d.parados} produto(s) parados há mais de 30 dias — risco de capital preso`);
+  if(d.estqBaixo + d.estqZero > 0) alertas.push(`🔴 ${d.estqBaixo+d.estqZero} produto(s) com estoque crítico — risco de ruptura`);
+  const top = Object.values(d.pp).sort((a,b)=>b.fat-a.fat).slice(0,3);
+  const topNomes = top.map(p=>`${p.nome} (${d.fmt(p.fat)})`).join(', ');
+  return [
+    '**📊 Resumo Financeiro**',
+    `Faturamento: ${d.fmt(d.fat)} | Custo: ${d.fmt(d.cst)} | Lucro: ${d.fmt(d.lucro)} | Margem: ${d.mg}%`,
+    `Vendas: ${d.nVendas} | Ticket médio: ${d.fmt(d.ticket)}`,
+    '',
+    '**🏆 Top Produtos**',
+    topNomes||'Sem vendas no período',
+    '',
+    '**🔔 Alertas**',
+    alertas.length ? alertas.join('\n') : '✅ Nenhum alerta crítico no momento',
+    '',
+    '**💡 Nota**',
+    'Para análise completa com IA, acesse pelo app claude.ai ou use o sistema integrado com a API Anthropic configurada.'
+  ].join('\n');
 }
 
 // PROXIES
