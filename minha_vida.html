@@ -31,10 +31,8 @@ const db   = getFirestore(app);
 
 window.__auth = auth;
 window.__db   = db;
-window.__fb   = {
-  createUserWithEmailAndPassword, signInWithEmailAndPassword,
-  signOut, onAuthStateChanged, doc, setDoc, serverTimestamp, onSnapshot
-};
+window.__fb   = { createUserWithEmailAndPassword, signInWithEmailAndPassword,
+                  signOut, onAuthStateChanged, doc, setDoc, serverTimestamp, onSnapshot };
 
 onAuthStateChanged(auth, user => {
   if (user) { window.__uid = user.uid; window.__onLogin  && window.__onLogin(user); }
@@ -52,10 +50,12 @@ onAuthStateChanged(auth, user => {
 }
 body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh;overflow-x:hidden}
 
+/* LOADING */
 #ld{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 .spin{width:40px;height:40px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* LOGIN */
 #ls{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0f0c1a,#1a0d2e 50%,#0d1a2e);display:none;align-items:center;justify-content:center;padding:1.5rem}
 #ls.on{display:flex}
 .lwrap{width:100%;max-width:400px}
@@ -73,6 +73,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 .lswitch{text-align:center;font-size:13px;color:var(--mt)}
 .lswitch span{color:var(--ac);cursor:pointer;font-weight:700}
 
+/* APP */
 #app{display:none;flex-direction:row;min-height:100vh}
 #app.on{display:flex}
 .sb{width:66px;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;padding:14px 0;gap:4px;flex-shrink:0}
@@ -130,13 +131,31 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 .avs{font-size:12px;color:var(--mt);margin-top:2px}
 .cr{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .cp{font-size:10px;font-weight:700;padding:3px 8px;border-radius:7px}
-
 .s6{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .s6c{background:var(--sf2);border-radius:9px;padding:8px 9px}
 .s6h{display:flex;justify-content:space-between;margin-bottom:4px}
 .s6n{font-size:10px;color:var(--mt)}
 .s6v{font-size:11px;font-weight:700}
 
+/* ÁRVORE GENEALÓGICA */
+.tree-container{width:100%;overflow-x:auto;overflow-y:visible;padding:10px 0 20px;-webkit-overflow-scrolling:touch}
+.tree-container svg{display:block}
+
+/* Legenda */
+.tree-legend{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:10px 14px;background:var(--sf);border:1px solid var(--bd);border-radius:11px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--mt)}
+.leg-dot{width:9px;height:9px;border-radius:50%}
+
+/* Detail panel */
+.dp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-top:11px;display:none}
+.dp.on{display:block}
+.dph{display:flex;align-items:center;gap:11px;margin-bottom:11px}
+.dpav{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.dpas{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+.dpb{background:var(--sf2);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-family:var(--fn);color:var(--tx);font-weight:700;transition:all .15s}
+.dpb.dg{color:var(--dg);background:rgba(255,79,106,.1)}
+
+/* Diário */
 .mr{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
 .mb{background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:5px 10px;cursor:pointer;font-size:12px;font-family:var(--fn);color:var(--tx);transition:all .15s}
 .mb.sl,.mb:hover{border-color:var(--ac);background:rgba(124,92,252,.15)}
@@ -150,44 +169,41 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 .ets{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
 .et{font-size:10px;background:var(--sf2);padding:2px 6px;border-radius:5px;color:var(--mt)}
 
-.tw{overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch}
-
+/* Timeline */
 .tli{display:flex;gap:11px;margin-bottom:13px}
 .tldw{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
 .tldt{width:13px;height:13px;border-radius:50%;margin-top:4px;flex-shrink:0}
 .tll2{flex:1;width:2px;background:var(--bd);margin-top:4px}
-
 .acg{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px;margin-top:4px}
 .acc{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:13px;text-align:center}
 .aci{font-size:26px;margin-bottom:6px}
 .acn{font-size:12px;font-weight:700}
 .acd{font-size:10px;color:var(--mt);margin-top:2px}
 
-.dp{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-top:11px;display:none}
-.dp.on{display:block}
-.dph{display:flex;align-items:center;gap:11px;margin-bottom:11px}
-.dpav{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.dpas{display:flex;gap:6px;margin-top:9px}
-.dpb{background:var(--sf2);border:none;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;font-family:var(--fn);color:var(--tx);font-weight:700;transition:all .15s}
-.dpb.dg{color:var(--dg);background:rgba(255,79,106,.1)}
-
-.mov{display:none;min-height:420px;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:18px}
+/* Modal */
+.mov{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;padding:18px}
 .mov.on{display:flex}
 .modal{background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:22px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto}
 .modal::-webkit-scrollbar{width:3px}
 .modal::-webkit-scrollbar-thumb{background:var(--bd)}
 .mtt{font-size:15px;font-weight:800;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
-.mx{background:none;border:none;color:var(--mt);font-size:17px;cursor:pointer}
+.mx{background:none;border:none;color:var(--mt);font-size:17px;cursor:pointer;padding:4px 8px}
 .mf{margin-bottom:11px}
 .ml{display:block;font-size:11px;color:var(--mt);margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.mi,.msl,.mta{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:8px 11px;color:var(--tx);font-family:var(--fn);font-size:13px;outline:none;transition:border-color .2s}
+.mi,.msl,.mta{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:9px;padding:9px 12px;color:var(--tx);font-family:var(--fn);font-size:14px;outline:none;transition:border-color .2s}
 .mi:focus,.mta:focus{border-color:rgba(124,92,252,.5)}
 .mta{resize:none;height:74px}
 .mbs{display:flex;gap:7px;margin-top:15px}
-.mbs-sv{flex:1;background:var(--ac);color:#fff;border:none;border-radius:9px;padding:10px;font-family:var(--fn);font-size:13px;font-weight:800;cursor:pointer}
-.mbs-cl{background:var(--sf2);color:var(--mt);border:none;border-radius:9px;padding:10px 13px;font-family:var(--fn);font-size:13px;cursor:pointer}
-.mbs-dl{background:rgba(255,79,106,.12);color:var(--dg);border:none;border-radius:9px;padding:10px 11px;font-family:var(--fn);font-size:12px;cursor:pointer}
+.mbs-sv{flex:1;background:var(--ac);color:#fff;border:none;border-radius:9px;padding:11px;font-family:var(--fn);font-size:14px;font-weight:800;cursor:pointer}
+.mbs-cl{background:var(--sf2);color:var(--mt);border:none;border-radius:9px;padding:11px 14px;font-family:var(--fn);font-size:13px;cursor:pointer}
+.mbs-dl{background:rgba(255,79,106,.12);color:var(--dg);border:none;border-radius:9px;padding:11px 12px;font-family:var(--fn);font-size:12px;cursor:pointer}
 
+/* Emoji picker rápido */
+.emoji-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.epick{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all .15s}
+.epick:hover{border-color:var(--ac);background:rgba(124,92,252,.15)}
+
+/* Toast */
 .toast{position:fixed;bottom:20px;right:20px;background:var(--sf);border:1px solid var(--bd);color:var(--tx);padding:9px 15px;border-radius:11px;font-size:13px;font-weight:700;z-index:9999;opacity:0;transform:translateY(14px);transition:all .3s;pointer-events:none;max-width:260px}
 .toast.on{opacity:1;transform:translateY(0)}
 .toast.ok{border-color:var(--a3);background:rgba(0,229,160,.1);color:var(--a3)}
@@ -219,7 +235,6 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
       <h1>Minha Vida</h1>
       <p>Seu RPG de vida real · Base online</p>
     </div>
-
     <div class="lcard" id="lf-in">
       <label class="flbl">E-mail</label>
       <input class="finp" id="l-em" type="email" placeholder="seu@email.com">
@@ -229,7 +244,6 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
       <button class="lbtn" onclick="doLogin()">▶ Entrar no jogo</button>
       <div class="lswitch">Não tem conta? <span onclick="swF('reg')">Criar conta</span></div>
     </div>
-
     <div class="lcard" id="lf-rg" style="display:none">
       <label class="flbl">Nome completo</label>
       <input class="finp" id="r-nm" placeholder="Como você se chama?">
@@ -314,22 +328,33 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 
     <!-- REDE -->
     <div class="pg" id="pg-rede">
-      <div style="display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap">
-        <button class="mb sl" id="rt-all"      onclick="setRT('all',this)">Todos</button>
-        <button class="mb"    id="rt-familia"  onclick="setRT('familia',this)">👨‍👩‍👧 Família</button>
-        <button class="mb"    id="rt-amigos"   onclick="setRT('amigos',this)">🤝 Amigos</button>
-        <button class="mb"    id="rt-trabalho" onclick="setRT('trabalho',this)">💼 Trabalho</button>
+      <div class="st" style="margin-top:0">🌳 minha árvore de vida</div>
+
+      <!-- Legenda -->
+      <div class="tree-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:#ff6bba"></div>Cônjuge</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#a78bfa"></div>Pais</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#ffb740"></div>Irmãos</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#00e5a0"></div>Amigos</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#7c5cfc"></div>Trabalho</div>
+        <div class="leg-item"><div class="leg-dot" style="background:#888"></div>Outros</div>
       </div>
-      <button class="addbtn" onclick="om('pessoa')">➕ Adicionar pessoa</button>
-      <div class="tw"><svg id="tree-svg"></svg></div>
+
+      <button class="addbtn" onclick="om('pessoa')">➕ Adicionar pessoa à árvore</button>
+
+      <div class="tree-container">
+        <svg id="tree-svg"></svg>
+      </div>
+
+      <!-- Painel de detalhe -->
       <div class="dp" id="dp">
         <div class="dph">
           <div class="dpav" id="dp-av"></div>
-          <div>
-            <div style="font-size:15px;font-weight:800" id="dp-nm"></div>
-            <div style="font-size:12px;color:var(--mt)" id="dp-sb"></div>
-            <div style="font-size:11px;color:var(--mt);margin-top:3px">Vínculo: <span id="dp-vc"></span>/100</div>
-            <div class="bw"><div class="bf" id="dp-bf"></div></div>
+          <div style="flex:1">
+            <div style="font-size:16px;font-weight:800" id="dp-nm"></div>
+            <div style="font-size:12px;color:var(--mt);margin-top:2px" id="dp-sb"></div>
+            <div style="font-size:11px;color:var(--mt);margin-top:5px">Vínculo: <span id="dp-vc"></span>/100</div>
+            <div class="bw" style="margin-top:4px"><div class="bf" id="dp-bf"></div></div>
           </div>
         </div>
         <div style="font-size:12px;color:var(--mt);line-height:1.6;margin-bottom:5px" id="dp-nt"></div>
@@ -362,7 +387,7 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
         <button class="mb"    onclick="sm(this,'🔥 Motivado','#f97316')">🔥 Motivado</button>
       </div>
       <div class="st">✍️ registro de hoje</div>
-      <textarea class="dta" id="dta" placeholder="O que aconteceu? Como você se sentiu? Registre pensamentos, medos, conquistas..."></textarea>
+      <textarea class="dta" id="dta" placeholder="O que aconteceu? Como você se sentiu?..."></textarea>
       <button class="dsv" onclick="svE()">✨ Salvar (+30 XP)</button>
       <div class="st" style="margin-top:16px">📖 histórico</div>
       <div id="el"></div>
@@ -382,7 +407,10 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 <!-- MODAL -->
 <div class="mov" id="mov">
   <div class="modal">
-    <div class="mtt"><span id="m-tt">—</span><button class="mx" onclick="cm()">✕</button></div>
+    <div class="mtt">
+      <span id="m-tt">—</span>
+      <button class="mx" onclick="cm()">✕</button>
+    </div>
     <div id="m-bd"></div>
     <div class="mbs">
       <button class="mbs-cl" onclick="cm()">Cancelar</button>
@@ -395,20 +423,37 @@ body{background:var(--bg);color:var(--tx);font-family:var(--fn);min-height:100vh
 <div class="toast" id="toast"></div>
 
 <script>
+// ==================== ESTADO ====================
 var UID=null, unsub=null;
 var S={
   profile:{name:'',apelido:'',local:'',profissao:'',emoji:'🧑',humor:'😊 Animado',
     stats:{carreira:50,relacoes:50,saude:50,financas:50,saber:50,bemEstar:50}},
   xp:0,coins:0,level:1,pessoas:[],metas:[],entradas:[],eventos:[]
 };
+
+// Cores por categoria na ordem da árvore
+var CATS = [
+  {key:'conjuge', label:'Cônjuge / Parceiro(a)', color:'#ff6bba', bg:'rgba(255,107,186,.18)', emoji:'💑'},
+  {key:'pai',     label:'Pai',                   color:'#a78bfa', bg:'rgba(167,139,250,.15)', emoji:'👨'},
+  {key:'mae',     label:'Mãe',                   color:'#a78bfa', bg:'rgba(167,139,250,.15)', emoji:'👩'},
+  {key:'irmao',   label:'Irmão / Irmã',           color:'#ffb740', bg:'rgba(255,183,64,.15)',  emoji:'🧑'},
+  {key:'amigo',   label:'Amigo(a)',               color:'#00e5a0', bg:'rgba(0,229,160,.13)',   emoji:'🤝'},
+  {key:'trabalho',label:'Colega de trabalho',     color:'#7c5cfc', bg:'rgba(124,92,252,.15)',  emoji:'💼'},
+  {key:'outro',   label:'Outro',                  color:'#888',    bg:'rgba(136,136,136,.12)', emoji:'🌐'}
+];
+
+// Ordem de exibição na árvore (por linha)
+var TREE_ORDER = ['conjuge','pai','mae','irmao','amigo','trabalho','outro'];
+
+function catInfo(key){ return CATS.find(c=>c.key===key)||CATS[CATS.length-1]; }
+
 var STC={carreira:'#7c5cfc',relacoes:'#ff6bba',saude:'#00e5a0',financas:'#ffb740',saber:'#a78bfa',bemEstar:'#34d399'};
 var STN={carreira:'💼 Carreira',relacoes:'❤️ Relações',saude:'🧠 Saúde',financas:'💰 Finanças',saber:'🎓 Saber',bemEstar:'🌱 Bem-estar'};
-var CTC={familia:'#ff6bba',amigos:'#00e5a0',trabalho:'#7c5cfc',outros:'#ffb740'};
-var CTB={familia:'rgba(255,107,186,.15)',amigos:'rgba(0,229,160,.12)',trabalho:'rgba(124,92,252,.14)',outros:'rgba(255,183,64,.12)'};
-var CTL={familia:'Família',amigos:'Amigos',trabalho:'Trabalho',outros:'Outros'};
-var et=null,ei=-1,epi=-1,rt='all',spi=-1;
-var cm_='😄 Ótimo',cmc='#00e5a0';
 
+var et=null, ei=-1, epi=-1, spi=-1;
+var cm_='😄 Ótimo', cmc='#00e5a0';
+
+// ==================== SYNC FIREBASE ====================
 function ss(s){
   var d=document.getElementById('sd'),l=document.getElementById('sl');
   d.className='sdot';
@@ -416,7 +461,6 @@ function ss(s){
   else if(s==='w'){d.classList.add('s-w');l.textContent='salvando...';}
   else{d.classList.add('s-e');l.textContent='erro sync';}
 }
-
 async function sf(){
   if(!UID||!window.__db)return;
   ss('w');
@@ -426,7 +470,6 @@ async function sf(){
     ss('ok');
   }catch(e){ss('e');console.error(e);}
 }
-
 function subFS(){
   if(!UID||!window.__db)return;
   var f=window.__fb;
@@ -438,14 +481,14 @@ function subFS(){
       ['pessoas','metas','entradas','eventos'].forEach(k=>{if(Array.isArray(d[k]))S[k]=d[k];});
       ss('ok');ra();
     }
-  },e=>{ss('e');console.error(e);});
+  },e=>{ss('e');});
 }
 
+// ==================== AUTH ====================
 function swF(t){
   document.getElementById('lf-in').style.display=t==='in'?'block':'none';
   document.getElementById('lf-rg').style.display=t==='reg'?'block':'none';
 }
-
 async function doLogin(){
   var e=document.getElementById('l-em').value.trim(),p=document.getElementById('l-pw').value;
   var er=document.getElementById('l-er');
@@ -456,41 +499,32 @@ async function doLogin(){
   }catch(x){
     er.style.display='block';
     er.textContent=
-      x.code==='auth/invalid-credential'||x.code==='auth/wrong-password'?'E-mail ou senha incorretos.':
+      (x.code==='auth/invalid-credential'||x.code==='auth/wrong-password')?'E-mail ou senha incorretos.':
       x.code==='auth/user-not-found'?'Usuário não encontrado.':
       x.code==='auth/too-many-requests'?'Muitas tentativas. Aguarde.':
-      x.code==='auth/network-request-failed'?'Sem conexão com a internet.':
       'Erro: '+x.message;
   }
 }
-
 async function doReg(){
   var n=document.getElementById('r-nm').value.trim();
   var e=document.getElementById('r-em').value.trim();
   var p=document.getElementById('r-pw').value;
   var er=document.getElementById('r-er');
   if(!n||!e||!p){er.style.display='block';er.textContent='Preencha todos os campos.';return;}
-  if(p.length<6){er.style.display='block';er.textContent='Senha deve ter pelo menos 6 caracteres.';return;}
+  if(p.length<6){er.style.display='block';er.textContent='Senha com mínimo 6 caracteres.';return;}
   try{
     await window.__fb.createUserWithEmailAndPassword(window.__auth,e,p);
-    er.style.display='none';
-    S.profile.name=n;
-    await sf();
+    er.style.display='none';S.profile.name=n;await sf();
   }catch(x){
     er.style.display='block';
-    er.textContent=
-      x.code==='auth/email-already-in-use'?'E-mail já cadastrado.':
-      x.code==='auth/invalid-email'?'E-mail inválido.':
-      'Erro: '+x.message;
+    er.textContent=x.code==='auth/email-already-in-use'?'E-mail já cadastrado.':'Erro: '+x.message;
   }
 }
-
 async function doOut(){
-  if(!confirm('Sair do Minha Vida?'))return;
+  if(!confirm('Sair?'))return;
   if(unsub){unsub();unsub=null;}
   await window.__fb.signOut(window.__auth);
 }
-
 window.__onLogin=async function(user){
   UID=user.uid;
   document.getElementById('ld').style.display='none';
@@ -512,13 +546,13 @@ setTimeout(()=>{
   }
 },6000);
 
+// ==================== XP ====================
 async function axp(v){
   S.xp+=v;S.coins+=Math.floor(v/3);
   var nd=S.level*500;
   if(S.xp>=nd){S.level++;S.xp-=nd;toast('🎉 Subiu para Nível '+S.level+'!','wn');}
   utb();await sf();
 }
-
 function utb(){
   var nd=S.level*500,pc=Math.round(S.xp/nd*100);
   document.getElementById('tlv').textContent='NV '+S.level;
@@ -529,6 +563,7 @@ function utb(){
   document.getElementById('tav').textContent=S.profile.emoji||'🧑';
 }
 
+// ==================== NAVEGAÇÃO ====================
 function gp(id){
   document.querySelectorAll('.pg').forEach(c=>c.classList.remove('on'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
@@ -539,6 +574,7 @@ function gp(id){
 function ra(){utb();rp('inicio');}
 function rp(id){({'inicio':ri,'perfil':rper,'rede':rre,'metas':rmt,'diario':rdiar,'evolucao':rev}[id]||function(){})();}
 
+// ==================== INÍCIO ====================
 function ri(){
   var p=S.profile;
   document.getElementById('av-i').textContent=p.emoji||'🧑';
@@ -553,10 +589,11 @@ function ri(){
   });
   var ml=document.getElementById('in-mt');ml.innerHTML='';
   var av=S.metas.filter(m=>!m.concluida);
-  document.getElementById('in-mt-em').textContent=av.length===0?'Nenhuma meta ativa. Crie em Metas!':'';
+  document.getElementById('in-mt-em').textContent=av.length===0?'Nenhuma meta ativa.':'';
   av.forEach(m=>{ml.innerHTML+=`<div class="ic"><div class="ii">${m.emoji||'🎯'}</div><div class="ib"><div class="it">${m.titulo}</div><div class="is">${m.categoria||''} ${m.prazo?'· até '+m.prazo:''}</div><div class="bw"><div class="bf" style="width:${m.prog||0}%;background:var(--a3)"></div></div></div><span style="font-size:11px;color:var(--a3);flex-shrink:0">${m.prog||0}%</span></div>`;});
 }
 
+// ==================== PERFIL ====================
 function rper(){
   var p=S.profile;
   document.getElementById('av-p').textContent=p.emoji||'🧑';
@@ -576,80 +613,172 @@ function rper(){
   ac.forEach(e=>{al.innerHTML+=`<div class="acc"><div class="aci">${e.emoji||'⭐'}</div><div class="acn">${e.titulo}</div><div class="acd">${e.data||''}</div></div>`;});
 }
 
-function setRT(v,el){
-  rt=v;spi=-1;
-  document.querySelectorAll('#pg-rede .mb').forEach(b=>b.classList.remove('sl'));
-  if(el)el.classList.add('sl');cdp();rre();
-}
-function rre(){
-  var list=rt==='all'?S.pessoas:S.pessoas.filter(p=>p.categoria===rt);
-  dTree(list);
-}
-function dTree(ps){
-  var svg=document.getElementById('tree-svg');
-  var n=ps.length,cols=Math.max(1,Math.min(n,5));
-  var sw=Math.max(600,cols*130+100),rows=Math.ceil(n/Math.max(cols,1));
-  var sh=Math.max(250,(rows+1)*130+70);
-  var rx=sw/2,ry=50;
-  svg.setAttribute('viewBox','0 0 '+sw+' '+sh);
-  svg.setAttribute('width','100%');svg.setAttribute('height',sh);svg.style.minWidth=sw+'px';
-  ps.forEach((p,i)=>{var c=i%cols,r=Math.floor(i/cols),slw=sw/cols;p._x=slw*c+slw/2;p._y=ry+125+r*125;});
-  var h='<defs><filter id="gf"><feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#7c5cfc" flood-opacity="0.5"/></filter></defs>';
-  h+=`<g style="cursor:pointer" onclick="cdp()"><circle cx="${rx}" cy="${ry}" r="28" fill="#1a1530" stroke="#7c5cfc" stroke-width="2.5"/><text x="${rx}" y="${ry}" text-anchor="middle" dominant-baseline="central" style="font-size:18px">⭐</text><text x="${rx}" y="${ry+42}" text-anchor="middle" style="font-size:11px;fill:#f0ecff;font-weight:800;font-family:Nunito,sans-serif">Você</text></g>`;
-  ps.forEach((p)=>{
-    if(!p._x)return;
-    var cl=CTC[p.categoria]||'#888',my=(ry+28+p._y-26)/2;
-    h+=`<path d="M${rx} ${ry+28} C${rx} ${my} ${p._x} ${my} ${p._x} ${p._y-26}" fill="none" stroke="${cl}" stroke-width="1.5" stroke-opacity=".4" stroke-dasharray="5 4"/>`;
+// ==================== REDE / ÁRVORE GENEALÓGICA ====================
+function rre(){ dTree(); }
+
+function dTree(){
+  var svg = document.getElementById('tree-svg');
+
+  // Agrupa pessoas por categoria na ordem definida
+  var grupos = {};
+  TREE_ORDER.forEach(k=>{ grupos[k]=[]; });
+  S.pessoas.forEach(p=>{ if(grupos[p.categoria])grupos[p.categoria].push(p); else grupos['outro'].push(p); });
+
+  // Layout:
+  // Linha 0 (topo): Você (centro)
+  // Linha 1: Cônjuge (ao lado de Você — tratado especialmente, com linha horizontal)
+  // Linha 2: Pais
+  // Linha 3: Irmãos
+  // Linha 4: Amigos + Trabalho + Outros
+
+  var NODE_R = 30;
+  var H_GAP  = 110; // espaço horizontal entre nós
+  var V_GAP  = 120; // espaço vertical entre linhas
+
+  // Calcula largura necessária
+  var maxPerRow = Math.max(
+    1,
+    grupos['conjuge'].length||0,
+    (grupos['pai'].length||0)+(grupos['mae'].length||0),
+    grupos['irmao'].length||0,
+    (grupos['amigo'].length||0)+(grupos['trabalho'].length||0)+(grupos['outro'].length||0)
+  );
+
+  var W = Math.max(700, (maxPerRow+2)*H_GAP + 100);
+  var cx = W/2; // centro X
+  var youY = 60;
+
+  // Atribui posições
+  function rowPositions(items, y, totalW){
+    var n=items.length;if(!n)return;
+    var startX=cx - ((n-1)*H_GAP)/2;
+    items.forEach((p,i)=>{ p._x=startX+i*H_GAP; p._y=y; });
+  }
+
+  // Cônjuge — na mesma linha que Você, ao lado direito
+  var conjList=grupos['conjuge'];
+  conjList.forEach((p,i)=>{ p._x=cx+(i+1)*H_GAP; p._y=youY; });
+
+  // Pais — linha 2
+  var pais=[...grupos['pai'],...grupos['mae']];
+  rowPositions(pais, youY+V_GAP*1.3, W);
+
+  // Irmãos — linha 3
+  rowPositions(grupos['irmao'], youY+V_GAP*2.4, W);
+
+  // Amigos + trabalho + outros — linha 4
+  var ultimaLinha=[...grupos['amigo'],...grupos['trabalho'],...grupos['outro']];
+  rowPositions(ultimaLinha, youY+V_GAP*3.5, W);
+
+  // Altura total
+  var allY=[youY];
+  S.pessoas.forEach(p=>{if(p._y)allY.push(p._y);});
+  var H=Math.max(300, Math.max(...allY)+100);
+
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  svg.setAttribute('width',W);
+  svg.setAttribute('height',H);
+
+  var h='<defs><filter id="gf"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#7c5cfc" flood-opacity="0.6"/></filter><filter id="gfp"><feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ff6bba" flood-opacity="0.6"/></filter></defs>';
+
+  // Linha de casal (horizontal Você ↔ Cônjuge)
+  conjList.forEach(p=>{
+    h+=`<line x1="${cx+NODE_R}" y1="${youY}" x2="${p._x-NODE_R}" y2="${youY}" stroke="#ff6bba" stroke-width="2" stroke-opacity=".5"/>`;
   });
-  ps.forEach((p,i)=>{
+
+  // Linhas verticais de Você para cada grupo
+  function drawLines(items, fromX, fromY, color){
+    if(!items.length)return;
+    var midY=(fromY+items[0]._y)/2;
+    // linha vertical de Você para baixo
+    h+=`<line x1="${fromX}" y1="${fromY+NODE_R}" x2="${fromX}" y2="${midY}" stroke="${color}" stroke-width="1.5" stroke-opacity=".35" stroke-dasharray="6 4"/>`;
+    // linha horizontal no meio
+    if(items.length>1){
+      h+=`<line x1="${items[0]._x}" y1="${midY}" x2="${items[items.length-1]._x}" y2="${midY}" stroke="${color}" stroke-width="1.5" stroke-opacity=".35" stroke-dasharray="6 4"/>`;
+    }
+    // linhas verticais para cada nó
+    items.forEach(p=>{
+      h+=`<line x1="${p._x}" y1="${midY}" x2="${p._x}" y2="${p._y-NODE_R}" stroke="${color}" stroke-width="1.5" stroke-opacity=".35" stroke-dasharray="6 4"/>`;
+    });
+  }
+
+  if(pais.length)      drawLines(pais,           cx, youY, '#a78bfa');
+  if(grupos['irmao'].length) drawLines(grupos['irmao'],cx, youY, '#ffb740');
+  if(ultimaLinha.length)     drawLines(ultimaLinha,     cx, youY, '#00e5a0');
+
+  // NÓ VOCÊ
+  h+=`<g style="cursor:default">
+    <circle cx="${cx}" cy="${youY}" r="${NODE_R+6}" fill="rgba(124,92,252,.12)"/>
+    <circle cx="${cx}" cy="${youY}" r="${NODE_R}" fill="#1a1530" stroke="#7c5cfc" stroke-width="2.5" filter="url(#gf)"/>
+    <text x="${cx}" y="${youY}" text-anchor="middle" dominant-baseline="central" style="font-size:20px">${S.profile.emoji||'⭐'}</text>
+    <text x="${cx}" y="${youY+NODE_R+14}" text-anchor="middle" style="font-size:11px;fill:#f0ecff;font-weight:800;font-family:Nunito,sans-serif">Você</text>
+  </g>`;
+
+  // NÓS PESSOAS
+  S.pessoas.forEach((p,i)=>{
     if(!p._x)return;
-    var cl=CTC[p.categoria]||'#888';
-    var ri2=S.pessoas.indexOf(p);if(ri2<0)ri2=i;
-    var is=(ri2===spi),vc=p.vinculo||50,r2=26,circ=2*Math.PI*r2,fl=circ*vc/100;
-    h+=`<g style="cursor:pointer" onclick="spA(${ri2},event)">
-      ${is?`<circle cx="${p._x}" cy="${p._y}" r="34" fill="${cl}" fill-opacity=".15"/>`:''}
-      <circle cx="${p._x}" cy="${p._y}" r="${r2}" fill="#1a1530" stroke="${cl}" stroke-width="${is?2.5:1.5}" ${is?'filter="url(#gf)"':''}/>
-      <text x="${p._x}" y="${p._y}" text-anchor="middle" dominant-baseline="central" style="font-size:17px;pointer-events:none">${p.emoji||'🧑'}</text>
-      <circle cx="${p._x}" cy="${p._y}" r="${r2}" fill="none" stroke="${cl}" stroke-width="3" stroke-opacity=".3" stroke-dasharray="${fl.toFixed(1)} ${(circ-fl).toFixed(1)}" stroke-dashoffset="${(circ*.25).toFixed(1)}" stroke-linecap="round"/>
-      <text x="${p._x}" y="${p._y+40}" text-anchor="middle" style="font-size:11px;fill:#f0ecff;font-weight:800;font-family:Nunito,sans-serif;pointer-events:none">${p.nome.length>10?p.nome.slice(0,9)+'…':p.nome}</text>
-      ${p.relacao?`<text x="${p._x}" y="${p._y+52}" text-anchor="middle" style="font-size:10px;fill:${cl};font-family:Nunito,sans-serif;pointer-events:none">${p.relacao.length>12?p.relacao.slice(0,11)+'…':p.relacao}</text>`:''}
+    var ci=catInfo(p.categoria);
+    var isSel=(i===spi);
+    var vc=p.vinculo||50, r=NODE_R, circ=2*Math.PI*r, fl=circ*vc/100;
+    var shortName=p.nome.length>10?p.nome.slice(0,9)+'…':p.nome;
+    var shortRel=p.relacao&&p.relacao.length>12?p.relacao.slice(0,11)+'…':(p.relacao||'');
+
+    h+=`<g style="cursor:pointer" onclick="spA(${i},event)">
+      ${isSel?`<circle cx="${p._x}" cy="${p._y}" r="${r+10}" fill="${ci.color}" fill-opacity=".15"/>`:''}
+      <circle cx="${p._x}" cy="${p._y}" r="${r}" fill="#1a1530" stroke="${ci.color}" stroke-width="${isSel?3:2}"/>
+      <text x="${p._x}" y="${p._y}" text-anchor="middle" dominant-baseline="central" style="font-size:19px;pointer-events:none">${p.emoji||ci.emoji}</text>
+      <circle cx="${p._x}" cy="${p._y}" r="${r}" fill="none" stroke="${ci.color}" stroke-width="3.5"
+        stroke-opacity=".35"
+        stroke-dasharray="${fl.toFixed(1)} ${(circ-fl).toFixed(1)}"
+        stroke-dashoffset="${(circ*.25).toFixed(1)}"
+        stroke-linecap="round" style="pointer-events:none"/>
+      <text x="${p._x}" y="${p._y+r+14}" text-anchor="middle" style="font-size:11px;fill:#f0ecff;font-weight:800;font-family:Nunito,sans-serif;pointer-events:none">${shortName}</text>
+      ${shortRel?`<text x="${p._x}" y="${p._y+r+26}" text-anchor="middle" style="font-size:10px;fill:${ci.color};font-family:Nunito,sans-serif;pointer-events:none">${shortRel}</text>`:''}
     </g>`;
   });
-  if(!n)h+=`<text x="${sw/2}" y="${sh/2}" text-anchor="middle" style="font-size:13px;fill:rgba(240,236,255,.35);font-family:Nunito,sans-serif">Adicione pessoas para construir a árvore</text>`;
+
+  if(!S.pessoas.length){
+    h+=`<text x="${W/2}" y="${H/2}" text-anchor="middle" style="font-size:13px;fill:rgba(240,236,255,.35);font-family:Nunito,sans-serif">Clique em "Adicionar pessoa" para começar sua árvore</text>`;
+  }
+
   svg.innerHTML=h;
 }
+
 function spA(idx,e){
   if(e)e.stopPropagation();
-  var p=S.pessoas[idx];if(!p)return;spi=idx;
-  var cl=CTC[p.categoria]||'#888';
-  document.getElementById('dp-av').textContent=p.emoji||'🧑';
-  document.getElementById('dp-av').style.background=CTB[p.categoria]||'rgba(136,136,136,.1)';
+  var p=S.pessoas[idx];if(!p)return;
+  spi=idx;
+  var ci=catInfo(p.categoria);
+  document.getElementById('dp-av').textContent=p.emoji||ci.emoji;
+  document.getElementById('dp-av').style.background=ci.bg;
   document.getElementById('dp-nm').textContent=p.nome;
-  document.getElementById('dp-sb').textContent=(p.relacao||'')+(p.categoria?' · '+CTL[p.categoria]:'');
+  document.getElementById('dp-sb').textContent=(p.relacao||'')+(p.categoria?' · '+ci.label:'');
   document.getElementById('dp-vc').textContent=p.vinculo||50;
-  document.getElementById('dp-bf').style.cssText=`width:${p.vinculo||50}%;background:${cl}`;
+  document.getElementById('dp-bf').style.cssText=`width:${p.vinculo||50}%;background:${ci.color}`;
   document.getElementById('dp-nt').textContent=p.nota||'';
   document.getElementById('dp').dataset.idx=idx;
   document.getElementById('dp').classList.add('on');
-  rre();
+  dTree();
 }
-function cdp(){spi=-1;document.getElementById('dp').classList.remove('on');rre();}
+function cdp(){spi=-1;document.getElementById('dp').classList.remove('on');dTree();}
 function oeP(){epi=parseInt(document.getElementById('dp').dataset.idx);om('pessoa');}
 async function delP(){
   var idx=parseInt(document.getElementById('dp').dataset.idx);
-  if(!confirm('Remover esta pessoa da rede?'))return;
+  if(!confirm('Remover esta pessoa da árvore?'))return;
   S.pessoas.splice(idx,1);await sf();cdp();toast('Pessoa removida','ok');
 }
 
+// ==================== METAS ====================
 function rmt(){
   var la=document.getElementById('mt-at');la.innerHTML='';
   var lc=document.getElementById('mt-ok');lc.innerHTML='';
   S.metas.forEach((m,i)=>{
-    var h=`<div class="ic"><div class="ii">${m.emoji||'🎯'}</div><div class="ib"><div class="it">${m.titulo}</div><div class="is">${m.categoria||''} ${m.prazo?'· até '+m.prazo:''}</div><div class="bw"><div class="bf" style="width:${m.prog||0}%;background:var(--a3)"></div></div><div style="font-size:10px;color:var(--mt);margin-top:3px">${m.prog||0}% · +${m.xp||100} XP ao concluir</div></div><div class="ias"><button class="ab" onclick="oei('meta',${i})" title="Editar">✏️</button><button class="ab dl" onclick="di('meta',${i})" title="Deletar">🗑️</button></div></div>`;
+    var h=`<div class="ic"><div class="ii">${m.emoji||'🎯'}</div><div class="ib"><div class="it">${m.titulo}</div><div class="is">${m.categoria||''} ${m.prazo?'· até '+m.prazo:''}</div><div class="bw"><div class="bf" style="width:${m.prog||0}%;background:var(--a3)"></div></div><div style="font-size:10px;color:var(--mt);margin-top:3px">${m.prog||0}% · +${m.xp||100} XP</div></div><div class="ias"><button class="ab" onclick="oei('meta',${i})">✏️</button><button class="ab dl" onclick="di('meta',${i})">🗑️</button></div></div>`;
     if(m.concluida)lc.innerHTML+=h;else la.innerHTML+=h;
   });
 }
 
+// ==================== DIÁRIO ====================
 function sm(btn,mood,color){
   document.querySelectorAll('#mr .mb').forEach(b=>b.classList.remove('sl'));
   btn.classList.add('sl');cm_=mood;cmc=color;
@@ -658,7 +787,7 @@ async function svE(){
   var txt=document.getElementById('dta').value.trim();if(!txt)return;
   var now=new Date();
   S.entradas.push({texto:txt,mood:cm_,cor:cmc,data:now.toLocaleDateString('pt-BR')+' '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
-  await axp(30);document.getElementById('dta').value='';rdiar();toast('+30 XP! Salvo na nuvem ☁️','ok');
+  await axp(30);document.getElementById('dta').value='';rdiar();toast('+30 XP! Salvo ☁️','ok');
 }
 function rdiar(){
   var el=document.getElementById('el');el.innerHTML='';
@@ -669,6 +798,7 @@ function rdiar(){
   });
 }
 
+// ==================== EVOLUÇÃO ====================
 function rev(){
   var tl=document.getElementById('tll');tl.innerHTML='';
   document.getElementById('tll-em').style.display=S.eventos.length===0?'block':'none';
@@ -679,8 +809,9 @@ function rev(){
   });
 }
 
+// ==================== DELETE ====================
 async function di(type,idx){
-  if(!confirm('Deletar este item?'))return;
+  if(!confirm('Deletar?'))return;
   if(type==='meta')S.metas.splice(idx,1);
   else if(type==='entrada')S.entradas.splice(idx,1);
   else if(type==='evento')S.eventos.splice(idx,1);
@@ -689,13 +820,14 @@ async function di(type,idx){
   ri();toast('Deletado ✓','ok');
 }
 
+// ==================== MODAIS ====================
 function om(type){et=type;if(type!=='pessoa')ei=-1;bm(type,null);}
 function oei(type,idx){et=type;ei=idx;bm(type,S[type==='meta'?'metas':'eventos'][idx]);}
 
 function bm(type,data){
-  var tts={pessoa:'Pessoa da rede',meta:'Meta de vida',evento:'Evento / conquista',perfil:'Meu perfil'};
+  var tts={pessoa:'Pessoa na árvore',meta:'Meta de vida',evento:'Evento / conquista',perfil:'Meu perfil'};
   var isE=(type==='pessoa'?epi>=0:ei>=0);
-  document.getElementById('m-tt').textContent=(isE?'Editar ':'Nova ')+tts[type];
+  document.getElementById('m-tt').textContent=(isE?'Editar ':'Adicionar ')+tts[type];
   document.getElementById('m-dl').innerHTML=(isE&&type!=='perfil')?`<button class="mbs-dl" onclick="dfm()">🗑️ Deletar</button>`:'';
   var d=data||(type==='pessoa'&&epi>=0?S.pessoas[epi]:null)||(type==='perfil'?S.profile:null)||{};
   var b=document.getElementById('m-bd');b.innerHTML='';
@@ -703,9 +835,14 @@ function bm(type,data){
   if(type==='perfil'){
     var st=d.stats||{};
     b.innerHTML=`
-      <div class="mf"><label class="ml">Emoji do avatar</label><input class="mi" id="mf-emoji" value="${d.emoji||'🧑'}" style="font-size:20px;text-align:center;width:80px"></div>
+      <div class="mf">
+        <label class="ml">Emoji do avatar</label>
+        <input class="mi" id="mf-emoji" value="${d.emoji||'🧑'}" style="font-size:22px;text-align:center;width:80px">
+        <div class="emoji-row" style="margin-top:6px">
+          ${['🧑','👨','👩','🧔','👱','🙋','🙍','😊','😎','🤓'].map(e=>`<div class="epick" onclick="document.getElementById('mf-emoji').value='${e}'">${e}</div>`).join('')}
+        </div>
+      </div>
       <div class="mf"><label class="ml">Nome completo</label><input class="mi" id="mf-name" value="${d.name||''}"></div>
-      <div class="mf"><label class="ml">Apelido</label><input class="mi" id="mf-ap" value="${d.apelido||''}" placeholder="Como te chamam..."></div>
       <div class="mf"><label class="ml">Localidade</label><input class="mi" id="mf-lo" value="${d.local||''}" placeholder="Ex: Goiás, Brasil"></div>
       <div class="mf"><label class="ml">Profissão</label><input class="mi" id="mf-pr" value="${d.profissao||''}"></div>
       <div class="mf"><label class="ml">Humor atual</label><input class="mi" id="mf-hm" value="${d.humor||'😊 Animado'}"></div>
@@ -713,26 +850,44 @@ function bm(type,data){
         ${Object.keys(STN).map(k=>`<div class="mf"><label class="ml">${STN[k]}</label><input class="mi" type="number" min="0" max="100" id="mf-s-${k}" value="${st[k]||50}"></div>`).join('')}
       </div>`;
   }
+
   if(type==='pessoa'){
+    var catOpts=CATS.map(c=>`<option value="${c.key}" ${d.categoria===c.key?'selected':''}>${c.emoji} ${c.label}</option>`).join('');
     b.innerHTML=`
-      <div class="mf"><label class="ml">Emoji</label><input class="mi" id="mf-emoji" value="${d.emoji||'🧑'}" style="font-size:20px;text-align:center;width:80px"></div>
-      <div class="mf"><label class="ml">Nome</label><input class="mi" id="mf-nm" value="${d.nome||''}" placeholder="Nome da pessoa"></div>
-      <div class="mf"><label class="ml">Categoria</label>
-        <select class="msl" id="mf-ct">
-          <option value="familia" ${d.categoria==='familia'?'selected':''}>👨‍👩‍👧 Família</option>
-          <option value="amigos"  ${d.categoria==='amigos'?'selected':''}>🤝 Amigos</option>
-          <option value="trabalho"${d.categoria==='trabalho'?'selected':''}>💼 Trabalho</option>
-          <option value="outros"  ${d.categoria==='outros'?'selected':''}>🌐 Outros</option>
-        </select></div>
-      <div class="mf"><label class="ml">Relação / papel</label><input class="mi" id="mf-rl" value="${d.relacao||''}" placeholder="Ex: Mãe, Melhor amigo..."></div>
-      <div class="mf"><label class="ml">Vínculo (0–100)</label><input class="mi" type="number" min="0" max="100" id="mf-vc" value="${d.vinculo||70}"></div>
-      <div class="mf"><label class="ml">Nota pessoal</label><input class="mi" id="mf-nt" value="${d.nota||''}" placeholder="Uma observação..."></div>`;
+      <div class="mf">
+        <label class="ml">Emoji da pessoa</label>
+        <input class="mi" id="mf-emoji" value="${d.emoji||'🧑'}" style="font-size:22px;text-align:center;width:80px">
+        <div class="emoji-row" style="margin-top:6px">
+          ${['👨','👩','👦','👧','🧔','👱','👴','👵','👶','🧑','💑','🤝','😊','❤️'].map(e=>`<div class="epick" onclick="document.getElementById('mf-emoji').value='${e}'">${e}</div>`).join('')}
+        </div>
+      </div>
+      <div class="mf">
+        <label class="ml">Nome completo</label>
+        <input class="mi" id="mf-nm" value="${d.nome||''}" placeholder="Nome da pessoa" autofocus>
+      </div>
+      <div class="mf">
+        <label class="ml">Tipo de relação</label>
+        <select class="msl" id="mf-ct">${catOpts}</select>
+      </div>
+      <div class="mf">
+        <label class="ml">Relação / apelido (ex: "Minha mãe", "Melhor amigo")</label>
+        <input class="mi" id="mf-rl" value="${d.relacao||''}" placeholder="Ex: Minha mãe, João da faculdade...">
+      </div>
+      <div class="mf">
+        <label class="ml">Nível de vínculo (0 a 100)</label>
+        <input class="mi" type="number" min="0" max="100" id="mf-vc" value="${d.vinculo||80}">
+      </div>
+      <div class="mf">
+        <label class="ml">Nota pessoal (opcional)</label>
+        <textarea class="mta" id="mf-nt" placeholder="Algo especial sobre essa pessoa...">${d.nota||''}</textarea>
+      </div>`;
   }
+
   if(type==='meta'){
     b.innerHTML=`
-      <div class="mf"><label class="ml">Emoji</label><input class="mi" id="mf-emoji" value="${d.emoji||'🎯'}" style="font-size:20px;text-align:center;width:80px"></div>
+      <div class="mf"><label class="ml">Emoji</label><input class="mi" id="mf-emoji" value="${d.emoji||'🎯'}" style="font-size:22px;text-align:center;width:80px"></div>
       <div class="mf"><label class="ml">Título da meta</label><input class="mi" id="mf-tt" value="${d.titulo||''}" placeholder="O que você quer alcançar?"></div>
-      <div class="mf"><label class="ml">Categoria</label><input class="mi" id="mf-ct" value="${d.categoria||''}" placeholder="Ex: Carreira, Saúde..."></div>
+      <div class="mf"><label class="ml">Categoria</label><input class="mi" id="mf-ct" value="${d.categoria||''}" placeholder="Ex: Carreira, Saúde, Financeiro..."></div>
       <div class="mf"><label class="ml">Prazo</label><input class="mi" id="mf-pz" value="${d.prazo||''}" placeholder="Ex: Dez 2025"></div>
       <div class="mf"><label class="ml">Progresso % (0–100)</label><input class="mi" type="number" min="0" max="100" id="mf-pg" value="${d.prog||0}"></div>
       <div class="mf"><label class="ml">XP ao concluir</label><input class="mi" type="number" id="mf-xp" value="${d.xp||100}"></div>
@@ -742,15 +897,16 @@ function bm(type,data){
           <option value="1" ${d.concluida?'selected':''}>✅ Concluída</option>
         </select></div>`;
   }
+
   if(type==='evento'){
     b.innerHTML=`
-      <div class="mf"><label class="ml">Emoji</label><input class="mi" id="mf-emoji" value="${d.emoji||'⭐'}" style="font-size:20px;text-align:center;width:80px"></div>
+      <div class="mf"><label class="ml">Emoji</label><input class="mi" id="mf-emoji" value="${d.emoji||'⭐'}" style="font-size:22px;text-align:center;width:80px"></div>
       <div class="mf"><label class="ml">Título</label><input class="mi" id="mf-tt" value="${d.titulo||''}" placeholder="Nome do evento..."></div>
       <div class="mf"><label class="ml">Tipo</label>
         <select class="msl" id="mf-tp">
           <option value="conquista"  ${d.tipo==='conquista'?'selected':''}>🏆 Conquista</option>
           <option value="marco"      ${d.tipo==='marco'?'selected':''}>📌 Marco</option>
-          <option value="dificuldade"${d.tipo==='dificuldade'?'selected':''}>😰 Dificuldade superada</option>
+          <option value="dificuldade"${d.tipo==='dificuldade'?'selected':''}>😰 Dificuldade</option>
           <option value="trabalho"   ${d.tipo==='trabalho'?'selected':''}>💼 Trabalho</option>
           <option value="pessoal"    ${d.tipo==='pessoal'?'selected':''}>🌱 Pessoal</option>
         </select></div>
@@ -758,7 +914,10 @@ function bm(type,data){
       <div class="mf"><label class="ml">Descrição</label><textarea class="mta" id="mf-ds" placeholder="Conte mais...">${d.descricao||''}</textarea></div>
       <div class="mf"><label class="ml">XP ganho</label><input class="mi" type="number" id="mf-xp" value="${d.xp||200}"></div>`;
   }
+
   document.getElementById('mov').classList.add('on');
+  // Foca no campo nome se for pessoa
+  if(type==='pessoa') setTimeout(()=>{ var el=document.getElementById('mf-nm'); if(el)el.focus(); },100);
 }
 
 function cm(){document.getElementById('mov').classList.remove('on');et=null;ei=-1;epi=-1;}
@@ -769,57 +928,68 @@ async function svm(){
     var p=S.profile;
     p.emoji=document.getElementById('mf-emoji').value||'🧑';
     p.name=document.getElementById('mf-name').value||'Jogador';
-    p.apelido=document.getElementById('mf-ap').value;
     p.local=document.getElementById('mf-lo').value;
     p.profissao=document.getElementById('mf-pr').value;
     p.humor=document.getElementById('mf-hm').value;
     Object.keys(STN).forEach(k=>{var el=document.getElementById('mf-s-'+k);if(el)p.stats[k]=Math.min(100,Math.max(0,parseInt(el.value)||50));});
   }
   if(t==='pessoa'){
-    var nm=document.getElementById('mf-nm').value.trim();if(!nm){alert('Digite o nome!');return;}
-    var obj={emoji:document.getElementById('mf-emoji').value||'🧑',nome:nm,
-      categoria:document.getElementById('mf-ct').value,relacao:document.getElementById('mf-rl').value,
-      vinculo:Math.min(100,Math.max(0,parseInt(document.getElementById('mf-vc').value)||70)),
-      nota:document.getElementById('mf-nt').value};
-    if(epi>=0)S.pessoas[epi]=obj;else{S.pessoas.push(obj);await axp(20);}
+    var nm=document.getElementById('mf-nm').value.trim();
+    if(!nm){toast('Digite o nome da pessoa!','er');return;}
+    var obj={
+      emoji:document.getElementById('mf-emoji').value||'🧑',
+      nome:nm,
+      categoria:document.getElementById('mf-ct').value,
+      relacao:document.getElementById('mf-rl').value,
+      vinculo:Math.min(100,Math.max(0,parseInt(document.getElementById('mf-vc').value)||80)),
+      nota:document.getElementById('mf-nt').value
+    };
+    if(epi>=0)S.pessoas[epi]=obj;
+    else{S.pessoas.push(obj);await axp(20);}
   }
   if(t==='meta'){
-    var tt=document.getElementById('mf-tt').value.trim();if(!tt){alert('Digite o título!');return;}
+    var tt=document.getElementById('mf-tt').value.trim();if(!tt){toast('Digite o título!','er');return;}
     var cn=document.getElementById('mf-cn').value==='1';
     var xv=parseInt(document.getElementById('mf-xp').value)||100;
     var wc=ei>=0&&S.metas[ei]?.concluida;
     var obj={emoji:document.getElementById('mf-emoji').value||'🎯',titulo:tt,
-      categoria:document.getElementById('mf-ct').value,prazo:document.getElementById('mf-pz').value,
-      prog:Math.min(100,Math.max(0,parseInt(document.getElementById('mf-pg').value)||0)),xp:xv,concluida:cn};
+      categoria:document.getElementById('mf-ct')?.value||'',
+      prazo:document.getElementById('mf-pz').value,
+      prog:Math.min(100,Math.max(0,parseInt(document.getElementById('mf-pg').value)||0)),
+      xp:xv,concluida:cn};
     if(ei>=0)S.metas[ei]=obj;else{S.metas.push(obj);await axp(10);}
     if(cn&&(ei<0||!wc))await axp(xv);
   }
   if(t==='evento'){
-    var tt=document.getElementById('mf-tt').value.trim();if(!tt){alert('Digite o título!');return;}
+    var tt=document.getElementById('mf-tt').value.trim();if(!tt){toast('Digite o título!','er');return;}
     var xv=parseInt(document.getElementById('mf-xp').value)||200;
     var obj={emoji:document.getElementById('mf-emoji').value||'⭐',titulo:tt,
-      tipo:document.getElementById('mf-tp').value,data:document.getElementById('mf-dt').value,
+      tipo:document.getElementById('mf-tp').value,
+      data:document.getElementById('mf-dt').value,
       descricao:document.getElementById('mf-ds').value,xp:xv};
     if(ei>=0)S.eventos[ei]=obj;else{S.eventos.push(obj);await axp(xv);}
   }
   await sf();cm();ra();
-  if(t==='pessoa'||t==='rede')rre();
+  if(t==='pessoa'||t==='rede'){spi=-1;document.getElementById('dp').classList.remove('on');rre();}
   if(t==='meta')rmt();if(t==='evento')rev();if(t==='perfil')rper();
   toast('Salvo na nuvem ☁️','ok');
 }
 
 async function dfm(){
   var t=et,idx=(t==='pessoa'?epi:ei);
-  if(!confirm('Deletar?'))return;
+  if(!confirm('Deletar este item?'))return;
   if(t==='pessoa')S.pessoas.splice(idx,1);
   else if(t==='meta')S.metas.splice(idx,1);
   else if(t==='evento')S.eventos.splice(idx,1);
   await sf();cm();ra();
-  if(t==='pessoa')rre();if(t==='meta')rmt();if(t==='evento')rev();
+  if(t==='pessoa'){spi=-1;document.getElementById('dp').classList.remove('on');rre();}
+  if(t==='meta')rmt();if(t==='evento')rev();
   toast('Deletado ✓','ok');
 }
+
 document.getElementById('mov').addEventListener('click',function(e){if(e.target===this)cm();});
 
+// ==================== TOAST ====================
 function toast(msg,cls){
   var t=document.getElementById('toast');
   t.textContent=msg;t.className='toast'+(cls?' '+cls:'');
