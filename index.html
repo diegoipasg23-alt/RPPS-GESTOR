@@ -1,840 +1,946 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#0a0f1e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="RPPS">
-<meta name="description" content="Painel de gestão RPPS com Sofia jurídica">
-<link rel="manifest" href="manifest.json">
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="RPPS"/>
+<meta name="description" content="Painel de gestão RPPS com Sofia jurídica"/>
+<meta name="theme-color" content="#0a0f1e"/>
 <title>RPPS — Painel do Gestor</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #0a0f1e;
-  --bg2: #111827;
-  --bg3: #1a2235;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.15);
-  --text: #f0f4ff;
-  --text2: #8b9ec9;
-  --text3: #4a5a7a;
-  --blue: #3b82f6;
-  --blue2: #1d4ed8;
-  --green: #10b981;
-  --green2: #065f46;
-  --amber: #f59e0b;
-  --amber2: #78350f;
-  --red: #ef4444;
-  --red2: #7f1d1d;
-  --purple: #8b5cf6;
-  --purple2: #4c1d95;
-  --teal: #14b8a6;
-  --font: 'Space Grotesk', sans-serif;
-  --mono: 'JetBrains Mono', monospace;
-  --radius: 14px;
-  --radius-sm: 8px;
+/* ===== RESET & BASE ===== */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;
+  --card:#111827;
+  --card2:#1a2235;
+  --border:rgba(99,179,237,0.13);
+  --border2:rgba(99,179,237,0.25);
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --gold:#f59e0b;
+  --green:#10b981;
+  --red:#ef4444;
+  --purple:#a78bfa;
+  --pink:#ec4899;
+  --text:#e2e8f0;
+  --muted:#64748b;
+  --muted2:#94a3b8;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--card2);border-radius:3px}
 
-/* HEADER */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;}
-.avatar-prog{position:relative;width:48px;height:56px;cursor:pointer;flex-shrink:0;}
-.avatar-prog svg{width:48px;height:56px;}
-.lv-tag{position:absolute;bottom:-4px;right:-4px;font-size:9px;font-weight:700;padding:1px 5px;border-radius:99px;white-space:nowrap;z-index:2;}
-@keyframes levelUp{0%{transform:scale(1)}30%{transform:scale(1.5) rotate(-5deg)}60%{transform:scale(0.95) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
-@keyframes avatarFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-.avatar-prog{animation:avatarFloat 3s ease-in-out infinite;}
-.avatar-prog.leveling{animation:levelUp 0.7s ease;}
-.topbar-left{display:flex;align-items:center;gap:10px;}
-.app-logo{width:32px;height:32px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-.app-logo svg{width:18px;height:18px;stroke:#fff;}
-.app-title{font-size:17px;font-weight:600;color:var(--text);}
-.app-sub{font-size:13px;color:var(--text2);margin-top:1px;}
-.topbar-right{display:flex;align-items:center;gap:8px;}
-.icon-btn{width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border2);background:transparent;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);}
-.icon-btn:hover{background:var(--bg3);color:var(--text);}
-.icon-btn svg{width:16px;height:16px;}
-.notif-dot{width:7px;height:7px;background:var(--red);border-radius:50%;position:absolute;top:6px;right:6px;}
-.icon-btn{position:relative;}
+/* ===== LAYOUT ===== */
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,15,30,0.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:10px 20px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-icon{
+  width:34px;height:34px;border-radius:8px;
+  background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:#fff;letter-spacing:-1px;
+}
+.brand-name{font-size:15px;font-weight:700;color:var(--text)}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:1px}
 
-/* NAV */
-.nav{display:flex;background:var(--bg);border-bottom:0.5px solid var(--border);flex-shrink:0;overflow-x:auto;}
-.nav::-webkit-scrollbar{display:none;}
-.nav-btn{display:flex;align-items:center;gap:7px;padding:10px 16px;font-size:14px;font-weight:500;color:var(--text2);border:none;background:transparent;cursor:pointer;font-family:var(--font);white-space:nowrap;border-bottom:2px solid transparent;transition:all 0.15s;}
-.nav-btn svg{width:15px;height:15px;}
-.nav-btn.active{color:var(--blue);border-bottom-color:var(--blue);}
-.nav-btn:hover:not(.active){color:var(--text);}
+.xp-pill{
+  display:flex;align-items:center;gap:6px;
+  background:linear-gradient(135deg,#312e81,#4c1d95);
+  border:1px solid #6d28d9;border-radius:20px;
+  padding:5px 14px;font-size:13px;font-weight:600;color:#c4b5fd;
+}
 
-/* MAIN */
-.main{flex:1;overflow-y:auto;padding:16px 20px;}
-.screen{display:none;}
-.screen.active{display:block;}
+.nav{display:flex;gap:4px;flex-wrap:wrap}
+.nav-btn{
+  background:transparent;border:none;
+  padding:7px 14px;border-radius:8px;
+  font-size:13px;color:var(--muted2);cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:all 0.2s;
+}
+.nav-btn:hover{background:var(--card2);color:var(--text)}
+.nav-btn.active{background:var(--accent);color:#fff}
+.nav-btn svg{width:15px;height:15px;flex-shrink:0}
 
-/* CARDS */
-.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;}
-.card+.card{margin-top:12px;}
+/* ===== MAIN CONTENT ===== */
+.main{flex:1;padding:20px;max-width:860px;margin:0 auto;width:100%}
+.tab-content{display:none}
+.tab-content.active{display:block}
 
-/* HERO */
-.hero{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;}
-.avatar-ring{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));padding:2px;flex-shrink:0;}
-.avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;}
-.avatar-inner svg{width:26px;height:26px;stroke:var(--blue);}
-.hero-info{flex:1;min-width:0;}
-.hero-name{font-size:16px;font-weight:600;color:var(--text);}
-.hero-role{font-size:13px;color:var(--text2);margin-top:2px;}
-.lv-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(245,158,11,0.15);color:var(--amber);font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;margin-top:6px;}
-.lv-chip svg{width:11px;height:11px;}
-.xp-wrap{margin-top:8px;}
-.xp-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px;}
-.xp-track{height:6px;background:var(--bg3);border-radius:99px;overflow:hidden;}
-.xp-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:99px;transition:width 0.8s;}
+/* ===== CARDS ===== */
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px}
+.card+.card{margin-top:14px}
 
-/* STATS */
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
-.stat{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px;}
-.stat-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.stat-ico svg{width:18px;height:18px;}
-.stat-n{font-size:24px;font-weight:700;}
-.stat-l{font-size:13px;color:var(--text2);margin-top:2px;}
-.s-g{background:rgba(16,185,129,0.1);}.s-g svg{stroke:var(--green);}.s-g .stat-n{color:var(--green);}
-.s-r{background:rgba(239,68,68,0.1);}.s-r svg{stroke:var(--red);}.s-r .stat-n{color:var(--red);}
-.s-a{background:rgba(245,158,11,0.1);}.s-a svg{stroke:var(--amber);}.s-a .stat-n{color:var(--amber);}
-.s-b{background:rgba(59,130,246,0.1);}.s-b svg{stroke:var(--blue);}.s-b .stat-n{color:var(--blue);}
+/* ===== PAINEL TAB ===== */
+.gestor-hero{
+  background:linear-gradient(135deg,var(--card) 0%,#0f1d3a 100%);
+  border:1px solid var(--border);border-radius:16px;
+  padding:22px;margin-bottom:16px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+}
+.avatar{
+  width:58px;height:58px;border-radius:50%;
+  background:linear-gradient(135deg,#1d4ed8,#7c3aed);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:800;color:#fff;flex-shrink:0;
+  border:2px solid rgba(167,139,250,0.4);
+}
+.gestor-info h2{font-size:17px;font-weight:700;margin-bottom:2px}
+.gestor-info p{font-size:12px;color:var(--muted2)}
+.nivel-badge{
+  margin-left:auto;
+  background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);
+  border-radius:10px;padding:10px 16px;text-align:center;
+}
+.nivel-badge .lvl{font-size:18px;font-weight:800;color:var(--purple)}
+.nivel-badge .lvlname{font-size:11px;color:var(--muted2);margin-top:2px}
 
-/* ALERT */
-.alert{display:flex;align-items:flex-start;gap:10px;background:rgba(245,158,11,0.1);border:0.5px solid rgba(245,158,11,0.3);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:13px;color:#fcd34d;}
-.alert svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;stroke:#f59e0b;}
+.xp-bar-wrap{margin:14px 0}
+.xp-bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted2);margin-bottom:6px}
+.xp-bar{height:8px;background:var(--card2);border-radius:4px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,#6d28d9,#a78bfa);border-radius:4px;transition:width 0.6s ease}
 
-/* MISSOES */
-.sec-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-.sec-title svg{width:13px;height:13px;}
-.missoes{display:flex;flex-direction:column;gap:7px;margin-bottom:16px;}
-.missao{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--radius-sm);border:0.5px solid var(--border);background:var(--bg2);cursor:pointer;transition:all 0.15s;}
-.missao:hover{border-color:var(--border2);background:var(--bg3);}
-.missao.done{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);}
-.missao.done .m-title{color:#6ee7b7;text-decoration:line-through;}
-.m-ico{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.m-ico svg{width:20px;height:20px;}
-.m-body{flex:1;min-width:0;}
-.m-title{font-size:15px;font-weight:500;color:var(--text);}
-.m-sub{font-size:13px;color:var(--text3);margin-top:2px;}
-.m-xp{font-size:13px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
-.check{width:20px;height:20px;flex-shrink:0;}
-.check svg{width:20px;height:20px;}
+.stats4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:560px){.stats4{grid-template-columns:repeat(2,1fr)}}
+.scard{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.scard .sv{font-size:26px;font-weight:800;margin-bottom:2px}
+.scard .sl{font-size:11px;color:var(--muted)}
+.scard.g .sv{color:var(--green)}
+.scard.r .sv{color:var(--red)}
+.scard.go .sv{color:var(--gold)}
+.scard.p .sv{color:var(--purple)}
 
-/* PROG */
-.prog-rows{display:flex;flex-direction:column;gap:10px;}
-.prog-row{display:flex;align-items:center;gap:10px;}
-.prog-lbl{font-size:12px;color:var(--text2);min-width:72px;display:flex;align-items:center;gap:5px;}
-.prog-lbl svg{width:13px;height:13px;}
-.prog-track{flex:1;height:8px;background:var(--bg3);border-radius:99px;overflow:hidden;}
-.prog-fill{height:100%;border-radius:99px;transition:width 0.8s;}
-.prog-pct{font-size:11px;font-weight:600;color:var(--text2);min-width:30px;text-align:right;}
+.alert-box{
+  background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);
+  border-radius:10px;padding:12px 14px;margin-bottom:16px;
+  font-size:13px;color:#fcd34d;display:flex;align-items:flex-start;gap:10px;
+}
+.alert-box svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
 
-/* STREAK */
-.meses-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
-.mes-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
-.mes-box{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
-.mes-box svg{width:18px;height:18px;}
-.mes-lbl{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.progress-section h3{font-size:13px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.prog-row{margin-bottom:10px}
+.prog-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px}
+.prog-label span:last-child{color:var(--muted2);font-size:12px}
+.prog-bar{height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width 0.5s}
+.prog-fill.dipr{background:#3b82f6}
+.prog-fill.dair{background:#10b981}
+.prog-fill.rep{background:#f59e0b}
+.prog-fill.con{background:#a78bfa}
 
-/* CONQUISTAS */
-.conquistas{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px;}
-.cq{border-radius:var(--radius-sm);padding:10px 6px;text-align:center;border:0.5px solid var(--border);background:var(--bg2);transition:all 0.2s;}
-.cq.unlocked{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.08);}
-.cq svg{width:24px;height:24px;display:block;margin:0 auto 5px;}
-.cq-nome{font-size:12px;font-weight:500;color:var(--text2);line-height:1.3;}
-.cq.unlocked .cq-nome{color:var(--amber);}
+.conquistas{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:16px}
+.conquista{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 8px;text-align:center;
+}
+.conquista .icon{font-size:26px;margin-bottom:6px}
+.conquista .cname{font-size:11px;color:var(--muted2)}
+.conquista.unlocked{border-color:rgba(245,158,11,0.4);background:rgba(245,158,11,0.06)}
+.conquista.unlocked .cname{color:var(--gold)}
 
-/* CALENDARIO */
-.cal-month{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:12px;}
-.cal-head{font-size:10px;font-family:var(--mono);color:var(--text3);text-align:center;padding:4px 0;}
-.cal-day{min-height:34px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--text2);cursor:default;background:var(--bg2);border:0.5px solid transparent;}
-.cal-day.has-event{border-color:rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);cursor:pointer;color:var(--blue);}
-.cal-day.has-event:hover{background:rgba(59,130,246,0.15);}
-.cal-day.today{border-color:var(--blue);color:var(--blue);}
-.cal-day.urgent{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.08);color:var(--red);}
-.cal-day.empty{background:transparent;border:none;color:var(--text3);}
-.cal-dot{width:4px;height:4px;border-radius:50%;margin-top:2px;}
-.events-list{display:flex;flex-direction:column;gap:6px;}
-.ev-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius-sm);}
-.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.ev-title{font-size:15px;color:var(--text);}
-.ev-date{font-size:13px;color:var(--text3);font-family:var(--mono);}
+/* ===== MISSÕES TAB ===== */
+.missao-item{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:14px;
+}
+.missao-item .mico{font-size:26px;flex-shrink:0}
+.missao-info{flex:1;min-width:0}
+.missao-info h4{font-size:14px;font-weight:600;margin-bottom:3px}
+.missao-info p{font-size:12px;color:var(--muted2)}
+.missao-xp{
+  background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.25);
+  border-radius:8px;padding:4px 10px;
+  font-size:12px;font-weight:700;color:var(--purple);flex-shrink:0;
+}
+.missao-check{
+  width:28px;height:28px;border-radius:50%;
+  border:2px solid var(--border2);background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.2s;
+}
+.missao-check:hover{border-color:var(--green);background:rgba(16,185,129,0.1)}
+.missao-check.done{background:var(--green);border-color:var(--green)}
+.missao-check svg{width:14px;height:14px;color:#fff;display:none}
+.missao-check.done svg{display:block}
+.missao-item.done-item{opacity:.55}
+.missao-item.done-item h4{text-decoration:line-through;color:var(--muted)}
 
-/* SOFIA */
-.chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 160px);}
-.chat-msgs{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:12px;}
-.msg{max-width:88%;padding:12px 14px;border-radius:12px;font-size:15px;line-height:1.6;}
-.msg.sofia{background:var(--bg2);border:0.5px solid var(--border);color:var(--text);align-self:flex-start;border-bottom-left-radius:3px;}
-.msg.user{background:var(--blue2);color:#dbeafe;align-self:flex-end;border-bottom-right-radius:3px;}
-.msg strong{color:var(--blue);font-weight:600;}
-.typing-dots{display:flex;gap:4px;padding:8px 12px;background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;align-self:flex-start;border-bottom-left-radius:3px;}
-.typing-dots span{width:6px;height:6px;border-radius:50%;background:var(--text3);animation:bounce 1.2s infinite;}
-.typing-dots span:nth-child(2){animation-delay:.2s;}
-.typing-dots span:nth-child(3){animation-delay:.4s;}
-@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-.quick-btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
-.qb{padding:7px 14px;border-radius:99px;border:0.5px solid var(--border2);background:var(--bg2);color:var(--text2);font-size:14px;cursor:pointer;font-family:var(--font);}
-.qb:hover{background:var(--bg3);color:var(--text);}
-.chat-input-row{display:flex;gap:8px;padding-top:10px;border-top:0.5px solid var(--border);}
-.chat-input{flex:1;background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;font-size:15px;color:var(--text);font-family:var(--font);outline:none;}
-.chat-input:focus{border-color:var(--blue);}
-.chat-input::placeholder{color:var(--text3);}
-.send-btn{width:38px;height:38px;border-radius:var(--radius-sm);background:var(--blue);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-.send-btn:hover{background:var(--blue2);}
-.send-btn svg{width:16px;height:16px;stroke:#fff;}
-.disclaimer{font-size:10px;color:var(--text3);text-align:center;margin-top:6px;}
+/* ===== TAREFAS TAB ===== */
+.tarefa-form{
+  background:var(--card2);border:1px solid var(--border);border-radius:12px;
+  padding:16px;margin-bottom:18px;
+}
+.tarefa-form h3{
+  font-size:12px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
+}
+.form-row{display:flex;gap:8px;flex-wrap:wrap}
+.form-row input[type=text]{
+  flex:1;min-width:180px;
+  background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  padding:9px 13px;color:var(--text);font-size:14px;outline:none;
+  transition:border-color 0.2s;
+}
+.form-row input[type=text]:focus{border-color:var(--accent)}
+.form-row input::placeholder{color:var(--muted)}
+.form-select{
+  background:var(--bg);border:1px solid var(--border2);border-radius:8px;
+  padding:9px 12px;color:var(--text);font-size:13px;outline:none;cursor:pointer;
+}
+.btn-primary{
+  background:var(--accent);border:none;border-radius:8px;
+  padding:9px 18px;color:#fff;font-size:14px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:opacity 0.2s,transform 0.1s;
+}
+.btn-primary:hover{opacity:.85}
+.btn-primary:active{transform:scale(.97)}
 
-/* SYNC BTN */
-.sync-btn{width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--blue);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
-.sync-btn:hover{background:var(--blue2);}
-.sync-btn svg{width:15px;height:15px;stroke:#fff;}
+.tarefa-filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.tf-btn{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:5px 14px;font-size:12px;color:var(--muted2);cursor:pointer;transition:all 0.2s;
+}
+.tf-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
 
-/* ANIMATIONS */
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes goldPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0.25)}}
-@keyframes lockOpen{0%{transform:scale(1)}30%{transform:scale(1.4) rotate(-15deg)}60%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
-@keyframes countUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@keyframes flamePulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.2);filter:brightness(1.3)}}
-@keyframes navBounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}60%{transform:translateY(2px)}}
-@keyframes particleFade{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}}
-@keyframes starRise{0%{opacity:1;transform:translateY(0) scale(1) rotate(0deg)}100%{opacity:0;transform:translateY(-120px) scale(1.4) rotate(var(--rot));}}
-.star-particle{position:fixed;pointer-events:none;font-size:18px;animation:starRise 1.2s ease-out forwards;z-index:9999;}
-@keyframes xpShine{0%{background-position:-200% center}100%{background-position:200% center}}
-.screen.active{animation:fadeIn 0.2s ease;}
-.missao{opacity:0;animation:slideUp 0.3s ease forwards;}
-.missao:nth-child(1){animation-delay:0.05s;}
-.missao:nth-child(2){animation-delay:0.1s;}
-.missao:nth-child(3){animation-delay:0.15s;}
-.missao:nth-child(4){animation-delay:0.2s;}
-.missao:nth-child(5){animation-delay:0.25s;}
-.cq.unlocked{animation:goldPulse 1.5s ease 3;}
-.xp-fill{transition:width 1.4s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--green),var(--teal),var(--green));background-size:200% auto;animation:xpShine 3s linear infinite;}
-.stat-n.pop{animation:countUp 0.25s ease;}
-.nav-btn.bounce svg{animation:navBounce 0.4s ease;}
-.flip-card{perspective:1000px;height:80px;margin-bottom:7px;}
-.flip-card.done{cursor:pointer;}
-.flip-inner{position:relative;width:100%;height:80px;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);}
-.flip-card.done.flipped .flip-inner{transform:rotateY(180deg);}
-.flip-front,.flip-back{position:absolute;top:0;left:0;width:100%;height:80px;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius-sm);display:flex;align-items:center;gap:12px;padding:12px 14px;box-sizing:border-box;}
-.flip-front{background:linear-gradient(135deg,rgba(16,185,129,0.18),rgba(16,185,129,0.08));border:1.5px solid #10b981;box-shadow:0 0 12px rgba(16,185,129,0.15);}
-.flip-back{background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(59,130,246,0.2));border:0.5px solid rgba(16,185,129,0.5);transform:rotateY(180deg);flex-direction:column;align-items:flex-start;gap:5px;justify-content:center;}
-.flip-back-title{font-size:13px;font-weight:600;color:#6ee7b7;}
-.flip-back-info{font-size:12px;color:var(--text2);line-height:1.4;}
-.flip-back-xp{font-size:13px;font-weight:700;color:#fcd34d;}
-.flip-back-xp{font-size:13px;font-weight:700;color:#fcd34d;margin-top:2px;}
-.mes-box.fire{animation:flamePulse 1.2s ease-in-out infinite;}
-.particle{position:fixed;pointer-events:none;width:8px;height:8px;border-radius:50%;animation:particleFade 0.8s ease forwards;z-index:9999;}
+.tarefa-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.ts-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.ts-card .tv{font-size:22px;font-weight:800;display:block}
+.ts-card .tl{font-size:11px;color:var(--muted);margin-top:2px}
+.ts-card.tg .tv{color:var(--green)}
+.ts-card.tgo .tv{color:var(--gold)}
+.ts-card.tp .tv{color:var(--purple)}
+
+.section-lbl{
+  font-size:12px;font-weight:600;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px;
+}
+
+.tarefa-item{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;
+  transition:opacity 0.3s;
+}
+.tarefa-item.t-done{opacity:.5;border-color:rgba(16,185,129,.18)}
+.tarefa-item.t-done .tnome{text-decoration:line-through;color:var(--muted)}
+
+.prio-bar{position:absolute;left:0;top:0;bottom:0;width:3px}
+.pa{background:var(--red)}
+.pm{background:var(--gold)}
+.pb{background:var(--green)}
+
+.t-check{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--border2);
+  background:transparent;cursor:pointer;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+}
+.t-check:hover{border-color:var(--green);background:rgba(16,185,129,.08)}
+.t-check.ck{background:var(--green);border-color:var(--green)}
+.t-check svg{width:12px;height:12px;color:#fff;display:none}
+.t-check.ck svg{display:block}
+
+.t-info{flex:1;min-width:0}
+.tnome{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmeta{display:flex;align-items:center;gap:8px;margin-top:3px;flex-wrap:wrap}
+.tcat{font-size:11px;border-radius:4px;padding:2px 7px;font-weight:500}
+.cat-administrativo{background:rgba(59,130,246,.15);color:#93c5fd}
+.cat-juridico{background:rgba(167,139,250,.15);color:#c4b5fd}
+.cat-financeiro{background:rgba(245,158,11,.15);color:#fcd34d}
+.cat-previdenciario{background:rgba(16,185,129,.15);color:#6ee7b7}
+.cat-governanca{background:rgba(236,72,153,.15);color:#f9a8d4}
+.cat-outros{background:rgba(100,116,139,.15);color:#94a3b8}
+.txp{font-size:11px;color:var(--purple);font-weight:700}
+.tdate{font-size:11px;color:var(--muted)}
+
+.t-del{
+  background:transparent;border:none;color:var(--muted);
+  cursor:pointer;font-size:16px;padding:4px;border-radius:6px;
+  display:flex;align-items:center;transition:color 0.2s;
+}
+.t-del:hover{color:var(--red)}
+
+.empty-state{text-align:center;padding:30px;color:var(--muted)}
+.empty-state .eico{font-size:36px;margin-bottom:10px;opacity:.35}
+.empty-state p{font-size:14px}
+
+/* ===== CALENDÁRIO ===== */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.cal-header h2{font-size:17px;font-weight:700}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-day-name{text-align:center;font-size:11px;color:var(--muted);padding:4px;font-weight:600;text-transform:uppercase}
+.cal-day{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:8px 4px;text-align:center;font-size:13px;min-height:44px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+}
+.cal-day.today{border-color:var(--accent);background:rgba(59,130,246,.08);color:var(--accent);font-weight:700}
+.cal-day.has-ev::after{content:'';width:5px;height:5px;background:var(--gold);border-radius:50%}
+.cal-day.empty-day{background:transparent;border-color:transparent}
+
+/* ===== SOFIA TAB ===== */
+.sofia-chat{display:flex;flex-direction:column;gap:0}
+.sofia-messages{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:16px;min-height:300px;max-height:420px;overflow-y:auto;
+  margin-bottom:12px;display:flex;flex-direction:column;gap:12px;
+}
+.msg{display:flex;gap:10px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{
+  width:30px;height:30px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;
+}
+.msg-avatar.sofia{background:linear-gradient(135deg,#1d4ed8,#7c3aed);color:#fff}
+.msg-avatar.user{background:var(--card2);border:1px solid var(--border2);color:var(--muted2)}
+.msg-bubble{
+  background:var(--card2);border:1px solid var(--border);border-radius:12px;
+  padding:10px 14px;max-width:78%;font-size:14px;line-height:1.6;
+}
+.msg.user .msg-bubble{background:rgba(59,130,246,.12);border-color:rgba(59,130,246,.25)}
+.msg-bubble.loading{color:var(--muted)}
+
+.sofia-input-row{display:flex;gap:8px}
+.sofia-input-row input{
+  flex:1;background:var(--card);border:1px solid var(--border2);border-radius:10px;
+  padding:10px 14px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s;
+}
+.sofia-input-row input:focus{border-color:var(--accent)}
+.sofia-input-row input::placeholder{color:var(--muted)}
+
+.quick-perguntas{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.qp-btn{
+  background:var(--card2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 12px;font-size:12px;color:var(--muted2);cursor:pointer;transition:all .2s;
+}
+.qp-btn:hover{border-color:var(--accent);color:var(--text)}
+
+/* ===== XP TOAST ===== */
+.xp-toast{
+  position:fixed;top:70px;right:16px;z-index:9999;
+  background:linear-gradient(135deg,#312e81,#4c1d95);
+  border:1px solid #7c3aed;border-radius:12px;
+  padding:10px 18px;color:#c4b5fd;font-weight:700;font-size:15px;
+  pointer-events:none;opacity:0;transform:translateX(40px);
+  transition:opacity .3s,transform .3s;
+}
+.xp-toast.show{opacity:1;transform:translateX(0)}
+
+/* ===== FOOTER ===== */
+.footer{text-align:center;padding:16px;font-size:11px;color:var(--muted);border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="topbar">
-  <div class="topbar-left">
-    <div class="avatar-prog" id="avatar-prog" onclick="mostrarInfoAvatar()" title="Seu avatar">
-      <svg id="avatar-svg" width="48" height="56" viewBox="0 0 90 110" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="45" cy="110" r="35" fill="#E6F1FB" opacity="0.3"/>
-        <circle cx="45" cy="38" r="22" fill="#FDDBB4"/>
-        <ellipse cx="35" cy="35" rx="3" ry="4" fill="#FDDBB4"/>
-        <ellipse cx="55" cy="35" rx="3" ry="4" fill="#FDDBB4"/>
-        <circle cx="37" cy="36" r="4" fill="white"/>
-        <circle cx="53" cy="36" r="4" fill="white"/>
-        <circle cx="38" cy="37" r="2.5" fill="#1a1a2e"/>
-        <circle cx="54" cy="37" r="2.5" fill="#1a1a2e"/>
-        <circle cx="39" cy="36" r="1" fill="white"/>
-        <circle cx="55" cy="36" r="1" fill="white"/>
-        <path d="M38 47 Q45 52 52 47" stroke="#c0795a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        <ellipse cx="35" cy="44" rx="3" ry="2" fill="#f4a5a5" opacity="0.5"/>
-        <ellipse cx="55" cy="44" rx="3" ry="2" fill="#f4a5a5" opacity="0.5"/>
-        <path d="M28 20 Q45 8 62 20 Q65 30 62 32 Q55 28 45 27 Q35 28 28 32 Q25 30 28 20Z" fill="#2d1b00"/>
-        <rect x="20" y="58" width="50" height="45" rx="8" fill="#185FA5"/>
-        <rect x="30" y="58" width="30" height="20" fill="#185FA5"/>
-        <rect x="35" y="55" width="20" height="8" rx="3" fill="#dbeafe"/>
-        <rect x="32" y="75" width="12" height="28" rx="4" fill="#1e40af"/>
-        <rect x="46" y="75" width="12" height="28" rx="4" fill="#1e40af"/>
-        <rect x="15" y="60" width="10" height="30" rx="5" fill="#185FA5"/>
-        <rect x="65" y="60" width="10" height="30" rx="5" fill="#185FA5"/>
-        <rect x="60" y="62" width="16" height="22" rx="3" fill="#f59e0b" stroke="#BA7517" stroke-width="1"/>
-        <rect x="62" y="64" width="12" height="3" rx="1" fill="#fcd34d"/>
-        <rect x="62" y="69" width="8" height="2" rx="1" fill="#fcd34d"/>
-        <rect x="62" y="73" width="10" height="2" rx="1" fill="#fcd34d"/>
-        <g id="av-toga" style="display:none">
-          <path d="M20 62 L30 58 L30 103 L20 103Z" fill="#3C3489" opacity="0.8"/>
-          <path d="M70 62 L60 58 L60 103 L70 103Z" fill="#3C3489" opacity="0.8"/>
-        </g>
-        <g id="av-escudo" style="display:none">
-          <path d="M8 62 L14 59 L20 62 L20 72 Q14 76 8 72Z" fill="#185FA5" stroke="#0C447C" stroke-width="1"/>
-          <path d="M10 66 L13 69 L18 63" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        </g>
-        <g id="av-coroa" style="display:none">
-          <path d="M26 20 L30 13 L33 18 L37 11 L41 17 L45 10 L49 17 L53 11 L57 18 L60 13 L64 20 Z" fill="#f59e0b" stroke="#BA7517" stroke-width="0.8"/>
-          <circle cx="45" cy="10" r="2.5" fill="#fcd34d"/>
-          <circle cx="30" cy="13" r="1.8" fill="#fcd34d"/>
-          <circle cx="60" cy="13" r="1.8" fill="#fcd34d"/>
-        </g>
-        <g id="av-brilho" style="display:none">
-          <circle cx="45" cy="55" r="52" fill="none" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>
-        </g>
-      </svg>
-      <div class="lv-tag" id="av-lv-tag" style="background:#1d4ed8;color:#dbeafe">Nv1</div>
-    </div>
+<!-- ===== TOPBAR ===== -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">RP</div>
     <div>
-      <div class="app-title">RPPS Gestor</div>
-      <div class="app-sub">Painel de conformidade</div>
+      <div class="brand-name">RPPS Gestor</div>
+      <div class="brand-sub">Painel de conformidade</div>
     </div>
   </div>
-  <div class="topbar-right">
-    <button class="icon-btn" onclick="showNotif()" aria-label="Notificações">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-      <div class="notif-dot"></div>
+  <nav class="nav">
+    <button class="nav-btn active" data-tab="painel" onclick="goTab('painel',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Painel
     </button>
-    <button class="icon-btn" aria-label="Configurações">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+    <button class="nav-btn" data-tab="missoes" onclick="goTab('missoes',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.09 6.26L21 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      Missões
     </button>
-  </div>
-</div>
-
-<nav class="nav">
-  <button class="nav-btn active" onclick="showScreen('painel',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    Painel
-  </button>
-  <button class="nav-btn" onclick="showScreen('missoes',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M9 13l2 2 4-4"/></svg>
-    Missoes
-  </button>
-  <button class="nav-btn" onclick="showScreen('calendario',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    Calendario
-  </button>
-  <button class="nav-btn" onclick="showScreen('sofia',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 110 20 10 10 0 010-20z"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    Sofia
-  </button>
-</nav>
+    <button class="nav-btn" data-tab="tarefas" onclick="goTab('tarefas',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      Tarefas
+    </button>
+    <button class="nav-btn" data-tab="calendario" onclick="goTab('calendario',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendário
+    </button>
+    <button class="nav-btn" data-tab="sofia" onclick="goTab('sofia',this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 6v6l4 2"/></svg>
+      Sofia
+    </button>
+  </nav>
+  <div class="xp-pill">⚡ <span id="topbar-xp">1.240</span> XP</div>
+</header>
 
 <main class="main">
 
-<!-- PAINEL -->
-<div id="screen-painel" class="screen active">
-  <div class="hero">
-    <div class="avatar-ring">
-      <div class="avatar-inner">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L4 6v6c0 5.5 3.8 10.7 8 12 4.2-1.3 8-6.5 8-12V6l-8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+<!-- ===== TAB: PAINEL ===== -->
+<div class="tab-content active" id="tab-painel">
+  <div class="gestor-hero">
+    <div class="avatar">G</div>
+    <div class="gestor-info">
+      <h2>Gestor RPPS</h2>
+      <p>Guardião Previdenciário · 2026</p>
+      <div class="xp-bar-wrap" style="margin-top:10px;margin-bottom:0">
+        <div class="xp-bar-label">
+          <span>Nível 4 — Guardião</span>
+          <span id="xp-label">1.240 / 2.000 XP</span>
+        </div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="xp-fill" style="width:62%"></div></div>
       </div>
     </div>
-    <div class="hero-info">
-      <div class="hero-name">Gestor RPPS</div>
-      <div class="hero-role">Guardiao Previdenciario · 2026</div>
-      <div class="lv-chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        Nivel 4 — Guardiao
+    <div class="nivel-badge">
+      <div class="lvl">Nv4</div>
+      <div class="lvlname">Guardião</div>
+    </div>
+  </div>
+
+  <div class="stats4">
+    <div class="scard g"><div class="sv" id="p-concluidas">0</div><div class="sl">concluídas</div></div>
+    <div class="scard r"><div class="sv" id="p-pendentes">34</div><div class="sl">pendentes</div></div>
+    <div class="scard go"><div class="sv" id="p-streak">0</div><div class="sl">streak meses</div></div>
+    <div class="scard p"><div class="sv" id="p-xp">1.240</div><div class="sl">XP total</div></div>
+  </div>
+
+  <div class="alert-box">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    DIPR, DAIR e DRAA de maio vencem em 19 dias. Conclua essas missões para garantir o CRP!
+  </div>
+
+  <div class="card">
+    <div class="progress-section">
+      <h3>Progresso anual</h3>
+      <div class="prog-row">
+        <div class="prog-label"><span>DIPR</span><span id="dipr-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill dipr" id="dipr-fill" style="width:0%"></div></div>
       </div>
-      <div class="xp-wrap">
-        <div class="xp-labels"><span>XP: <span id="xp-cur">1.240</span></span><span>2.000 XP</span></div>
-        <div class="xp-track"><div class="xp-fill" id="xp-fill" style="width:62%"></div></div>
+      <div class="prog-row">
+        <div class="prog-label"><span>DAIR</span><span id="dair-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill dair" id="dair-fill" style="width:0%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Repasse</span><span id="rep-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill rep" id="rep-fill" style="width:0%"></div></div>
+      </div>
+      <div class="prog-row">
+        <div class="prog-label"><span>Conselho</span><span id="con-pct">0%</span></div>
+        <div class="prog-bar"><div class="prog-fill con" id="con-fill" style="width:0%"></div></div>
       </div>
     </div>
   </div>
 
-  <div class="stats">
-    <div class="stat"><div class="stat-ico s-g"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></div><div><div class="stat-n" id="s-ok">0</div><div class="stat-l">concluidas</div></div></div>
-    <div class="stat"><div class="stat-ico s-r"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-n" id="s-pend">34</div><div class="stat-l">pendentes</div></div></div>
-    <div class="stat"><div class="stat-ico s-a"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-6 8-6 13a6 6 0 0012 0c0-5-6-7-6-13z"/></svg></div><div><div class="stat-n" id="s-str">0</div><div class="stat-l">streak meses</div></div></div>
-    <div class="stat"><div class="stat-ico s-b"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><div><div class="stat-n" id="s-xp">1.240</div><div class="stat-l">XP total</div></div></div>
-  </div>
-
-  <div class="alert">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
-    DIPR, DAIR e DRAA de maio vencem em 19 dias. Conclua essas missoes para garantir o CRP!
-  </div>
-
-  <div class="sec-title">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c0 6-6 8-6 13a6 6 0 0012 0c0-5-6-7-6-13z"/></svg>
-    Streak de conformidade
-  </div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="meses-row" id="meses-row"></div>
-  </div>
-
-  <div class="sec-title">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    Progresso anual
-  </div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="prog-rows">
-      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg>DIPR</div><div class="prog-track"><div class="prog-fill" id="pb-dipr" style="width:0%;background:#3b82f6"></div></div><div class="prog-pct" id="pp-dipr">0%</div></div>
-      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/></svg>DAIR</div><div class="prog-track"><div class="prog-fill" id="pb-dair" style="width:0%;background:#10b981"></div></div><div class="prog-pct" id="pp-dair">0%</div></div>
-      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Repasse</div><div class="prog-track"><div class="prog-fill" id="pb-rep" style="width:0%;background:#ef4444"></div></div><div class="prog-pct" id="pp-rep">0%</div></div>
-      <div class="prog-row"><div class="prog-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Conselho</div><div class="prog-track"><div class="prog-fill" id="pb-cons" style="width:0%;background:#8b5cf6"></div></div><div class="prog-pct" id="pp-cons">0%</div></div>
+  <div class="card" style="margin-top:14px">
+    <div class="progress-section">
+      <h3>Conquistas</h3>
+      <div class="conquistas">
+        <div class="conquista unlocked"><div class="icon">🏆</div><div class="cname">1ª Missão</div></div>
+        <div class="conquista" id="cq-mes"><div class="icon">🌟</div><div class="cname">Mês Perfeito</div></div>
+        <div class="conquista" id="cq-fogo"><div class="icon">🔥</div><div class="cname">Fogo Triplo</div></div>
+        <div class="conquista" id="cq-crp"><div class="icon">🛡️</div><div class="cname">Guardião CRP</div></div>
+        <div class="conquista" id="cq-lenda"><div class="icon">⚡</div><div class="cname">Lenda RPPS</div></div>
+      </div>
     </div>
   </div>
-
-  <div class="sec-title">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-    Conquistas
-  </div>
-  <div class="conquistas" style="margin-bottom:16px;">
-    <div class="cq" id="cq0"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">1a missao</div></div>
-    <div class="cq" id="cq1"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Mes perfeito</div></div>
-    <div class="cq" id="cq2"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Fogo triplo</div></div>
-    <div class="cq" id="cq3"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Guardiao CRP</div></div>
-    <div class="cq" id="cq4"><svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg><div class="cq-nome">Lenda RPPS</div></div>
-  </div>
-
-  <button class="sync-btn">
-    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-    Sincronizar com Todoist
-  </button>
 </div>
 
-<!-- MISSOES -->
-<div id="screen-missoes" class="screen">
-  <div class="sec-title" style="margin-bottom:10px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V7.5L14.5 2z"/><path d="M9 13l2 2 4-4"/></svg>
-    Missoes ativas — maio 2026
-  </div>
-  <div class="missoes" id="missoes-list"></div>
-</div>
-
-<!-- CALENDARIO -->
-<div id="screen-calendario" class="screen">
-  <div class="sec-title" style="margin-bottom:10px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-    Maio 2026
-  </div>
-  <div class="card" style="margin-bottom:12px;">
-    <div class="cal-month" id="cal-grid"></div>
-  </div>
-  <div class="sec-title" style="margin-bottom:8px;">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-    Prazos do mes
-  </div>
-  <div class="events-list" id="events-list"></div>
-</div>
-
-<!-- SOFIA -->
-<div id="screen-sofia" class="screen">
-  <div class="chat-wrap">
-    <div class="chat-msgs" id="chat-msgs">
-      <div class="msg sofia">Ola, gestor! Sou a <strong>Sofia</strong>, sua assistente juridica especializada em RPPS. Estou aqui para te ajudar com prazos, normas e obrigacoes. O que precisa?</div>
+<!-- ===== TAB: MISSÕES ===== -->
+<div class="tab-content" id="tab-missoes">
+  <div class="card" style="margin-bottom:14px">
+    <div class="progress-section">
+      <h3>Missões ativas — maio 2026</h3>
     </div>
-    <div class="quick-btns">
-      <button class="qb" onclick="perguntarSofia('Quais sao os prazos de maio?')">Prazos de maio</button>
-      <button class="qb" onclick="perguntarSofia('O que e o DIPR?')">O que e DIPR?</button>
-      <button class="qb" onclick="perguntarSofia('Quais as consequencias de atraso no repasse?')">Consequencias de atraso</button>
-      <button class="qb" onclick="perguntarSofia('Explique a Resolucao CMN 4.963/21')">CMN 4.963/21</button>
-    </div>
-    <div class="chat-input-row">
-      <input class="chat-input" id="chat-input" type="text" placeholder="Pergunte sobre legislacao RPPS..." onkeydown="if(event.key==='Enter')enviarSofia()">
-      <button class="send-btn" onclick="enviarSofia()">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+  </div>
+  <div id="missoes-list"></div>
+</div>
+
+<!-- ===== TAB: TAREFAS ===== -->
+<div class="tab-content" id="tab-tarefas">
+
+  <div class="tarefa-stats">
+    <div class="ts-card tg"><span class="tv" id="t-done-ct">0</span><span class="tl">concluídas</span></div>
+    <div class="ts-card tgo"><span class="tv" id="t-pend-ct">0</span><span class="tl">pendentes</span></div>
+    <div class="ts-card tp"><span class="tv" id="t-xp-ct">0</span><span class="tl">XP de tarefas</span></div>
+  </div>
+
+  <div class="tarefa-form">
+    <h3>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova tarefa
+    </h3>
+    <div class="form-row">
+      <input type="text" id="t-input" placeholder="Ex: Enviar relatório ao Conselho..." maxlength="120"/>
+      <select class="form-select" id="t-cat">
+        <option value="administrativo">📋 Administrativo</option>
+        <option value="juridico">⚖️ Jurídico</option>
+        <option value="financeiro">💰 Financeiro</option>
+        <option value="previdenciario">🛡️ Previdenciário</option>
+        <option value="governanca">🏛️ Governança</option>
+        <option value="outros">📌 Outros</option>
+      </select>
+      <select class="form-select" id="t-prio">
+        <option value="alta">🔴 Alta (+30 XP)</option>
+        <option value="media" selected>🟡 Média (+20 XP)</option>
+        <option value="baixa">🟢 Baixa (+10 XP)</option>
+      </select>
+      <button class="btn-primary" id="t-add-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar
       </button>
     </div>
-    <div class="disclaimer">Sofia orienta com base na legislacao vigente. Para decisoes formais, consulte o setor juridico.</div>
+  </div>
+
+  <div class="tarefa-filters">
+    <button class="tf-btn active" data-f="todas">Todas</button>
+    <button class="tf-btn" data-f="pendentes">Pendentes</button>
+    <button class="tf-btn" data-f="concluidas">Concluídas</button>
+    <button class="tf-btn" data-f="alta">Alta prioridade</button>
+  </div>
+
+  <div class="section-lbl">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1"/><circle cx="3" cy="12" r="1"/><circle cx="3" cy="18" r="1"/></svg>
+    <span id="t-list-label">Todas as tarefas</span>
+  </div>
+
+  <div id="tarefas-list"></div>
+</div>
+
+<!-- ===== TAB: CALENDÁRIO ===== -->
+<div class="tab-content" id="tab-calendario">
+  <div class="card">
+    <div class="cal-header">
+      <button class="btn-primary" style="padding:6px 12px;font-size:12px" onclick="calPrev()">‹ Anterior</button>
+      <h2 id="cal-titulo">Maio 2026</h2>
+      <button class="btn-primary" style="padding:6px 12px;font-size:12px" onclick="calNext()">Próximo ›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+  <div class="card" style="margin-top:14px">
+    <div class="progress-section">
+      <h3>Prazos do mês</h3>
+      <div id="prazos-lista" style="margin-top:8px;display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TAB: SOFIA ===== -->
+<div class="tab-content" id="tab-sofia">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <div class="msg-avatar sofia" style="width:38px;height:38px;font-size:16px">S</div>
+      <div>
+        <div style="font-weight:700;font-size:15px">Sofia</div>
+        <div style="font-size:12px;color:var(--muted2)">Assistente jurídica especializada em RPPS</div>
+      </div>
+    </div>
+
+    <div class="quick-perguntas">
+      <button class="qp-btn" onclick="sofiaAsk('Quais são os prazos de maio?')">Prazos de maio</button>
+      <button class="qp-btn" onclick="sofiaAsk('O que é DIPR?')">O que é DIPR?</button>
+      <button class="qp-btn" onclick="sofiaAsk('Quais as consequências do atraso no repasse?')">Consequências de atraso</button>
+      <button class="qp-btn" onclick="sofiaAsk('Explique a Resolução CMN 4.963/21')">CMN 4.963/21</button>
+    </div>
+
+    <div class="sofia-messages" id="sofia-msgs">
+      <div class="msg">
+        <div class="msg-avatar sofia">S</div>
+        <div class="msg-bubble">
+          Olá, gestor! Sou a <strong>Sofia</strong>, sua assistente jurídica especializada em RPPS. Estou aqui para te ajudar com prazos, normas e obrigações. O que precisa?
+        </div>
+      </div>
+    </div>
+
+    <div class="sofia-input-row">
+      <input type="text" id="sofia-input" placeholder="Pergunte sobre prazos, normas, CRP..." />
+      <button class="btn-primary" id="sofia-send-btn" onclick="sofiaEnviar()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar
+      </button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">Sofia orienta com base na legislação vigente. Para decisões formais, consulte o setor jurídico.</p>
   </div>
 </div>
 
 </main>
 
+<footer class="footer">RPPS Gestor · Painel de conformidade previdenciária · 2026</footer>
+</div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+<!-- XP TOAST -->
+<div class="xp-toast" id="xp-toast"></div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",
-  authDomain: "rpps-gestor.firebaseapp.com",
-  databaseURL: "https://rpps-gestor-default-rtdb.firebaseio.com",
-  projectId: "rpps-gestor",
-  storageBucket: "rpps-gestor.firebasestorage.app",
-  messagingSenderId: "306067757224",
-  appId: "1:306067757224:web:5f8acdc7c5199911774a9d"
+<script>
+/* ============================================================
+   ESTADO GLOBAL
+   ============================================================ */
+const XP_MAP = {alta:30, media:20, baixa:10};
+const XP_BASE = 1240;
+
+let state = {
+  tarefas: [],
+  missoesConcluidas: [],
+  xpExtra: 0,        // XP ganho nas tarefas
+  tarefaFilter: 'todas'
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const ESTADO_REF = ref(db, 'gestor/estado');
-
-const MISSOES_DATA = [
-  {id:0,icon:'ti-file-invoice',title:'Enviar DIPR de maio',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 56',xp:100,prog:'dipr',bg:'rgba(59,130,246,0.15)',cor:'#3b82f6',xpBg:'rgba(59,130,246,0.15)',xpCor:'#93c5fd'},
-  {id:1,icon:'ti-chart-pie',title:'Enviar DAIR de maio',sub:'Prazo: 31/05 · Res. CMN 4.963/2021',xp:100,prog:'dair',bg:'rgba(16,185,129,0.15)',cor:'#10b981',xpBg:'rgba(16,185,129,0.15)',xpCor:'#6ee7b7'},
-  {id:2,icon:'ti-report',title:'Enviar DRAA 2025',sub:'Prazo: 31/05 · Portaria MTP 1.467/2022, art. 58',xp:200,prog:'draa',bg:'rgba(245,158,11,0.15)',cor:'#f59e0b',xpBg:'rgba(245,158,11,0.15)',xpCor:'#fcd34d'},
-  {id:3,icon:'ti-arrows-transfer-up',title:'Repasse de contribuicoes',sub:'Prazo: 10/05 · Lei 9.717/98, art. 2',xp:150,prog:'rep',bg:'rgba(239,68,68,0.15)',cor:'#ef4444',xpBg:'rgba(239,68,68,0.15)',xpCor:'#fca5a5'},
-  {id:4,icon:'ti-users',title:'Reuniao do Conselho',sub:'Mensal · Lei 9.717/98, art. 1',xp:50,prog:'cons',bg:'rgba(139,92,246,0.15)',cor:'#8b5cf6',xpBg:'rgba(139,92,246,0.15)',xpCor:'#c4b5fd'}
+const MISSOES = [
+  {id:'dipr',   icon:'📊', nome:'Enviar DIPR',     desc:'Demonstrativo de Informações Previdenciárias e Repasses',   xp:200, venc:'19/05/2026'},
+  {id:'dair',   icon:'📈', nome:'Enviar DAIR',     desc:'Demonstrativo de Aplicações e Investimentos dos Recursos',  xp:200, venc:'19/05/2026'},
+  {id:'draa',   icon:'📋', nome:'Enviar DRAA',     desc:'Demonstrativo de Resultado Atuarial Anual',                 xp:150, venc:'30/05/2026'},
+  {id:'rep',    icon:'💰', nome:'Repasse patronal',desc:'Efetuar repasse das contribuições patronais e servidores',   xp:300, venc:'05/05/2026'},
+  {id:'cons',   icon:'🏛️', nome:'Reunião Conselho',desc:'Reunião ordinária do Conselho Deliberativo — mai/2026',     xp:100, venc:'28/05/2026'},
+  {id:'inv',    icon:'📉', nome:'Política Invest.', desc:'Revisar enquadramento da política de investimentos',        xp:80,  venc:'31/05/2026'},
 ];
 
-const MESES = ['Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-let chatHistory = [];
-let estado = {xp:1240,ok:0,pend:5,streak:0,feitas:[],prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
+const PRAZOS_CAL = {
+  '2026-05-05': 'Repasse patronal',
+  '2026-05-19': 'DIPR / DAIR',
+  '2026-05-28': 'Reunião Conselho',
+  '2026-05-30': 'DRAA',
+  '2026-05-31': 'Política de Investimentos',
+};
 
-async function salvar() {
-  try {
-    await set(ESTADO_REF, estado);
-    const t = document.getElementById('saved-tag');
-    if(t){t.style.display='flex';setTimeout(()=>t.style.display='none',2000);}
-  } catch(e) { console.error('Firebase erro:', e); }
+/* ============================================================
+   PERSISTÊNCIA (localStorage)
+   ============================================================ */
+function salvar(){
+  try{localStorage.setItem('rpps_state_v3', JSON.stringify(state))}catch(e){}
+}
+function carregar(){
+  try{
+    const s = localStorage.getItem('rpps_state_v3');
+    if(s) state = {...state, ...JSON.parse(s)};
+  }catch(e){}
 }
 
-function showScreen(id,btn){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+/* ============================================================
+   NAVEGAÇÃO
+   ============================================================ */
+function goTab(id, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('screen-'+id).classList.add('active');
-  if(btn){btn.classList.add('active');animarNavBounce(btn);}
-}
-window.showScreen = showScreen;
-
-function desbloquear(id,icon){
-  const el=document.getElementById('cq'+id);
-  if(!el||el.classList.contains('unlocked'))return;
-  el.classList.add('unlocked');
-  el.querySelector('i').className='ti '+icon;
-  el.querySelector('i').style.color='#BA7517';
-  el.querySelector('.cq-nome').style.color='#412402';
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='calendario') renderCal();
 }
 
-function buildMissoes(){
-  const c=document.getElementById('missoes-list');
-  if(!c)return;
-  c.innerHTML='';
-  MISSOES_DATA.forEach(m=>{
-    const feita=(estado.feitas||[]).includes(m.id);
-    const d=document.createElement('div');
-    if(feita){
-      d.className='flip-card done';
-      d.onclick=()=>d.classList.toggle('flipped');
-      const front = `<div class="flip-front">
-        <div class="m-ico" style="background:${m.bg}"><i class="ti ${m.icon}" style="font-size:20px;color:${m.cor}" aria-hidden="true"></i></div>
-        <div class="m-body"><div class="m-title" style="color:#6ee7b7;text-decoration:line-through">${m.title}</div><div class="m-sub" style="color:#0F6E56">${m.sub}</div></div>
-        <div class="m-xp" style="background:${m.xpBg};color:${m.xpCor}">+${m.xp} XP</div>
-        <i class="ti ti-rotate-clockwise" style="color:#6ee7b7;font-size:16px;flex-shrink:0" aria-hidden="true"></i>
-      </div>`;
-      const back = `<div class="flip-back">
-        <div class="flip-back-title">✅ Obrigacao cumprida!</div>
-        <div class="flip-back-info">📋 ${m.sub}</div>
-        <div class="flip-back-xp">⭐ +${m.xp} XP conquistados</div>
-      </div>`;
-      d.innerHTML = `<div class="flip-inner">${front}${back}</div>`;
-    } else {
-      d.className='missao';
-      d.onclick=()=>completar(m.id);
-      d.innerHTML=`<div class="m-ico" style="background:${m.bg}"><i class="ti ${m.icon}" style="font-size:20px;color:${m.cor}" aria-hidden="true"></i></div><div class="m-body"><div class="m-title">${m.title}</div><div class="m-sub">${m.sub}</div></div><div class="m-xp" style="background:${m.xpBg};color:${m.xpCor}">+${m.xp} XP</div><i class="ti ti-circle check" aria-hidden="true"></i>`;
-    }
-    c.appendChild(d);
+/* ============================================================
+   XP TOTAL
+   ============================================================ */
+function calcXPTotal(){
+  const xpTarefas = state.tarefas.filter(t=>t.done).reduce((s,t)=>s+t.xp,0);
+  const xpMissoes = MISSOES.filter(m=>state.missoesConcluidas.includes(m.id)).reduce((s,m)=>s+m.xp,0);
+  return XP_BASE + xpTarefas + xpMissoes;
+}
+
+function atualizarXPGlobal(){
+  const total = calcXPTotal();
+  const fmt = total.toLocaleString('pt-BR');
+  document.getElementById('topbar-xp').textContent = fmt;
+  document.getElementById('p-xp').textContent = fmt;
+  // barra de nível (2000 XP por nível)
+  const pct = Math.min(100, Math.round((total % 2000) / 2000 * 100));
+  document.getElementById('xp-fill').style.width = pct+'%';
+  document.getElementById('xp-label').textContent = total.toLocaleString('pt-BR')+' / 2.000 XP';
+  // conquistas
+  if(total>=2000) document.getElementById('cq-lenda').classList.add('unlocked');
+  if(state.missoesConcluidas.length>=3) document.getElementById('cq-fogo').classList.add('unlocked');
+  if(state.missoesConcluidas.includes('rep')) document.getElementById('cq-crp').classList.add('unlocked');
+}
+
+function showToast(msg){
+  const el = document.getElementById('xp-toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+/* ============================================================
+   MISSÕES
+   ============================================================ */
+function renderMissoes(){
+  const list = document.getElementById('missoes-list');
+  list.innerHTML = MISSOES.map(m=>{
+    const done = state.missoesConcluidas.includes(m.id);
+    return `<div class="missao-item ${done?'done-item':''}" id="mi-${m.id}">
+      <span class="mico">${m.icon}</span>
+      <div class="missao-info">
+        <h4>${m.nome}</h4>
+        <p>${m.desc} · Vence: ${m.venc}</p>
+      </div>
+      <span class="missao-xp">+${m.xp} XP</span>
+      <button class="missao-check ${done?'done':''}" onclick="toggleMissao('${m.id}')" aria-label="${done?'Desmarcar':'Concluir'} missão">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  // painel concluídas/pendentes
+  document.getElementById('p-concluidas').textContent = state.missoesConcluidas.length;
+  document.getElementById('p-pendentes').textContent = MISSOES.length - state.missoesConcluidas.length;
+}
+
+function toggleMissao(id){
+  const idx = state.missoesConcluidas.indexOf(id);
+  const m = MISSOES.find(m=>m.id===id);
+  if(idx===-1){
+    state.missoesConcluidas.push(id);
+    showToast('🏆 Missão concluída! +'+m.xp+' XP');
+  } else {
+    state.missoesConcluidas.splice(idx,1);
+  }
+  salvar();
+  renderMissoes();
+  atualizarXPGlobal();
+}
+
+/* ============================================================
+   TAREFAS
+   ============================================================ */
+function addTarefa(){
+  const inp = document.getElementById('t-input');
+  const name = inp.value.trim();
+  if(!name){inp.focus();return;}
+  const cat = document.getElementById('t-cat').value;
+  const prio = document.getElementById('t-prio').value;
+  state.tarefas.unshift({
+    id: Date.now(),
+    name,cat,prio,
+    done:false,
+    xp: XP_MAP[prio],
+    date: new Date().toLocaleDateString('pt-BR')
   });
+  inp.value='';
+  salvar();
+  renderTarefas();
+  atualizarXPGlobal();
 }
 
-function buildStreak(){
-  const c=document.getElementById('meses-row');
-  if(!c)return;
-  c.innerHTML='';
-  MESES.forEach((m,i)=>{
-    const wrap=document.createElement('div');wrap.className='mes-item';wrap.id='mes-'+i;
-    const box=document.createElement('div');box.className='mes-box';
-    const ok=(i===0&&estado.streak>=1);
-    box.style.background=ok?'rgba(16,185,129,0.15)':i===0?'rgba(59,130,246,0.1)':'rgba(255,255,255,0.03)';
-    box.style.border=ok?'1.5px solid #10b981':i===0?'1.5px solid #3b82f6':'0.5px solid rgba(255,255,255,0.07)';
-    box.innerHTML=ok?'<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>':i===0?'<svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="#4a5a7a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>';
-    const lbl=document.createElement('div');lbl.className='mes-lbl';lbl.textContent=m;
-    wrap.appendChild(box);wrap.appendChild(lbl);c.appendChild(wrap);
-  });
+function toggleTarefa(id){
+  const t = state.tarefas.find(t=>t.id===id);
+  if(!t) return;
+  t.done = !t.done;
+  if(t.done) showToast((t.prio==='alta'?'🔥':'⚡')+' +'+t.xp+' XP ganhos!');
+  salvar();
+  renderTarefas();
+  atualizarXPGlobal();
 }
 
-function buildCal(){
-  const grid=document.getElementById('cal-grid');
-  const evts=document.getElementById('events-list');
-  if(!grid||!evts)return;
-  const dias=['D','S','T','Q','Q','S','S'];
-  grid.innerHTML='';
-  dias.forEach(d=>{const h=document.createElement('div');h.className='cal-head';h.textContent=d;grid.appendChild(h);});
-  const primeiroDia=new Date(2026,4,1).getDay();
-  for(let i=0;i<primeiroDia;i++){const e=document.createElement('div');e.className='cal-day empty';grid.appendChild(e);}
-  for(let d=1;d<=31;d++){
-    const cell=document.createElement('div');cell.className='cal-day';cell.textContent=d;
-    if(d===10){cell.classList.add('urgent');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#ef4444';cell.appendChild(dot);}
-    if(d===31){cell.classList.add('has-event');const dot=document.createElement('div');dot.className='cal-dot';dot.style.background='#3b82f6';cell.appendChild(dot);}
-    grid.appendChild(cell);
-  }
-  evts.innerHTML=`<div class="ev-item"><div class="ev-dot" style="background:#ef4444"></div><div><div class="ev-title">Repasse de contribuicoes</div><div class="ev-date">10/05/2026 · Lei 9.717/98</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#3b82f6"></div><div><div class="ev-title">DIPR — Envio do demonstrativo</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#10b981"></div><div><div class="ev-title">DAIR — Demonstrativo de aplicacoes</div><div class="ev-date">31/05/2026 · Res. CMN 4.963/2021</div></div></div><div class="ev-item"><div class="ev-dot" style="background:#f59e0b"></div><div><div class="ev-title">DRAA — Avaliacao atuarial</div><div class="ev-date">31/05/2026 · Portaria MTP 1.467/2022, art. 58</div></div></div>`;
+function deleteTarefa(id){
+  state.tarefas = state.tarefas.filter(t=>t.id!==id);
+  salvar();
+  renderTarefas();
+  atualizarXPGlobal();
 }
 
-const NIVEIS = [
-  {min:0,    max:599,  lv:1, nome:'Estudante',    bg:'#1d4ed8', txt:'#dbeafe', extras:[]},
-  {min:600,  max:1199, lv:2, nome:'Analista',     bg:'#065f46', txt:'#d1fae5', extras:[]},
-  {min:1200, max:1899, lv:3, nome:'Gestor',       bg:'#4c1d95', txt:'#ede9fe', extras:['av-toga']},
-  {min:1900, max:2719, lv:4, nome:'Guardiao',     bg:'#78350f', txt:'#fef3c7', extras:['av-toga','av-escudo']},
-  {min:2720, max:99999,lv:5, nome:'Ministro RPPS',bg:'#713f12', txt:'#fef9c3', extras:['av-toga','av-escudo','av-coroa','av-brilho']},
-];
-
-const NOMES_NIVEL = ['Estudante','Analista','Gestor','Guardiao','Ministro RPPS'];
-const ROUPAS_COR = ['#185FA5','#3B6D11','#534AB7','#854F0B','#BA7517'];
-const CABELOS_COR = ['#2d1b00','#4a2800','#1a0a00','#2d1200','#3d1a00'];
-let nivelAtual = 0;
-
-function atualizarAvatar(xpAtual) {
-  const nivel = [...NIVEIS].reverse().find(n => xpAtual >= n.min) || NIVEIS[0];
-  const mudou = nivel.lv !== nivelAtual;
-  nivelAtual = nivel.lv;
-  const idx = nivel.lv - 1;
-
-  const tag = document.getElementById('av-lv-tag');
-  const prog = document.getElementById('avatar-prog');
-  const svg = document.getElementById('avatar-svg');
-
-  if(tag){ tag.textContent = 'Nv'+nivel.lv; tag.style.background = nivel.bg; tag.style.color = nivel.txt; }
-
-  if(svg){
-    const roupas = svg.querySelectorAll('rect[fill="#185FA5"], path[fill="#185FA5"], rect[fill="#1e40af"]');
-    roupas.forEach(el => {
-      const f = el.getAttribute('fill');
-      if(f === '#185FA5' || f === '#1e40af') el.setAttribute('fill', ROUPAS_COR[idx]);
-    });
-    const cabelo = svg.querySelector('path[fill="#2d1b00"]');
-    if(cabelo) cabelo.setAttribute('fill', CABELOS_COR[idx]);
-  }
-
-  ['av-toga','av-escudo','av-coroa','av-brilho'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.style.display = nivel.extras.includes(id) ? 'block' : 'none';
-  });
-
-  if(mudou && prog){
-    prog.classList.remove('leveling');
-    void prog.offsetWidth;
-    prog.classList.add('leveling');
-    setTimeout(() => prog.classList.remove('leveling'), 700);
-    dispararEstrelas(null);
-    setTimeout(() => {
-      alert('Parabens! Voce subiu para Nivel ' + nivel.lv + ' — ' + nivel.nome + '!');
-    }, 800);
-  }
-}
-
-function mostrarInfoAvatar() {
-  const nivel = [...NIVEIS].reverse().find(n => (estado.xp||0) >= n.min) || NIVEIS[0];
-  const prox = NIVEIS.find(n => n.lv === nivel.lv + 1);
-  const falta = prox ? prox.min - (estado.xp||0) : 0;
-  const msg = prox
-    ? 'Nivel ' + nivel.lv + ' — ' + nivel.nome + '\nXP atual: ' + (estado.xp||0) + '\nFaltam ' + falta + ' XP para ' + prox.nome
-    : 'Nivel 5 — Ministro RPPS\nXP: ' + (estado.xp||0) + '\nVoce atingiu o nivel maximo!';
-  alert(msg);
-}
-
-function dispararEstrelas(e) {
-  const emojis = ['⭐','🌟','✨','💫','⭐','🌟'];
-  const x = e ? e.clientX : window.innerWidth/2;
-  const y = e ? e.clientY : window.innerHeight/2;
-  for(let i=0;i<8;i++){
-    const s = document.createElement('div');
-    s.className = 'star-particle';
-    const offsetX = (Math.random()-0.5)*80;
-    const rot = (Math.random()-0.5)*60+'deg';
-    s.style.cssText = `left:${x+offsetX}px;top:${y}px;--rot:${rot};animation-delay:${i*0.07}s;`;
-    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-    document.body.appendChild(s);
-    setTimeout(()=>s.remove(), 1400);
-  }
-}
-
-function dispararParticulas(e) {
-  const cores = ['#f59e0b','#fcd34d','#fbbf24','#10b981','#3b82f6','#fff'];
-  const x = e ? e.clientX : window.innerWidth/2;
-  const y = e ? e.clientY : window.innerHeight/2;
-  for(let i=0;i<16;i++){
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const ang = (Math.PI*2/16)*i;
-    const dist = 40+Math.random()*60;
-    const tx = Math.cos(ang)*dist+'px';
-    const ty = Math.sin(ang)*dist+'px';
-    p.style.cssText = `left:${x}px;top:${y}px;background:${cores[Math.floor(Math.random()*cores.length)]};--tx:${tx};--ty:${ty};width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(), 900);
-  }
-}
-
-function animarNavBounce(btn) {
-  btn.classList.add('bounce');
-  const svg = btn.querySelector('svg');
-  if(svg){svg.style.animation='none';void svg.offsetWidth;svg.style.animation='navBounce 0.4s ease';}
-  setTimeout(()=>btn.classList.remove('bounce'),400);
-}
-
-function animarChama(mesIndex) {
-  const el = document.getElementById('mes-'+mesIndex);
-  if(!el) return;
-  const box = el.querySelector('.mes-box');
-  if(box) box.classList.add('fire');
-}
-
-function animarXP(de, para) {
-  const fill = document.getElementById('xp-fill');
-  const cur = document.getElementById('xp-cur');
-  const sXp = document.getElementById('s-xp');
-  if(!fill) return;
-  fill.style.transition = 'none';
-  fill.style.width = Math.min(Math.round((de/2000)*100),100)+'%';
-  setTimeout(()=>{
-    fill.style.transition = 'width 1.4s cubic-bezier(0.4,0,0.2,1)';
-    fill.style.width = Math.min(Math.round((para/2000)*100),100)+'%';
-  }, 50);
-  let start = de;
-  const step = Math.ceil((para - de) / 30);
-  const timer = setInterval(()=>{
-    start = Math.min(start + step, para);
-    const val = start.toLocaleString('pt-BR');
-    if(cur) cur.textContent = val;
-    if(sXp) sXp.textContent = val;
-    if(start >= para) clearInterval(timer);
-  }, 40);
-}
-
-function animarStat(id, de, para) {
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.classList.remove('pop');
-  void el.offsetWidth;
-  el.textContent = typeof para === 'number' ? para.toLocaleString('pt-BR') : para;
-  el.classList.add('pop');
-}
-
-function animarCadeado(id, icon) {
-  const el = document.getElementById('cq'+id);
-  if(!el || el.classList.contains('unlocked')) return;
-  el.classList.add('unlocked');
-  const ico = el.querySelector('i');
-  if(ico) {
-    ico.style.animation = 'lockOpen 0.5s ease forwards';
-    setTimeout(()=>{
-      ico.className = 'ti ' + icon;
-      ico.style.color = '#BA7517';
-      ico.style.animation = '';
-    }, 300);
-  }
-  const nome = el.querySelector('.cq-nome');
-  if(nome) nome.style.color = '#412402';
-}
-
-function render(){
-  const pct=Math.min(Math.round((estado.xp/2000)*100),100);
-  const xpFill=document.getElementById('xp-fill');
-  if(xpFill){xpFill.style.transition='none';xpFill.style.width='0%';setTimeout(()=>{xpFill.style.transition='width 1.4s cubic-bezier(0.4,0,0.2,1)';xpFill.style.width=pct+'%';},80);}
-  animarStat('xp-cur',0,estado.xp||0);
-  animarStat('s-xp',0,estado.xp||0);
-  animarStat('s-ok',0,estado.ok||0);
-  animarStat('s-pend',0,estado.pend||5);
-  animarStat('s-str',0,estado.streak||0);
-  ['dipr','dair','rep','cons'].forEach(k=>{
-    const p=Math.round((estado.prog[k]||0)/8*100);
-    const pb=document.getElementById('pb-'+k);
-    const pp=document.getElementById('pp-'+k);
-    if(pb){pb.style.transition='none';pb.style.width='0%';setTimeout(()=>{pb.style.transition='width 1.2s ease';pb.style.width=p+'%';},100);}
-    if(pp)pp.textContent=p+'%';
-  });
-  if((estado.ok||0)>=1)animarCadeado(0,'ti-medal');
-  if((estado.feitas||[]).length>=5)animarCadeado(1,'ti-trophy');
-  buildMissoes();
-  buildStreak();
-  atualizarAvatar(estado.xp||0);
-}
-
-async function completar(id){
-  if((estado.feitas||[]).includes(id))return;
-  const m=MISSOES_DATA.find(x=>x.id===id);
-  if(!m)return;
-  if(!estado.feitas)estado.feitas=[];
-  estado.feitas.push(id);
-  estado.xp+=m.xp;
-  estado.ok=(estado.ok||0)+1;
-  estado.pend=Math.max(0,(estado.pend||5)-1);
-  if(!estado.prog)estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
-  if(m.prog&&estado.prog[m.prog]!==undefined)estado.prog[m.prog]++;
-  if(estado.feitas.length>=5)estado.streak=Math.max(estado.streak||0,1);
-  const xpAntes = estado.xp - m.xp;
-  animarXP(xpAntes, estado.xp);
-  dispararParticulas(window._lastClickEvent);
-  dispararEstrelas(window._lastClickEvent);
-  if(estado.feitas.length>=5) animarChama(0);
-  render();
-  await salvar();
-}
-
-window.resetarProgresso = async function(){
-  if(!confirm('Reiniciar todo o progresso?'))return;
-  estado={xp:1240,ok:0,pend:5,streak:0,feitas:[],prog:{dipr:0,dair:0,rep:0,cons:0,draa:0}};
-  await salvar();render();
+const CAT_LABELS = {
+  administrativo:'📋 Administrativo',
+  juridico:'⚖️ Jurídico',
+  financeiro:'💰 Financeiro',
+  previdenciario:'🛡️ Previdenciário',
+  governanca:'🏛️ Governança',
+  outros:'📌 Outros'
 };
 
-window.showNotif = function(){alert('Prazos proximos em maio:\n- Repasse: 10/05\n- DIPR: 31/05\n- DAIR: 31/05\n- DRAA: 31/05');};
-
-async function callSofia(msg){
-  chatHistory.push({role:'user',content:msg});
-  if(chatHistory.length>16)chatHistory=chatHistory.slice(-16);
-  const r=await fetch('https://rpps-sofia.diego-ipasg23.workers.dev',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history:chatHistory.slice(0,-1)})});
-  const data=await r.json();
-  const txt=data.text||'Desculpe, erro ao conectar.';
-  chatHistory.push({role:'assistant',content:txt});
-  return txt;
+function filteredTarefas(){
+  const f = state.tarefaFilter;
+  if(f==='pendentes') return state.tarefas.filter(t=>!t.done);
+  if(f==='concluidas') return state.tarefas.filter(t=>t.done);
+  if(f==='alta') return state.tarefas.filter(t=>t.prio==='alta');
+  return state.tarefas;
 }
 
-function addMsg(txt,tipo){
-  const c=document.getElementById('chat-msgs');
-  const d=document.createElement('div');
-  d.className='msg '+tipo;
-  d.innerHTML=txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
-  c.appendChild(d);c.scrollTop=c.scrollHeight;
-}
+function renderTarefas(){
+  const done = state.tarefas.filter(t=>t.done).length;
+  const pend = state.tarefas.filter(t=>!t.done).length;
+  const xpT = state.tarefas.filter(t=>t.done).reduce((s,t)=>s+t.xp,0);
+  document.getElementById('t-done-ct').textContent = done;
+  document.getElementById('t-pend-ct').textContent = pend;
+  document.getElementById('t-xp-ct').textContent = xpT;
 
-function addTyping(){
-  const c=document.getElementById('chat-msgs');
-  const d=document.createElement('div');d.className='typing-dots';d.id='typing';
-  d.innerHTML='<span></span><span></span><span></span>';
-  c.appendChild(d);c.scrollTop=c.scrollHeight;
-}
+  const ft = filteredTarefas();
+  const lbl = document.getElementById('t-list-label');
+  lbl.textContent = state.tarefaFilter==='todas'
+    ? 'Todas as tarefas ('+state.tarefas.length+')'
+    : state.tarefaFilter==='pendentes' ? 'Pendentes ('+ft.length+')'
+    : state.tarefaFilter==='concluidas' ? 'Concluídas ('+ft.length+')'
+    : 'Alta prioridade ('+ft.length+')';
 
-function removeTyping(){const t=document.getElementById('typing');if(t)t.remove();}
-
-window.enviarSofia = async function(){
-  const inp=document.getElementById('chat-input');
-  const msg=inp.value.trim();if(!msg)return;
-  inp.value='';addMsg(msg,'user');addTyping();
-  try{const r=await callSofia(msg);removeTyping();addMsg(r,'sofia');}
-  catch(e){removeTyping();addMsg('Erro ao conectar com a Sofia.','sofia');}
-};
-
-window.perguntarSofia = function(msg){
-  document.getElementById('chat-input').value=msg;
-  window.enviarSofia();
-};
-
-document.addEventListener('click', e => { window._lastClickEvent = e; });
-
-onValue(ESTADO_REF,(snapshot)=>{
-  const data=snapshot.val();
-  if(data){
-    estado=data;
-    if(!estado.feitas)estado.feitas=[];
-    if(!estado.prog)estado.prog={dipr:0,dair:0,rep:0,cons:0,draa:0};
+  const list = document.getElementById('tarefas-list');
+  if(ft.length===0){
+    list.innerHTML=`<div class="empty-state">
+      <div class="eico">✅</div>
+      <p>${state.tarefas.length===0?'Nenhuma tarefa ainda. Adicione a primeira acima!':'Nenhuma tarefa neste filtro.'}</p>
+    </div>`;
+    return;
   }
-  render();
-  buildCal();
+  list.innerHTML = ft.map(t=>`
+    <div class="tarefa-item ${t.done?'t-done':''}">
+      <div class="prio-bar p${t.prio[0]}"></div>
+      <button class="t-check ${t.done?'ck':''}" onclick="toggleTarefa(${t.id})" aria-label="${t.done?'Desmarcar':'Concluir'}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+      <div class="t-info">
+        <div class="tnome">${esc(t.name)}</div>
+        <div class="tmeta">
+          <span class="tcat cat-${t.cat}">${CAT_LABELS[t.cat]||t.cat}</span>
+          <span class="txp">+${t.xp} XP</span>
+          <span class="tdate">${t.date}</span>
+        </div>
+      </div>
+      <button class="t-del" onclick="deleteTarefa(${t.id})" aria-label="Excluir">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+      </button>
+    </div>
+  `).join('');
+}
+
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Filtros tarefas
+document.getElementById('tab-tarefas').addEventListener('click',e=>{
+  const btn = e.target.closest('.tf-btn');
+  if(!btn) return;
+  document.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  state.tarefaFilter = btn.dataset.f;
+  renderTarefas();
 });
 
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+document.getElementById('t-add-btn').addEventListener('click', addTarefa);
+document.getElementById('t-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTarefa()});
+
+/* ============================================================
+   CALENDÁRIO
+   ============================================================ */
+let calDate = new Date(2026,4,1); // maio 2026
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const DIAS_SEMANA = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+function calPrev(){calDate.setMonth(calDate.getMonth()-1);renderCal()}
+function calNext(){calDate.setMonth(calDate.getMonth()+1);renderCal()}
+
+function renderCal(){
+  const ano = calDate.getFullYear(), mes = calDate.getMonth();
+  document.getElementById('cal-titulo').textContent = MESES[mes]+' '+ano;
+  const grid = document.getElementById('cal-grid');
+  const hoje = new Date();
+  const primeiroDia = new Date(ano,mes,1).getDay();
+  const diasNoMes = new Date(ano,mes+1,0).getDate();
+
+  let html = DIAS_SEMANA.map(d=>`<div class="cal-day-name">${d}</div>`).join('');
+  for(let i=0;i<primeiroDia;i++) html+=`<div class="cal-day empty-day"></div>`;
+  for(let d=1;d<=diasNoMes;d++){
+    const key = `${ano}-${String(mes+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isHoje = hoje.getDate()===d && hoje.getMonth()===mes && hoje.getFullYear()===ano;
+    const temEv = PRAZOS_CAL[key];
+    html+=`<div class="cal-day ${isHoje?'today':''} ${temEv?'has-ev':''}" title="${temEv||''}">${d}</div>`;
+  }
+  grid.innerHTML = html;
+
+  const prazos = document.getElementById('prazos-lista');
+  prazos.innerHTML = Object.entries(PRAZOS_CAL)
+    .filter(([k])=>k.startsWith(`${ano}-${String(mes+1).padStart(2,'0')}`))
+    .sort(([a],[b])=>a.localeCompare(b))
+    .map(([k,v])=>{
+      const d = k.split('-')[2];
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--card2);border:1px solid var(--border);border-radius:8px">
+        <span style="font-size:13px;font-weight:700;color:var(--gold);min-width:28px">${parseInt(d)}</span>
+        <span style="font-size:13px">${v}</span>
+      </div>`;
+    }).join('');
+}
+
+/* ============================================================
+   SOFIA (IA jurídica via API Anthropic)
+   ============================================================ */
+const SOFIA_SYSTEM = `Você é Sofia, assistente jurídica especializada em RPPS (Regime Próprio de Previdência Social) do Brasil. Responda de forma clara, objetiva e técnica. Fundamente na CF/88, EC 103/2019, Lei 9.717/1998, Lei 10.887/2004, Portaria MTP 1.467/2022 e normas do MPS/CADPREV. Seja direta. Nunca invente artigos ou prazos. Alertas de risco são bem-vindos. Mantenha respostas em até 4 parágrafos. Nunca substitua parecer jurídico formal.`;
+
+let sofiaHistory = [];
+
+async function sofiaEnviar(){
+  const inp = document.getElementById('sofia-input');
+  const pergunta = inp.value.trim();
+  if(!pergunta) return;
+  sofiaAsk(pergunta);
+}
+
+async function sofiaAsk(texto){
+  const inp = document.getElementById('sofia-input');
+  inp.value='';
+
+  const msgs = document.getElementById('sofia-msgs');
+
+  // mensagem do usuário
+  sofiaHistory.push({role:'user',content:texto});
+  msgs.innerHTML += `<div class="msg user">
+    <div class="msg-avatar user">G</div>
+    <div class="msg-bubble">${esc(texto)}</div>
+  </div>`;
+
+  // loading
+  const loadId = 'load-'+Date.now();
+  msgs.innerHTML += `<div class="msg" id="${loadId}">
+    <div class="msg-avatar sofia">S</div>
+    <div class="msg-bubble loading">Sofia está analisando…</div>
+  </div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  const btn = document.getElementById('sofia-send-btn');
+  btn.disabled=true;
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system: SOFIA_SYSTEM,
+        messages: sofiaHistory
+      })
+    });
+    const data = await res.json();
+    const resposta = data.content?.[0]?.text || 'Não foi possível obter resposta no momento.';
+    sofiaHistory.push({role:'assistant',content:resposta});
+
+    document.getElementById(loadId).outerHTML = `<div class="msg">
+      <div class="msg-avatar sofia">S</div>
+      <div class="msg-bubble">${resposta.replace(/\n/g,'<br>')}</div>
+    </div>`;
+  }catch(e){
+    document.getElementById(loadId).outerHTML = `<div class="msg">
+      <div class="msg-avatar sofia">S</div>
+      <div class="msg-bubble loading">Erro ao conectar com a Sofia. Verifique sua conexão.</div>
+    </div>`;
+  }
+
+  btn.disabled=false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+document.getElementById('sofia-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') sofiaEnviar();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+carregar();
+renderMissoes();
+renderTarefas();
+atualizarXPGlobal();
+renderCal();
 </script>
 </body>
 </html>
