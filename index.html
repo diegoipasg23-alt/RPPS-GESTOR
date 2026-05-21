@@ -387,21 +387,36 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 <!-- ===== TAB: PAINEL ===== -->
 <div class="tab-content active" id="tab-painel">
   <div class="gestor-hero">
-    <div class="avatar">G</div>
-    <div class="gestor-info">
-      <h2>Gestor RPPS</h2>
-      <p>Guardião Previdenciário · 2026</p>
+    <div id="av-wrap" style="position:relative;flex-shrink:0">
+      <div id="av-ring" style="
+        width:68px;height:68px;border-radius:50%;
+        background:linear-gradient(135deg,#334155,#475569);
+        border:2px solid rgba(148,163,184,0.4);
+        display:flex;align-items:center;justify-content:center;
+        font-size:36px;line-height:1;
+        transition:background 0.7s,border-color 0.7s;
+      "><span id="av-emoji">📄</span></div>
+      <div id="av-nivel-badge" style="
+        position:absolute;bottom:-5px;right:-5px;
+        background:#0a0f1e;border:1px solid #6d28d9;
+        border-radius:10px;padding:1px 7px;
+        font-size:10px;font-weight:700;color:#c4b5fd;
+      ">Nv1</div>
+    </div>
+    <div class="gestor-info" style="flex:1;min-width:0">
+      <h2 id="av-cargo" style="font-size:16px;font-weight:700;margin-bottom:1px">Estagiário Jurídico</h2>
+      <p id="av-subtitulo">Iniciante Previdenciário · 2026</p>
       <div class="xp-bar-wrap" style="margin-top:10px;margin-bottom:0">
         <div class="xp-bar-label">
-          <span>Nível 4 — Guardião</span>
-          <span id="xp-label">1.240 / 2.000 XP</span>
+          <span id="xp-label-cargo">Estagiário → Assessor</span>
+          <span id="xp-label">0 / 500 XP</span>
         </div>
-        <div class="xp-bar"><div class="xp-bar-fill" id="xp-fill" style="width:62%"></div></div>
+        <div class="xp-bar"><div class="xp-bar-fill" id="xp-fill" style="width:0%"></div></div>
       </div>
     </div>
     <div class="nivel-badge">
-      <div class="lvl">Nv4</div>
-      <div class="lvlname">Guardião</div>
+      <div class="lvl" id="av-nivel-num">Nv1</div>
+      <div class="lvlname" id="av-nivel-nome">Estagiário</div>
     </div>
   </div>
 
@@ -642,19 +657,54 @@ function calcXPTotal(){
   return XP_BASE + xpTarefas + xpMissoes;
 }
 
+const CARREIRA = [
+  {xp:0,     num:1, emoji:'📄', cargo:'Estagiário Jurídico',     curto:'Estagiário',    sub:'Iniciante Previdenciário',  ring:'linear-gradient(135deg,#334155,#475569)', border:'rgba(148,163,184,0.4)', badge:'#94a3b8'},
+  {xp:500,   num:2, emoji:'📚', cargo:'Assessor Previdenciário', curto:'Assessor',       sub:'Aprendiz das Normas',       ring:'linear-gradient(135deg,#1e40af,#3b82f6)', border:'rgba(96,165,250,0.5)',  badge:'#60a5fa'},
+  {xp:1500,  num:3, emoji:'⚖️', cargo:'Analista Jurídico',       curto:'Analista',       sub:'Conhecedor da Legislação',  ring:'linear-gradient(135deg,#1d4ed8,#7c3aed)', border:'rgba(167,139,250,0.5)', badge:'#a78bfa'},
+  {xp:3000,  num:4, emoji:'🏛️', cargo:'Procurador do RPPS',      curto:'Procurador',     sub:'Guardião Previdenciário',   ring:'linear-gradient(135deg,#5b21b6,#8b5cf6)', border:'rgba(139,92,246,0.6)',  badge:'#8b5cf6'},
+  {xp:5000,  num:5, emoji:'🔨', cargo:'Juiz Previdenciário',      curto:'Juiz',           sub:'Árbitro da Conformidade',   ring:'linear-gradient(135deg,#92400e,#d97706)', border:'rgba(217,119,6,0.6)',   badge:'#f59e0b'},
+  {xp:7500,  num:6, emoji:'👨‍⚖️',cargo:'Desembargador RPPS',      curto:'Desembargador',  sub:'Referência Jurídica',       ring:'linear-gradient(135deg,#065f46,#10b981)', border:'rgba(16,185,129,0.6)',  badge:'#10b981'},
+  {xp:10000, num:7, emoji:'⚜️', cargo:'Ministro Previdenciário', curto:'Ministro',       sub:'Lenda RPPS · Nível Máximo', ring:'linear-gradient(135deg,#854d0e,#eab308)', border:'rgba(234,179,8,0.7)',   badge:'#eab308'},
+];
+
+function getNivelAtual(xp){let lv=CARREIRA[0];for(const l of CARREIRA){if(xp>=l.xp)lv=l;else break;}return lv;}
+function getProximoNivel(xp){for(const l of CARREIRA){if(xp<l.xp)return l;}return null;}
+
 function atualizarXPGlobal(){
   const total = calcXPTotal();
   const fmt = total.toLocaleString('pt-BR');
   document.getElementById('topbar-xp').textContent = fmt;
   document.getElementById('p-xp').textContent = fmt;
-  // barra de nível (2000 XP por nível)
-  const pct = Math.min(100, Math.round((total % 2000) / 2000 * 100));
-  document.getElementById('xp-fill').style.width = pct+'%';
-  document.getElementById('xp-label').textContent = total.toLocaleString('pt-BR')+' / 2.000 XP';
-  // conquistas
-  if(total>=2000) document.getElementById('cq-lenda').classList.add('unlocked');
+
+  const lv = getNivelAtual(total);
+  const prox = getProximoNivel(total);
+
+  document.getElementById('av-emoji').textContent = lv.emoji;
+  document.getElementById('av-ring').style.background = lv.ring;
+  document.getElementById('av-ring').style.borderColor = lv.border;
+  document.getElementById('av-cargo').textContent = lv.cargo;
+  document.getElementById('av-subtitulo').textContent = lv.sub + ' · 2026';
+  document.getElementById('av-nivel-num').textContent = 'Nv'+lv.num;
+  document.getElementById('av-nivel-nome').textContent = lv.curto;
+  document.getElementById('av-nivel-badge').textContent = 'Nv'+lv.num;
+  document.getElementById('av-nivel-badge').style.color = lv.badge;
+  document.getElementById('av-nivel-badge').style.borderColor = lv.badge;
+
+  if(prox){
+    const pct = Math.min(100,Math.round((total-lv.xp)/(prox.xp-lv.xp)*100));
+    document.getElementById('xp-fill').style.width = pct+'%';
+    document.getElementById('xp-label').textContent = total.toLocaleString('pt-BR')+' / '+prox.xp.toLocaleString('pt-BR')+' XP';
+    document.getElementById('xp-label-cargo').textContent = lv.curto+' → '+prox.curto;
+  } else {
+    document.getElementById('xp-fill').style.width = '100%';
+    document.getElementById('xp-label').textContent = total.toLocaleString('pt-BR')+' XP';
+    document.getElementById('xp-label-cargo').textContent = 'Nível máximo atingido! ⚜️';
+  }
+
+  if(total>=10000) document.getElementById('cq-lenda').classList.add('unlocked');
   if(state.missoesConcluidas.length>=3) document.getElementById('cq-fogo').classList.add('unlocked');
   if(state.missoesConcluidas.includes('rep')) document.getElementById('cq-crp').classList.add('unlocked');
+  if(state.missoesConcluidas.length===MISSOES.length) document.getElementById('cq-mes').classList.add('unlocked');
 }
 
 function showToast(msg){
@@ -862,10 +912,10 @@ function renderCal(){
 }
 
 /* ============================================================
-   SOFIA — integração Gemini
-   ► Insira sua chave do Google AI Studio abaixo
+   SOFIA — Gemini 1.5 Flash
+   ► Abra este arquivo, localize GEMINI_KEY e cole sua chave
    ============================================================ */
-const GEMINI_KEY = 'AIzaSyBV1aZLMU9zxtjGaYS7lDTOVAvPKbbOSMQ';
+const GEMINI_KEY = 'AIzaSyAuw9rP4uGZeOteHYort11BoGMKU95E-uQ';
 
 const SOFIA_SYSTEM = `Você é Sofia, assistente jurídica especializada em RPPS (Regime Próprio de Previdência Social) do Brasil. Responda sempre em português, de forma clara, objetiva e técnica. Fundamente na CF/88, EC 103/2019, Lei 9.717/1998, Lei 10.887/2004, Portaria MTP 1.467/2022 e normas do MPS/CADPREV. Nunca invente artigos, prazos ou alíquotas. Aponte riscos ao gestor quando relevante. Mantenha respostas em até 4 parágrafos. Nunca substitua parecer jurídico formal.`;
 
@@ -888,7 +938,6 @@ async function sofiaAsk(texto){
   }
 
   const msgs = document.getElementById('sofia-msgs');
-
   sofiaHistory.push({role:'user', parts:[{text:texto}]});
 
   msgs.innerHTML += `<div class="msg user">
@@ -907,7 +956,7 @@ async function sofiaAsk(texto){
   btn.disabled = true;
 
   try{
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`;
     const res = await fetch(url,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -917,10 +966,7 @@ async function sofiaAsk(texto){
       })
     });
     const data = await res.json();
-
-    if(data.error){
-      throw new Error(data.error.message || 'Erro na API Gemini');
-    }
+    if(data.error) throw new Error(data.error.message||'Erro na API Gemini');
 
     const resposta = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Não foi possível obter resposta no momento.';
     sofiaHistory.push({role:'model', parts:[{text:resposta}]});
@@ -932,7 +978,7 @@ async function sofiaAsk(texto){
   }catch(e){
     document.getElementById(loadId).outerHTML = `<div class="msg">
       <div class="msg-avatar sofia">S</div>
-      <div class="msg-bubble loading">Erro: ${esc(e.message)}. Verifique sua chave Gemini e conexão.</div>
+      <div class="msg-bubble loading">Erro: ${esc(e.message)}. Verifique sua chave e conexão.</div>
     </div>`;
   }
 
