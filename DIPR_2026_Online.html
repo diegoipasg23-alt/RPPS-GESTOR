@@ -211,11 +211,20 @@
   .section-body { padding: 0 20px 20px; }
 
   /* TABLE STYLES */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 16px;
+    border-radius: 6px;
+  }
+  .table-wrap::-webkit-scrollbar { height: 5px; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
   .dipr-table {
     width: 100%;
+    min-width: 900px;
     border-collapse: collapse;
-    margin-top: 16px;
     font-size: 13px;
+    table-layout: auto;
   }
   .dipr-table th {
     background: var(--gray-50);
@@ -228,19 +237,24 @@
     text-transform: uppercase;
     letter-spacing: 0.4px;
     white-space: nowrap;
+    min-width: 110px;
   }
+  .dipr-table th:first-child { min-width: 140px; text-align: left; }
   .dipr-table th.left { text-align: left; }
   .dipr-table td {
     border: 1px solid var(--gray-200);
     padding: 0;
     vertical-align: middle;
+    min-width: 110px;
   }
+  .dipr-table td:first-child { min-width: 140px; }
   .dipr-table td.label {
     padding: 8px 12px;
     font-weight: 500;
     color: var(--gray-700);
     background: var(--gray-50);
     white-space: nowrap;
+    min-width: 140px;
   }
   .dipr-table tr.total-row td {
     background: var(--blue-light);
@@ -257,6 +271,7 @@
   /* EDITABLE CELL */
   .cell-input {
     width: 100%;
+    min-width: 100px;
     border: none;
     outline: none;
     padding: 8px 10px;
@@ -629,7 +644,7 @@ function renderFolhaNormal(monthId) {
   const totais = {};
   ['base','patronal','servidor','lei'].forEach(f => totais[f] = calcTotal(monthId, 'folhaNormal', f));
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr>
           <th class="left">FONTE</th>
@@ -659,7 +674,7 @@ function renderFolhaNormal(monthId) {
           <td></td><td></td><td></td><td></td><td></td>
         </tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderFolha13(monthId) {
@@ -685,7 +700,7 @@ function renderFolha13(monthId) {
   const totais = {};
   ['base','patronal','servidor','lei'].forEach(f => totais[f] = calcTotal(monthId, 'folha13', f));
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr>
           <th class="left">FONTE</th>
@@ -714,13 +729,13 @@ function renderFolha13(monthId) {
           <td></td><td></td><td></td><td></td>
         </tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderAposentados(monthId) {
   const p = `aposentados`;
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr><th class="left">TIPO</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Aposentados</th><th>Qtd Dependentes</th><th>Retido pelo RPPS</th><th>Data do Repasse</th></tr>
       </thead>
@@ -744,13 +759,13 @@ function renderAposentados(monthId) {
           <td>${dateInput(monthId, `${p}.decData`, state[monthId]?.[p]?.decData)}</td>
         </tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderPensionistas(monthId) {
   const p = `pensionistas`;
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr><th class="left">TIPO</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Pensionistas</th><th>Retido pelo RPPS</th><th>Data do Repasse</th></tr>
       </thead>
@@ -772,14 +787,14 @@ function renderPensionistas(monthId) {
           <td>${dateInput(monthId, `${p}.decData`, state[monthId]?.[p]?.decData)}</td>
         </tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderOutrasReceitas(monthId) {
   const p = `outrasReceitas`;
   const r = state[monthId]?.[p] || {};
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr><th class="left">RECEITA</th><th>Valor</th><th>Data de Pgto</th></tr>
       </thead>
@@ -789,14 +804,14 @@ function renderOutrasReceitas(monthId) {
         <tr><td class="label">CONT. SERV. CEDIDOS/LICENCIADOS</td><td>${numInput(monthId, `${p}.cedidos`, r.cedidos)}</td><td>${dateInput(monthId, `${p}.cedidosDt`, r.cedidosDt)}</td></tr>
         <tr><td class="label">REND. DAS APLICAÇÕES</td><td>${numInput(monthId, `${p}.rendAplic`, r.rendAplic)}</td><td>${dateInput(monthId, `${p}.rendAplicDt`, r.rendAplicDt)}</td></tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderDespesas(monthId) {
   const p = `despesas`;
   const r = state[monthId]?.[p] || {};
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr><th class="left">DESPESA</th><th>Valor</th></tr>
       </thead>
@@ -804,7 +819,7 @@ function renderDespesas(monthId) {
         <tr><td class="label">DES. ADMINISTRATIVAS</td><td>${numInput(monthId, `${p}.administrativas`, r.administrativas)}</td></tr>
         <tr><td class="label">DESPESAS COM RESTITUIÇÕES</td><td>${numInput(monthId, `${p}.restituicoes`, r.restituicoes)}</td></tr>
       </tbody>
-    </table>`;
+    </table></div>`;
 }
 
 function renderParcelamentos(monthId) {
@@ -819,12 +834,12 @@ function renderParcelamentos(monthId) {
       <td>${dateInput(monthId, `parcelamentos.${i}.pgDt`, p.pgDt)}</td>
     </tr>`).join('');
   return `
-    <table class="dipr-table">
+    <div class="table-wrap"><table class="dipr-table">
       <thead>
         <tr><th>Nº Parcelamento</th><th>Dt. Consolidação</th><th>Nº Parcela</th><th>Valor Parcela</th><th>Dt. Vencimento</th><th>Dt. Pagamento</th></tr>
       </thead>
       <tbody>${rows}</tbody>
-    </table>
+    </table></div>
     <button onclick="addParcelamento('${monthId}')" style="margin-top:10px;padding:6px 14px;font-size:12px;font-family:var(--font);border:1px dashed var(--gray-300);background:var(--gray-50);border-radius:var(--radius);cursor:pointer;color:var(--gray-600);">+ Adicionar linha</button>`;
 }
 
