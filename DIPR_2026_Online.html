@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIPR 2026 – Demonstrativo de Informações Previdenciárias e Repasses</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<style>
+  :root {
+    --blue: #1a56db;
+    --blue-light: #e8f0fe;
+    --blue-dark: #1241a8;
+    --green: #057a55;
+    --green-light: #def7ec;
+    --amber: #c27803;
+    --amber-light: #fdf6b2;
+    --red: #c81e1e;
+    --red-light: #fde8e8;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --white: #ffffff;
+    --font: 'IBM Plex Sans', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --radius: 6px;
+    --radius-lg: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: #eef2f7;
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--blue-dark);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .header-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .header-badge {
+    background: var(--blue);
+    color: white;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .header h1 {
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .header-sub {
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  .btn-save {
+    background: white;
+    color: var(--blue-dark);
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .btn-save:hover { background: var(--blue-light); }
+
+  /* MONTH TABS */
+  .tabs-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    overflow-x: auto;
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+  }
+  .tabs-bar::-webkit-scrollbar { height: 3px; }
+  .tabs-bar::-webkit-scrollbar-thumb { background: var(--gray-300); }
+  .tabs-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    gap: 2px;
+  }
+  .tab-btn {
+    padding: 11px 18px;
+    border: none;
+    background: none;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--blue); background: var(--blue-light); }
+  .tab-btn.active {
+    color: var(--blue-dark);
+    border-bottom-color: var(--blue-dark);
+    font-weight: 600;
+  }
+  .tab-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    flex-shrink: 0;
+  }
+  .tab-btn.has-data .tab-dot { background: var(--green); }
+
+  /* MAIN CONTENT */
+  .main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .section-header {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--gray-100);
+    cursor: pointer;
+    user-select: none;
+  }
+  .section-header:hover { background: var(--gray-50); }
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .icon-blue { background: var(--blue-light); color: var(--blue-dark); }
+  .icon-green { background: var(--green-light); color: var(--green); }
+  .icon-amber { background: var(--amber-light); color: var(--amber); }
+  .icon-red { background: var(--red-light); color: var(--red); }
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex: 1;
+  }
+  .section-toggle {
+    color: var(--gray-400);
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 0.2s;
+  }
+  .section-toggle.open { transform: rotate(180deg); }
+
+  .section-body { padding: 0 20px 20px; }
+
+  /* TABLE STYLES */
+  .dipr-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  .dipr-table th {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    padding: 8px 10px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+  }
+  .dipr-table th.left { text-align: left; }
+  .dipr-table td {
+    border: 1px solid var(--gray-200);
+    padding: 0;
+    vertical-align: middle;
+  }
+  .dipr-table td.label {
+    padding: 8px 12px;
+    font-weight: 500;
+    color: var(--gray-700);
+    background: var(--gray-50);
+    white-space: nowrap;
+  }
+  .dipr-table tr.total-row td {
+    background: var(--blue-light);
+    font-weight: 600;
+    color: var(--blue-dark);
+  }
+  .dipr-table tr.total-row td.label { background: var(--blue-light); }
+  .dipr-table tr.total-row td input {
+    background: transparent;
+    color: var(--blue-dark);
+    font-weight: 600;
+  }
+
+  /* EDITABLE CELL */
+  .cell-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: var(--mono);
+    text-align: right;
+    background: transparent;
+    color: var(--gray-800);
+    transition: background 0.1s;
+  }
+  .cell-input:focus {
+    background: #fffbeb;
+    outline: 2px solid var(--amber);
+    outline-offset: -2px;
+    border-radius: 3px;
+  }
+  .cell-input.date-input {
+    font-family: var(--font);
+    text-align: center;
+    font-size: 12px;
+  }
+  .cell-input.num-input { color: var(--gray-700); }
+  .cell-input.qty-input { color: var(--blue-dark); font-weight: 500; }
+
+  /* SMALL SECTIONS */
+  .small-section {
+    margin-top: 12px;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .small-section-title {
+    padding: 8px 14px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  /* TOTALS BAR */
+  .totals-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .total-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    padding: 14px 18px;
+    box-shadow: var(--shadow);
+  }
+  .total-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .total-card-value {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--blue-dark);
+  }
+  .total-card.green .total-card-value { color: var(--green); }
+  .total-card.amber .total-card-value { color: var(--amber); }
+
+  /* MONTH PANEL */
+  .month-panel { display: none; }
+  .month-panel.active { display: block; }
+
+  /* ALERT */
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .alert-info {
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    border: 1px solid #bfdbfe;
+  }
+
+  /* PRINT */
+  @media print {
+    .header, .tabs-bar, .btn-save { display: none; }
+    .main { padding: 0; }
+    .month-panel { display: block !important; }
+    .section-body { display: block !important; }
+  }
+
+  @media (max-width: 768px) {
+    .main { padding: 12px; }
+    .header-inner { padding: 10px 16px; }
+    .dipr-table { font-size: 12px; }
+    .totals-bar { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="header-title">
+      <div class="header-badge">RPPS</div>
+      <div>
+        <h1>DIPR 2026 — Demonstrativo de Informações Previdenciárias e Repasses</h1>
+        <div class="header-sub">Prefeitura Municipal · Sistema de Preenchimento Online</div>
+      </div>
+    </div>
+    <div style="position:relative;display:inline-block" id="exportMenu">
+      <button class="btn-save" onclick="toggleExportMenu()">⬇ Exportar ▾</button>
+      <div id="exportDropdown" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:190px;z-index:200;overflow:hidden;">
+        <button onclick="exportExcel()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📊 Exportar Excel (.xlsx)</button>
+        <button onclick="exportPDF()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📄 Exportar PDF</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs-bar">
+  <div class="tabs-inner" id="tabsContainer"></div>
+</nav>
+
+<main class="main" id="mainContent"></main>
+
+<script>
+const MESES = [
+  { id: 'jan2026', label: 'JAN 2026' },
+  { id: 'fev2026', label: 'FEV 2026' },
+  { id: 'mar2026', label: 'MAR 2026' },
+  { id: 'abr2026', label: 'ABR 2026' },
+  { id: 'mai2026', label: 'MAI 2026' },
+  { id: 'jun2026', label: 'JUN 2026' },
+  { id: 'jul2025', label: 'JUL 2025' },
+  { id: 'ago2025', label: 'AGO 2025' },
+  { id: 'set2024', label: 'SET 2024' },
+  { id: 'out2024', label: 'OUT 2024' },
+  { id: 'nov2024', label: 'NOV 2024' },
+  { id: 'dez2024', label: 'DEZ 2024' },
+];
+
+const FONTES = ['ADMINISTRAÇÃO', 'FUNDEB', 'FMS', 'FMAS', 'FME'];
+
+// Dados iniciais extraídos da planilha
+const dadosIniciais = {
+  jan2026: {
+    folhaNormal: {
+      ADMINISTRAÇÃO: { serv: 63, dep: '', bruto: '', base: 130491.86, patronal: 28708.21, servidor: 18268.86, lei: 71770.52, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { serv: 63, dep: '', bruto: '', base: 243340, patronal: 53534.8, servidor: 34067.6, lei: 133837, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { serv: 53, dep: '', bruto: '', base: 150433.43, patronal: 33095.35, servidor: 21060.68, lei: 82738.39, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { serv: 4, dep: '', bruto: '', base: 6700, patronal: 1474, servidor: 938, lei: 3685, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { serv: 10, dep: '', bruto: '', base: 17750, patronal: 3905, servidor: 2485, lei: 9762.5, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+    },
+    folha13: {
+      ADMINISTRAÇÃO: { quant: 4, bruto: '', base: 7054.79, patronal: 1552.05, servidor: 987.67, lei: 3880.13, venc: '', rePatronal: 1010.08, reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { quant: 2, bruto: 0, base: 4004.64, patronal: 881.02, servidor: 560.65, lei: 2202.55, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { quant: 7, bruto: '', base: 23892.36, patronal: 5256.32, servidor: 3344.93, lei: 13140.80, venc: '', rePatronal: 2914.88, reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { quant: 1, bruto: 0, base: 1975.64, patronal: 434.64, servidor: 276.59, lei: 1086.60, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { quant: 0, bruto: '', base: 0, patronal: 0, servidor: 0, lei: 0, venc: '', rePatronal: 448.71, reServidor: '', reLei: '', pgto: '' },
+    },
+  },
+  fev2026: {
+    folhaNormal: {
+      ADMINISTRAÇÃO: { serv: '', dep: '', bruto: '', base: 140962.64, patronal: 19734.77, servidor: 19734.77, lei: 72356.12, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { serv: '', dep: '', bruto: '', base: 273877.07, patronal: 38342.79, servidor: 38342.79, lei: 140581.10, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { serv: '', dep: '', bruto: '', base: 177547.14, patronal: 24856.60, servidor: 24856.60, lei: 91134.95, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { serv: '', dep: '', bruto: '', base: 7861.5, patronal: 1100.61, servidor: 1100.61, lei: 4035.31, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { serv: '', dep: '', bruto: '', base: 20471.64, patronal: 2866.03, servidor: 2866.03, lei: 10508.09, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+    },
+    folha13: {
+      ADMINISTRAÇÃO: { quant: '', bruto: '', base: 7528.71, patronal: 1054.02, servidor: 1054.02, lei: 3864.49, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { quant: '', bruto: '', base: 18022.93, patronal: 2523.21, servidor: 2523.21, lei: 9251.17, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { quant: '', bruto: '', base: 18142.86, patronal: 2540.00, servidor: 2540.00, lei: 9312.73, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { quant: '', bruto: '', base: 1938.21, patronal: 271.35, servidor: 271.35, lei: 994.88, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { quant: '', bruto: '', base: 3417.29, patronal: 478.42, servidor: 478.42, lei: 1754.09, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+    },
+  },
+  mar2026: {
+    folhaNormal: {
+      ADMINISTRAÇÃO: { serv: 55, dep: '', bruto: '', base: 132934.43, patronal: 29245.57, servidor: 18610.82, lei: 68235.24, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { serv: 38, dep: '', bruto: '', base: 197543, patronal: 43459.46, servidor: 27656.02, lei: 101398.82, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { serv: 53, dep: '', bruto: '', base: 164377.79, patronal: 36163.11, servidor: 23012.89, lei: 84375.12, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { serv: 3, dep: '', bruto: '', base: 4963.07, patronal: 1091.88, servidor: 694.83, lei: 2547.54, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { serv: 34, dep: '', bruto: '', base: 77212.79, patronal: 16986.81, servidor: 10809.79, lei: 39633.33, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+    },
+    folha13: {
+      ADMINISTRAÇÃO: { quant: 9, bruto: '', base: 19568.93, patronal: 2739.65, servidor: 4305.16, lei: 14199.22, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FUNDEB:        { quant: 3, bruto: '', base: 13942.29, patronal: 1951.92, servidor: 3067.30, lei: 10116.53, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMS:           { quant: 5, bruto: '', base: 17462.71, patronal: 2444.78, servidor: 3841.80, lei: 12663.96, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FMAS:          { quant: 1, bruto: '', base: 508.21, patronal: 71.15, servidor: 111.81, lei: 0, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+      FME:           { quant: 2, bruto: '', base: 3417.29, patronal: 478.42, servidor: 751.80, lei: 1754.09, venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' },
+    },
+  },
+};
+
+// Estado atual dos dados (começa com os dados iniciais)
+const state = {};
+
+function initState() {
+  MESES.forEach(m => {
+    if (dadosIniciais[m.id]) {
+      state[m.id] = JSON.parse(JSON.stringify(dadosIniciais[m.id]));
+    } else {
+      state[m.id] = {
+        folhaNormal: {},
+        folha13: {},
+        aposentados: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decData: '' },
+        pensionistas: { normalBruto: '', normalBase: '', normalQtd: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decRetido: '', decData: '' },
+        unidadeGestora: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalPatronal: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decPatronal: '', decData: '' },
+        outrasReceitas: { aporte: '', aporteDt: '', compFin: '', compFinDt: '', cedidos: '', cedidosDt: '', rendAplic: '', rendAplicDt: '' },
+        despesas: { administrativas: '', restituicoes: '' },
+        parcelamentos: [{ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' }],
+      };
+      FONTES.forEach(f => {
+        state[m.id].folhaNormal[f] = { serv: '', dep: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+        state[m.id].folha13[f] = { quant: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+      });
+    }
+  });
+}
+
+function toNum(s) {
+  if (s === '' || s === null || s === undefined) return NaN;
+  const clean = String(s).replace(/R\$\s*/g, '').replace(/\./g, '').replace(',', '.');
+  return parseFloat(clean);
+}
+
+function fmtBRL(v) {
+  const n = typeof v === 'number' ? v : toNum(v);
+  if (isNaN(n)) return '';
+  return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function numInput(monthId, path, value, cls) {
+  const id = `${monthId}__${path.replace(/\./g, '__')}`;
+  const isMoney = !cls || cls === 'num-input';
+  const raw = (value !== '' && value !== null && value !== undefined) ? value : '';
+  const display = isMoney && raw !== '' ? fmtBRL(raw) : raw;
+  return `<input type="text" class="cell-input ${cls || 'num-input'}" id="${id}" value="${display}" data-month="${monthId}" data-path="${path}" data-money="${isMoney}" onchange="updateState(this)" onblur="formatCell(this)" onfocus="unformatCell(this)">`;
+}
+
+function dateInput(monthId, path, value) {
+  return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" onchange="updateState(this)">`;
+}
+
+function updateState(el) {
+  const month = el.dataset.month;
+  const path = el.dataset.path.split('.');
+  let obj = state[month];
+  for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+  const isMoney = el.dataset.money === 'true';
+  obj[path[path.length - 1]] = isMoney ? (toNum(el.value) || '') : el.value;
+  updateTotals(month);
+}
+
+function formatCell(el) {
+  if (el.dataset.money !== 'true') return;
+  const n = toNum(el.value);
+  el.value = isNaN(n) ? '' : fmtBRL(n);
+}
+function unformatCell(el) {
+  if (el.dataset.money !== 'true') return;
+  const n = toNum(el.value);
+  if (!isNaN(n)) el.value = n % 1 === 0 ? n : n.toFixed(2).replace('.', ',');
+}
+
+function calcTotal(monthId, section, field) {
+  let sum = 0;
+  FONTES.forEach(f => {
+    const v = parseFloat(state[monthId]?.[section]?.[f]?.[field] || 0);
+    if (!isNaN(v)) sum += v;
+  });
+  return sum;
+}
+
+function updateTotals(monthId) {
+  const fields = ['base', 'patronal', 'servidor', 'lei'];
+  fields.forEach(f => {
+    const totalFN = calcTotal(monthId, 'folhaNormal', f);
+    const totalF13 = calcTotal(monthId, 'folha13', f);
+    const elFN = document.getElementById(`total_fn_${monthId}_${f}`);
+    const elF13 = document.getElementById(`total_f13_${monthId}_${f}`);
+    if (elFN) elFN.textContent = fmtBRL(totalFN);
+    if (elF13) elF13.textContent = fmtBRL(totalF13);
+  });
+  // Summary cards
+  const totalBrutoFN = calcTotal(monthId, 'folhaNormal', 'base');
+  const totalPatrFN = calcTotal(monthId, 'folhaNormal', 'patronal');
+  const totalServFN = calcTotal(monthId, 'folhaNormal', 'servidor');
+  const el1 = document.getElementById(`sum_base_${monthId}`);
+  const el2 = document.getElementById(`sum_patr_${monthId}`);
+  const el3 = document.getElementById(`sum_serv_${monthId}`);
+  if (el1) el1.textContent = 'R$ ' + totalBrutoFN.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  if (el2) el2.textContent = 'R$ ' + totalPatrFN.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  if (el3) el3.textContent = 'R$ ' + totalServFN.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+}
+
+function renderFolhaNormal(monthId) {
+  const d = state[monthId]?.folhaNormal || {};
+  let rows = '';
+  FONTES.forEach(f => {
+    const r = d[f] || {};
+    rows += `<tr>
+      <td class="label">${f}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.serv`, r.serv, 'qty-input')}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.dep`, r.dep, 'qty-input')}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.bruto`, r.bruto)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.base`, r.base)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.patronal`, r.patronal)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.servidor`, r.servidor)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.lei`, r.lei)}</td>
+      <td>${dateInput(monthId, `folhaNormal.${f}.venc`, r.venc)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.rePatronal`, r.rePatronal)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.reServidor`, r.reServidor)}</td>
+      <td>${numInput(monthId, `folhaNormal.${f}.reLei`, r.reLei)}</td>
+      <td>${dateInput(monthId, `folhaNormal.${f}.pgto`, r.pgto)}</td>
+    </tr>`;
+  });
+  const totais = {};
+  ['base','patronal','servidor','lei'].forEach(f => totais[f] = calcTotal(monthId, 'folhaNormal', f));
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr>
+          <th class="left">FONTE</th>
+          <th>Qtd Serv.</th>
+          <th>Qtd Dep.</th>
+          <th>Valor Bruto</th>
+          <th>Base de Cálculo</th>
+          <th>Orig. Patronal</th>
+          <th>Orig. Servidor</th>
+          <th>Orig. Lei 1219/12</th>
+          <th>Dt. Vencimento</th>
+          <th>Recalc. Patronal</th>
+          <th>Recalc. Servidor</th>
+          <th>Recalc. Lei 1219/12</th>
+          <th>Dt. Pgto</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        <tr class="total-row">
+          <td class="label">TOTAL</td>
+          <td></td><td></td><td></td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_fn_${monthId}_base">${fmtBRL(totais.base)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_fn_${monthId}_patronal">${fmtBRL(totais.patronal)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_fn_${monthId}_servidor">${fmtBRL(totais.servidor)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_fn_${monthId}_lei">${fmtBRL(totais.lei)}</td>
+          <td></td><td></td><td></td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+function renderFolha13(monthId) {
+  const d = state[monthId]?.folha13 || {};
+  let rows = '';
+  FONTES.forEach(f => {
+    const r = d[f] || {};
+    rows += `<tr>
+      <td class="label">${f}</td>
+      <td>${numInput(monthId, `folha13.${f}.quant`, r.quant, 'qty-input')}</td>
+      <td>${numInput(monthId, `folha13.${f}.bruto`, r.bruto)}</td>
+      <td>${numInput(monthId, `folha13.${f}.base`, r.base)}</td>
+      <td>${numInput(monthId, `folha13.${f}.patronal`, r.patronal)}</td>
+      <td>${numInput(monthId, `folha13.${f}.servidor`, r.servidor)}</td>
+      <td>${numInput(monthId, `folha13.${f}.lei`, r.lei)}</td>
+      <td>${dateInput(monthId, `folha13.${f}.venc`, r.venc)}</td>
+      <td>${numInput(monthId, `folha13.${f}.rePatronal`, r.rePatronal)}</td>
+      <td>${numInput(monthId, `folha13.${f}.reServidor`, r.reServidor)}</td>
+      <td>${numInput(monthId, `folha13.${f}.reLei`, r.reLei)}</td>
+      <td>${dateInput(monthId, `folha13.${f}.pgto`, r.pgto)}</td>
+    </tr>`;
+  });
+  const totais = {};
+  ['base','patronal','servidor','lei'].forEach(f => totais[f] = calcTotal(monthId, 'folha13', f));
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr>
+          <th class="left">FONTE</th>
+          <th>Quant. Serv.</th>
+          <th>Valor Bruto</th>
+          <th>Base de Cálculo</th>
+          <th>Orig. Patronal</th>
+          <th>Orig. Servidor</th>
+          <th>Orig. Lei 1219/12</th>
+          <th>Dt. Vencimento</th>
+          <th>Recalc. Patronal</th>
+          <th>Recalc. Servidor</th>
+          <th>Recalc. Lei 1219/12</th>
+          <th>Dt. Pgto</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+        <tr class="total-row">
+          <td class="label">TOTAL</td>
+          <td></td><td></td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_f13_${monthId}_base">${fmtBRL(totais.base)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_f13_${monthId}_patronal">${fmtBRL(totais.patronal)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_f13_${monthId}_servidor">${fmtBRL(totais.servidor)}</td>
+          <td style="padding:8px 10px;font-family:var(--mono);text-align:right" id="total_f13_${monthId}_lei">${fmtBRL(totais.lei)}</td>
+          <td></td><td></td><td></td><td></td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+function renderAposentados(monthId) {
+  const p = `aposentados`;
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr><th class="left">TIPO</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Aposentados</th><th>Qtd Dependentes</th><th>Retido pelo RPPS</th><th>Data do Repasse</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">NORMAL</td>
+          <td>${numInput(monthId, `${p}.normalBruto`, state[monthId]?.[p]?.normalBruto)}</td>
+          <td>${numInput(monthId, `${p}.normalBase`, state[monthId]?.[p]?.normalBase)}</td>
+          <td>${numInput(monthId, `${p}.normalQtd`, state[monthId]?.[p]?.normalQtd, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.normalDep`, state[monthId]?.[p]?.normalDep, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.normalRetido`, state[monthId]?.[p]?.normalRetido)}</td>
+          <td>${dateInput(monthId, `${p}.normalData`, state[monthId]?.[p]?.normalData)}</td>
+        </tr>
+        <tr>
+          <td class="label">13° SALÁRIO</td>
+          <td>${numInput(monthId, `${p}.decBruto`, state[monthId]?.[p]?.decBruto)}</td>
+          <td>${numInput(monthId, `${p}.decBase`, state[monthId]?.[p]?.decBase)}</td>
+          <td>${numInput(monthId, `${p}.decQtd`, state[monthId]?.[p]?.decQtd, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.decDep`, state[monthId]?.[p]?.decDep, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.decRetido`, state[monthId]?.[p]?.decRetido)}</td>
+          <td>${dateInput(monthId, `${p}.decData`, state[monthId]?.[p]?.decData)}</td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+function renderPensionistas(monthId) {
+  const p = `pensionistas`;
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr><th class="left">TIPO</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Pensionistas</th><th>Retido pelo RPPS</th><th>Data do Repasse</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="label">NORMAL</td>
+          <td>${numInput(monthId, `${p}.normalBruto`, state[monthId]?.[p]?.normalBruto)}</td>
+          <td>${numInput(monthId, `${p}.normalBase`, state[monthId]?.[p]?.normalBase)}</td>
+          <td>${numInput(monthId, `${p}.normalQtd`, state[monthId]?.[p]?.normalQtd, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.normalRetido`, state[monthId]?.[p]?.normalRetido)}</td>
+          <td>${dateInput(monthId, `${p}.normalData`, state[monthId]?.[p]?.normalData)}</td>
+        </tr>
+        <tr>
+          <td class="label">13° SALÁRIO</td>
+          <td>${numInput(monthId, `${p}.decBruto`, state[monthId]?.[p]?.decBruto)}</td>
+          <td>${numInput(monthId, `${p}.decBase`, state[monthId]?.[p]?.decBase)}</td>
+          <td>${numInput(monthId, `${p}.decQtd`, state[monthId]?.[p]?.decQtd, 'qty-input')}</td>
+          <td>${numInput(monthId, `${p}.decRetido`, state[monthId]?.[p]?.decRetido)}</td>
+          <td>${dateInput(monthId, `${p}.decData`, state[monthId]?.[p]?.decData)}</td>
+        </tr>
+      </tbody>
+    </table>`;
+}
+
+function renderOutrasReceitas(monthId) {
+  const p = `outrasReceitas`;
+  const r = state[monthId]?.[p] || {};
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr><th class="left">RECEITA</th><th>Valor</th><th>Data de Pgto</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="label">APORTE</td><td>${numInput(monthId, `${p}.aporte`, r.aporte)}</td><td>${dateInput(monthId, `${p}.aporteDt`, r.aporteDt)}</td></tr>
+        <tr><td class="label">COMP. FINANCEIRA</td><td>${numInput(monthId, `${p}.compFin`, r.compFin)}</td><td>${dateInput(monthId, `${p}.compFinDt`, r.compFinDt)}</td></tr>
+        <tr><td class="label">CONT. SERV. CEDIDOS/LICENCIADOS</td><td>${numInput(monthId, `${p}.cedidos`, r.cedidos)}</td><td>${dateInput(monthId, `${p}.cedidosDt`, r.cedidosDt)}</td></tr>
+        <tr><td class="label">REND. DAS APLICAÇÕES</td><td>${numInput(monthId, `${p}.rendAplic`, r.rendAplic)}</td><td>${dateInput(monthId, `${p}.rendAplicDt`, r.rendAplicDt)}</td></tr>
+      </tbody>
+    </table>`;
+}
+
+function renderDespesas(monthId) {
+  const p = `despesas`;
+  const r = state[monthId]?.[p] || {};
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr><th class="left">DESPESA</th><th>Valor</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="label">DES. ADMINISTRATIVAS</td><td>${numInput(monthId, `${p}.administrativas`, r.administrativas)}</td></tr>
+        <tr><td class="label">DESPESAS COM RESTITUIÇÕES</td><td>${numInput(monthId, `${p}.restituicoes`, r.restituicoes)}</td></tr>
+      </tbody>
+    </table>`;
+}
+
+function renderParcelamentos(monthId) {
+  const parcs = state[monthId]?.parcelamentos || [{}];
+  let rows = parcs.map((p, i) => `
+    <tr>
+      <td>${numInput(monthId, `parcelamentos.${i}.num`, p.num, 'qty-input')}</td>
+      <td>${dateInput(monthId, `parcelamentos.${i}.consolid`, p.consolid)}</td>
+      <td>${numInput(monthId, `parcelamentos.${i}.parcNum`, p.parcNum, 'qty-input')}</td>
+      <td>${numInput(monthId, `parcelamentos.${i}.parcVal`, p.parcVal)}</td>
+      <td>${dateInput(monthId, `parcelamentos.${i}.vencDt`, p.vencDt)}</td>
+      <td>${dateInput(monthId, `parcelamentos.${i}.pgDt`, p.pgDt)}</td>
+    </tr>`).join('');
+  return `
+    <table class="dipr-table">
+      <thead>
+        <tr><th>Nº Parcelamento</th><th>Dt. Consolidação</th><th>Nº Parcela</th><th>Valor Parcela</th><th>Dt. Vencimento</th><th>Dt. Pagamento</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <button onclick="addParcelamento('${monthId}')" style="margin-top:10px;padding:6px 14px;font-size:12px;font-family:var(--font);border:1px dashed var(--gray-300);background:var(--gray-50);border-radius:var(--radius);cursor:pointer;color:var(--gray-600);">+ Adicionar linha</button>`;
+}
+
+function addParcelamento(monthId) {
+  if (!state[monthId].parcelamentos) state[monthId].parcelamentos = [];
+  state[monthId].parcelamentos.push({ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' });
+  const panel = document.getElementById(`panel_${monthId}`);
+  if (panel) {
+    const el = document.getElementById(`parc_body_${monthId}`);
+    if (el) el.innerHTML = renderParcelamentos(monthId);
+  }
+}
+
+function renderMonthPanel(monthId) {
+  const totalBase = calcTotal(monthId, 'folhaNormal', 'base');
+  const totalPatronal = calcTotal(monthId, 'folhaNormal', 'patronal');
+  const totalServidor = calcTotal(monthId, 'folhaNormal', 'servidor');
+
+  return `
+    <div class="month-panel" id="panel_${monthId}">
+      <div class="alert alert-info">
+        ℹ️ Todos os campos são editáveis. As alterações são salvas automaticamente enquanto você preenche. Use o botão <strong>Exportar Dados</strong> para baixar os dados em JSON.
+      </div>
+
+      <div class="totals-bar">
+        <div class="total-card">
+          <div class="total-card-label">Base de Cálculo (Folha Normal)</div>
+          <div class="total-card-value" id="sum_base_${monthId}">R$ ${totalBase.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <div class="total-card green">
+          <div class="total-card-label">Contribuição Patronal</div>
+          <div class="total-card-value" id="sum_patr_${monthId}">R$ ${totalPatronal.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+        <div class="total-card amber">
+          <div class="total-card-label">Contribuição Servidor</div>
+          <div class="total-card-value" id="sum_serv_${monthId}">R$ ${totalServidor.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('fn_${monthId}')">
+          <div class="section-icon icon-blue">📋</div>
+          <div class="section-title">Folha Normal — Prefeitura Municipal</div>
+          <div class="section-toggle open" id="tog_fn_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="fn_${monthId}">${renderFolhaNormal(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('f13_${monthId}')">
+          <div class="section-icon icon-amber">📅</div>
+          <div class="section-title">Folha de 13° Salário</div>
+          <div class="section-toggle open" id="tog_f13_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="f13_${monthId}">${renderFolha13(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('apos_${monthId}')">
+          <div class="section-icon icon-green">👤</div>
+          <div class="section-title">Folha de Aposentados</div>
+          <div class="section-toggle" id="tog_apos_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="apos_${monthId}" style="display:none">${renderAposentados(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('pens_${monthId}')">
+          <div class="section-icon icon-green">👥</div>
+          <div class="section-title">Folha de Pensionistas</div>
+          <div class="section-toggle" id="tog_pens_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="pens_${monthId}" style="display:none">${renderPensionistas(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('rec_${monthId}')">
+          <div class="section-icon icon-blue">💰</div>
+          <div class="section-title">Outras Receitas</div>
+          <div class="section-toggle" id="tog_rec_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="rec_${monthId}" style="display:none">${renderOutrasReceitas(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('desp_${monthId}')">
+          <div class="section-icon icon-red">📉</div>
+          <div class="section-title">Despesas</div>
+          <div class="section-toggle" id="tog_desp_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="desp_${monthId}" style="display:none">${renderDespesas(monthId)}</div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-header" onclick="toggleSection('parc_${monthId}')">
+          <div class="section-icon icon-amber">📄</div>
+          <div class="section-title">Parcelamentos</div>
+          <div class="section-toggle" id="tog_parc_${monthId}">▾</div>
+        </div>
+        <div class="section-body" id="parc_${monthId}" style="display:none">
+          <div id="parc_body_${monthId}">${renderParcelamentos(monthId)}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  const tog = document.getElementById('tog_' + id);
+  if (!el) return;
+  const isHidden = el.style.display === 'none';
+  el.style.display = isHidden ? 'block' : 'none';
+  if (tog) tog.classList.toggle('open', isHidden);
+}
+
+function switchTab(monthId) {
+  document.querySelectorAll('.month-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  const panel = document.getElementById(`panel_${monthId}`);
+  if (panel) panel.classList.add('active');
+  const tab = document.getElementById(`tab_${monthId}`);
+  if (tab) tab.classList.add('active');
+}
+
+function hasData(monthId) {
+  return !!dadosIniciais[monthId];
+}
+
+function toggleExportMenu() {
+  const dd = document.getElementById('exportDropdown');
+  dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', function(e) {
+  const menu = document.getElementById('exportMenu');
+  if (menu && !menu.contains(e.target)) {
+    document.getElementById('exportDropdown').style.display = 'none';
+  }
+});
+
+/* ── EXCEL EXPORT (ExcelJS com formatação completa) ── */
+async function exportExcel() {
+  document.getElementById('exportDropdown').style.display = 'none';
+  if (typeof ExcelJS === 'undefined') {
+    alert('Biblioteca Excel ainda carregando. Aguarde 2 segundos e tente novamente.');
+    return;
+  }
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = 'DIPR 2026';
+  wb.created = new Date();
+
+  const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+
+  // Estilos reutilizáveis
+  const styleTitle   = { font:{bold:true,size:14,color:{argb:'FF1241A8'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFD6E4FF'}} };
+  const styleSub     = { font:{bold:true,size:10,color:{argb:'FF374151'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFF3F4F6'}} };
+  const styleSectionHdr = { font:{bold:true,size:11,color:{argb:'FFFFFFFF'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FF1241A8'}}, alignment:{horizontal:'left'} };
+  const styleColHdr  = { font:{bold:true,size:9,color:{argb:'FF1F2937'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFE5E7EB'}}, alignment:{horizontal:'center',wrapText:true}, border:{top:{style:'thin',color:{argb:'FFD1D5DB'}},bottom:{style:'thin',color:{argb:'FFD1D5DB'}},left:{style:'thin',color:{argb:'FFD1D5DB'}},right:{style:'thin',color:{argb:'FFD1D5DB'}}} };
+  const styleLabel   = { font:{bold:true,size:9,color:{argb:'FF374151'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFF9FAFB'}}, border:{top:{style:'thin',color:{argb:'FFE5E7EB'}},bottom:{style:'thin',color:{argb:'FFE5E7EB'}},left:{style:'thin',color:{argb:'FFD1D5DB'}},right:{style:'thin',color:{argb:'FFD1D5DB'}}} };
+  const styleData    = { font:{size:9,color:{argb:'FF1F2937'}}, alignment:{horizontal:'right'}, border:{top:{style:'thin',color:{argb:'FFE5E7EB'}},bottom:{style:'thin',color:{argb:'FFE5E7EB'}},left:{style:'thin',color:{argb:'FFE5E7EB'}},right:{style:'thin',color:{argb:'FFE5E7EB'}}} };
+  const styleTotal   = { font:{bold:true,size:9,color:{argb:'FF1241A8'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFDBEAFE'}}, alignment:{horizontal:'right'}, border:{top:{style:'medium',color:{argb:'FF1241A8'}},bottom:{style:'medium',color:{argb:'FF1241A8'}},left:{style:'thin',color:{argb:'FF93C5FD'}},right:{style:'thin',color:{argb:'FF93C5FD'}}} };
+  const styleTotalLbl= { font:{bold:true,size:9,color:{argb:'FF1241A8'}}, fill:{type:'pattern',pattern:'solid',fgColor:{argb:'FFDBEAFE'}}, border:{top:{style:'medium',color:{argb:'FF1241A8'}},bottom:{style:'medium',color:{argb:'FF1241A8'}},left:{style:'medium',color:{argb:'FF1241A8'}},right:{style:'thin',color:{argb:'FF93C5FD'}}} };
+  const styleEmpty   = { border:{top:{style:'thin',color:{argb:'FFE5E7EB'}},bottom:{style:'thin',color:{argb:'FFE5E7EB'}},left:{style:'thin',color:{argb:'FFE5E7EB'}},right:{style:'thin',color:{argb:'FFE5E7EB'}}} };
+  const fmtBRL_xl    = '"R$"#,##0.00';
+  const fmtInt       = '#,##0';
+
+  function applyStyle(cell, style) {
+    if (style.font) cell.font = style.font;
+    if (style.fill) cell.fill = style.fill;
+    if (style.alignment) cell.alignment = style.alignment;
+    if (style.border) cell.border = style.border;
+    if (style.numFmt) cell.numFmt = style.numFmt;
+  }
+
+  function addSectionHeader(ws, rowNum, title, numCols) {
+    ws.getRow(rowNum).height = 18;
+    const cell = ws.getCell(rowNum, 1);
+    cell.value = title;
+    applyStyle(cell, styleSectionHdr);
+    for (let c = 2; c <= numCols; c++) {
+      const fc = ws.getCell(rowNum, c);
+      fc.fill = styleSectionHdr.fill;
+      fc.border = {top:{style:'thin',color:{argb:'FF1241A8'}},bottom:{style:'thin',color:{argb:'FF1241A8'}}};
+    }
+    ws.mergeCells(rowNum, 1, rowNum, numCols);
+  }
+
+  function addColHeaders(ws, rowNum, headers) {
+    ws.getRow(rowNum).height = 32;
+    headers.forEach((h, i) => {
+      const cell = ws.getCell(rowNum, i+1);
+      cell.value = h;
+      applyStyle(cell, styleColHdr);
+    });
+  }
+
+  function addDataRow(ws, rowNum, cols) {
+    ws.getRow(rowNum).height = 15;
+    cols.forEach((v, i) => {
+      const cell = ws.getCell(rowNum, i+1);
+      if (i === 0) {
+        cell.value = v;
+        applyStyle(cell, styleLabel);
+      } else if (v === null || v === '') {
+        cell.value = '';
+        applyStyle(cell, styleEmpty);
+      } else if (typeof v === 'number') {
+        cell.value = v;
+        applyStyle(cell, styleData);
+        cell.numFmt = fmtBRL_xl;
+      } else if (typeof v === 'string' && /^\d+$/.test(v)) {
+        cell.value = parseInt(v);
+        applyStyle(cell, {...styleData, alignment:{horizontal:'center'}});
+        cell.numFmt = fmtInt;
+      } else {
+        cell.value = v;
+        applyStyle(cell, {...styleData, alignment:{horizontal:'center'}});
+      }
+    });
+  }
+
+  function addTotalRow(ws, rowNum, cols) {
+    ws.getRow(rowNum).height = 16;
+    cols.forEach((v, i) => {
+      const cell = ws.getCell(rowNum, i+1);
+      if (i === 0) {
+        cell.value = 'TOTAL';
+        applyStyle(cell, styleTotalLbl);
+      } else if (v === null || v === '' || v === 0) {
+        cell.value = v === 0 ? 0 : '';
+        applyStyle(cell, styleTotal);
+        if (typeof v === 'number') cell.numFmt = fmtBRL_xl;
+      } else {
+        cell.value = v;
+        applyStyle(cell, styleTotal);
+        if (typeof v === 'number') cell.numFmt = fmtBRL_xl;
+      }
+    });
+  }
+
+  MESES.forEach(m => {
+    const mid = m.id;
+    const ws = wb.addWorksheet(m.label, { views:[{state:'frozen',ySplit:3}] });
+    let row = 1;
+
+    // Título principal
+    ws.getRow(row).height = 22;
+    const tCell = ws.getCell(row, 1);
+    tCell.value = 'DIPR — Demonstrativo de Informações Previdenciárias e Repasses';
+    applyStyle(tCell, styleTitle);
+    ws.mergeCells(row, 1, row, 13);
+    row++;
+
+    ws.getRow(row).height = 14;
+    const sCell = ws.getCell(row, 1);
+    sCell.value = 'Prefeitura Municipal  |  ' + m.label;
+    applyStyle(sCell, styleSub);
+    ws.mergeCells(row, 1, row, 13);
+    row++;
+    row++; // linha vazia
+
+    // ── FOLHA NORMAL ──
+    addSectionHeader(ws, row, '📋  FOLHA NORMAL — PREFEITURA MUNICIPAL', 13); row++;
+    addColHeaders(ws, row, ['FONTE','Qtd Servidores','Qtd Dependentes','Valor Bruto','Base de Cálculo','Orig. Patronal','Orig. Servidor','Orig. Lei 1219/12','Dt. Vencimento','Recalc. Patronal','Recalc. Servidor','Recalc. Lei 1219/12','Dt. Pgto']); row++;
+    FONTES.forEach(f => {
+      const r = state[mid]?.folhaNormal?.[f] || {};
+      addDataRow(ws, row, [f, r.serv||'', r.dep||'', num(r.bruto), num(r.base), num(r.patronal), num(r.servidor), num(r.lei), r.venc||'', num(r.rePatronal), num(r.reServidor), num(r.reLei), r.pgto||'']);
+      row++;
+    });
+    const fnTot = f => calcTotal(mid,'folhaNormal',f);
+    addTotalRow(ws, row, ['', '', '', null, fnTot('base'), fnTot('patronal'), fnTot('servidor'), fnTot('lei'), '', '', '', '', '']); row++;
+    row++;
+
+    // ── FOLHA 13 ──
+    addSectionHeader(ws, row, '📅  FOLHA DE 13° SALÁRIO', 12); row++;
+    addColHeaders(ws, row, ['FONTE','Quant. Serv.','Valor Bruto','Base de Cálculo','Orig. Patronal','Orig. Servidor','Orig. Lei 1219/12','Dt. Vencimento','Recalc. Patronal','Recalc. Servidor','Recalc. Lei 1219/12','Dt. Pgto']); row++;
+    FONTES.forEach(f => {
+      const r = state[mid]?.folha13?.[f] || {};
+      addDataRow(ws, row, [f, r.quant||'', num(r.bruto), num(r.base), num(r.patronal), num(r.servidor), num(r.lei), r.venc||'', num(r.rePatronal), num(r.reServidor), num(r.reLei), r.pgto||'']);
+      row++;
+    });
+    const f13Tot = f => calcTotal(mid,'folha13',f);
+    addTotalRow(ws, row, ['', '', f13Tot('base'), f13Tot('patronal'), f13Tot('servidor'), f13Tot('lei'), '', '', '', '', '', '']); row++;
+    row++;
+
+    // ── APOSENTADOS ──
+    addSectionHeader(ws, row, '👤  FOLHA DE APOSENTADOS', 7); row++;
+    addColHeaders(ws, row, ['TIPO','Folha Bruta','Base de Cálculo','Qtd Aposentados','Qtd Dependentes','Retido pelo RPPS','Data do Repasse']); row++;
+    const ap = state[mid]?.aposentados || {};
+    addDataRow(ws, row, ['NORMAL', num(ap.normalBruto), num(ap.normalBase), ap.normalQtd||'', ap.normalDep||'', num(ap.normalRetido), ap.normalData||'']); row++;
+    addDataRow(ws, row, ['13° SALÁRIO', num(ap.decBruto), num(ap.decBase), ap.decQtd||'', ap.decDep||'', num(ap.decRetido), ap.decData||'']); row++;
+    row++;
+
+    // ── PENSIONISTAS ──
+    addSectionHeader(ws, row, '👥  FOLHA DE PENSIONISTAS', 6); row++;
+    addColHeaders(ws, row, ['TIPO','Folha Bruta','Base de Cálculo','Qtd Pensionistas','Retido pelo RPPS','Data do Repasse']); row++;
+    const pe = state[mid]?.pensionistas || {};
+    addDataRow(ws, row, ['NORMAL', num(pe.normalBruto), num(pe.normalBase), pe.normalQtd||'', num(pe.normalRetido), pe.normalData||'']); row++;
+    addDataRow(ws, row, ['13° SALÁRIO', num(pe.decBruto), num(pe.decBase), pe.decQtd||'', num(pe.decRetido), pe.decData||'']); row++;
+    row++;
+
+    // ── OUTRAS RECEITAS ──
+    addSectionHeader(ws, row, '💰  OUTRAS RECEITAS', 3); row++;
+    addColHeaders(ws, row, ['RECEITA','VALOR','DATA DE PGTO']); row++;
+    const or = state[mid]?.outrasReceitas || {};
+    addDataRow(ws, row, ['APORTE', num(or.aporte), or.aporteDt||'']); row++;
+    addDataRow(ws, row, ['COMP. FINANCEIRA', num(or.compFin), or.compFinDt||'']); row++;
+    addDataRow(ws, row, ['CONT. SERV. CEDIDOS/LICENCIADOS', num(or.cedidos), or.cedidosDt||'']); row++;
+    addDataRow(ws, row, ['REND. DAS APLICAÇÕES', num(or.rendAplic), or.rendAplicDt||'']); row++;
+    row++;
+
+    // ── DESPESAS ──
+    addSectionHeader(ws, row, '📉  DESPESAS', 2); row++;
+    addColHeaders(ws, row, ['DESPESA','VALOR']); row++;
+    const de = state[mid]?.despesas || {};
+    addDataRow(ws, row, ['DES. ADMINISTRATIVAS', num(de.administrativas)]); row++;
+    addDataRow(ws, row, ['DESPESAS COM RESTITUIÇÕES', num(de.restituicoes)]); row++;
+    row++;
+
+    // ── PARCELAMENTOS ──
+    addSectionHeader(ws, row, '📄  PARCELAMENTOS', 6); row++;
+    addColHeaders(ws, row, ['Nº Parcelamento','Dt. Consolidação','Nº Parcela','Valor Parcela','Dt. Vencimento','Dt. Pagamento']); row++;
+    (state[mid]?.parcelamentos || []).forEach(p => {
+      addDataRow(ws, row, [p.num||'', p.consolid||'', p.parcNum||'', num(p.parcVal), p.vencDt||'', p.pgDt||'']);
+      row++;
+    });
+
+    // Largura das colunas
+    ws.columns = [
+      {width:28},{width:13},{width:13},{width:17},{width:17},
+      {width:17},{width:17},{width:18},{width:13},{width:17},
+      {width:17},{width:18},{width:13}
+    ];
+  });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'DIPR_2026.xlsx';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ── PDF EXPORT ── */
+function exportPDF() {
+  document.getElementById('exportDropdown').style.display = 'none';
+
+  const activeMes = MESES.find(m => document.getElementById('panel_' + m.id)?.classList.contains('active')) || MESES[0];
+  const mid = activeMes.id;
+
+  const style = `
+    <style>
+      body { font-family: Arial, sans-serif; font-size: 10px; color: #111; margin: 20px; }
+      h1 { font-size: 14px; color: #1241a8; margin-bottom: 2px; }
+      h2 { font-size: 11px; color: #374151; margin: 14px 0 4px; border-bottom: 1px solid #d1d5db; padding-bottom: 3px; }
+      table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+      th { background: #f3f4f6; border: 1px solid #d1d5db; padding: 4px 6px; font-size: 9px; text-align: center; }
+      td { border: 1px solid #e5e7eb; padding: 4px 6px; }
+      td.label { background: #f9fafb; font-weight: bold; }
+      tr.tot td { background: #dbeafe; font-weight: bold; }
+      .sub { font-size: 10px; color: #6b7280; margin-bottom: 10px; }
+    </style>`;
+
+  const money = v => { const n = parseFloat(v); return isNaN(n) || n === 0 ? '' : 'R$ ' + n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); };
+  const num = v => (v === '' || v === null || v === undefined) ? '' : v;
+
+  function tableRows(section, cols) {
+    return FONTES.map(f => {
+      const r = state[mid]?.[section]?.[f] || {};
+      return '<tr>' + cols.map(c => `<td style="text-align:right">${c === 'fonte' ? `<td class="label">${f}</td>` : money(r[c]) || num(r[c]) || ''}</td>`).join('') + '</tr>';
+    }).join('');
+  }
+
+  const fnRows = FONTES.map(f => {
+    const r = state[mid]?.folhaNormal?.[f] || {};
+    return `<tr><td class="label">${f}</td><td>${num(r.serv)}</td><td>${num(r.dep)}</td><td style="text-align:right">${money(r.bruto)}</td><td style="text-align:right">${money(r.base)}</td><td style="text-align:right">${money(r.patronal)}</td><td style="text-align:right">${money(r.servidor)}</td><td style="text-align:right">${money(r.lei)}</td><td>${r.venc||''}</td></tr>`;
+  }).join('');
+  const fnTot = f => calcTotal(mid,'folhaNormal',f);
+
+  const f13Rows = FONTES.map(f => {
+    const r = state[mid]?.folha13?.[f] || {};
+    return `<tr><td class="label">${f}</td><td>${num(r.quant)}</td><td style="text-align:right">${money(r.bruto)}</td><td style="text-align:right">${money(r.base)}</td><td style="text-align:right">${money(r.patronal)}</td><td style="text-align:right">${money(r.servidor)}</td><td style="text-align:right">${money(r.lei)}</td><td>${r.venc||''}</td></tr>`;
+  }).join('');
+  const f13Tot = f => calcTotal(mid,'folha13',f);
+
+  const ap = state[mid]?.aposentados || {};
+  const pe = state[mid]?.pensionistas || {};
+  const or = state[mid]?.outrasReceitas || {};
+  const de = state[mid]?.despesas || {};
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">${style}</head><body>
+    <h1>DIPR — Demonstrativo de Informações Previdenciárias e Repasses</h1>
+    <div class="sub">Prefeitura Municipal &nbsp;|&nbsp; ${activeMes.label} &nbsp;|&nbsp; Gerado em ${new Date().toLocaleDateString('pt-BR')}</div>
+
+    <h2>Folha Normal</h2>
+    <table><thead><tr><th>Fonte</th><th>Qtd Serv.</th><th>Qtd Dep.</th><th>Valor Bruto</th><th>Base de Cálculo</th><th>Orig. Patronal</th><th>Orig. Servidor</th><th>Orig. Lei 1219/12</th><th>Dt. Venc.</th></tr></thead>
+    <tbody>${fnRows}
+    <tr class="tot"><td class="label">TOTAL</td><td></td><td></td><td></td><td style="text-align:right">${money(fnTot('base'))}</td><td style="text-align:right">${money(fnTot('patronal'))}</td><td style="text-align:right">${money(fnTot('servidor'))}</td><td style="text-align:right">${money(fnTot('lei'))}</td><td></td></tr>
+    </tbody></table>
+
+    <h2>Folha de 13° Salário</h2>
+    <table><thead><tr><th>Fonte</th><th>Qtd Serv.</th><th>Valor Bruto</th><th>Base de Cálculo</th><th>Orig. Patronal</th><th>Orig. Servidor</th><th>Orig. Lei 1219/12</th><th>Dt. Venc.</th></tr></thead>
+    <tbody>${f13Rows}
+    <tr class="tot"><td class="label">TOTAL</td><td></td><td></td><td style="text-align:right">${money(f13Tot('base'))}</td><td style="text-align:right">${money(f13Tot('patronal'))}</td><td style="text-align:right">${money(f13Tot('servidor'))}</td><td style="text-align:right">${money(f13Tot('lei'))}</td><td></td></tr>
+    </tbody></table>
+
+    <h2>Folha de Aposentados</h2>
+    <table><thead><tr><th>Tipo</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Aposent.</th><th>Qtd Dep.</th><th>Retido RPPS</th><th>Data Repasse</th></tr></thead>
+    <tbody>
+      <tr><td class="label">NORMAL</td><td style="text-align:right">${money(ap.normalBruto)}</td><td style="text-align:right">${money(ap.normalBase)}</td><td>${ap.normalQtd||''}</td><td>${ap.normalDep||''}</td><td style="text-align:right">${money(ap.normalRetido)}</td><td>${ap.normalData||''}</td></tr>
+      <tr><td class="label">13° SALÁRIO</td><td style="text-align:right">${money(ap.decBruto)}</td><td style="text-align:right">${money(ap.decBase)}</td><td>${ap.decQtd||''}</td><td>${ap.decDep||''}</td><td style="text-align:right">${money(ap.decRetido)}</td><td>${ap.decData||''}</td></tr>
+    </tbody></table>
+
+    <h2>Folha de Pensionistas</h2>
+    <table><thead><tr><th>Tipo</th><th>Folha Bruta</th><th>Base de Cálculo</th><th>Qtd Pensionistas</th><th>Retido RPPS</th><th>Data Repasse</th></tr></thead>
+    <tbody>
+      <tr><td class="label">NORMAL</td><td style="text-align:right">${money(pe.normalBruto)}</td><td style="text-align:right">${money(pe.normalBase)}</td><td>${pe.normalQtd||''}</td><td style="text-align:right">${money(pe.normalRetido)}</td><td>${pe.normalData||''}</td></tr>
+      <tr><td class="label">13° SALÁRIO</td><td style="text-align:right">${money(pe.decBruto)}</td><td style="text-align:right">${money(pe.decBase)}</td><td>${pe.decQtd||''}</td><td style="text-align:right">${money(pe.decRetido)}</td><td>${pe.decData||''}</td></tr>
+    </tbody></table>
+
+    <h2>Outras Receitas</h2>
+    <table><thead><tr><th>Receita</th><th>Valor</th><th>Data de Pgto</th></tr></thead>
+    <tbody>
+      <tr><td class="label">APORTE</td><td style="text-align:right">${money(or.aporte)}</td><td>${or.aporteDt||''}</td></tr>
+      <tr><td class="label">COMP. FINANCEIRA</td><td style="text-align:right">${money(or.compFin)}</td><td>${or.compFinDt||''}</td></tr>
+      <tr><td class="label">CONT. SERV. CEDIDOS/LICENCIADOS</td><td style="text-align:right">${money(or.cedidos)}</td><td>${or.cedidosDt||''}</td></tr>
+      <tr><td class="label">REND. DAS APLICAÇÕES</td><td style="text-align:right">${money(or.rendAplic)}</td><td>${or.rendAplicDt||''}</td></tr>
+    </tbody></table>
+
+    <h2>Despesas</h2>
+    <table><thead><tr><th>Despesa</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td class="label">DES. ADMINISTRATIVAS</td><td style="text-align:right">${money(de.administrativas)}</td></tr>
+      <tr><td class="label">DESPESAS COM RESTITUIÇÕES</td><td style="text-align:right">${money(de.restituicoes)}</td></tr>
+    </tbody></table>
+  </body></html>`;
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'DIPR_' + activeMes.label.replace(' ','_') + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// BUILD UI
+function build() {
+  initState();
+
+  const tabsContainer = document.getElementById('tabsContainer');
+  const mainContent = document.getElementById('mainContent');
+
+  MESES.forEach((m, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '') + (hasData(m.id) ? ' has-data' : '');
+    btn.id = `tab_${m.id}`;
+    btn.innerHTML = `<span class="tab-dot"></span>${m.label}`;
+    btn.onclick = () => switchTab(m.id);
+    tabsContainer.appendChild(btn);
+
+    const div = document.createElement('div');
+    div.innerHTML = renderMonthPanel(m.id);
+    const panel = div.firstElementChild;
+    if (i === 0) panel.classList.add('active');
+    mainContent.appendChild(panel);
+  });
+}
+
+build();
+</script>
+</body>
+</html>
