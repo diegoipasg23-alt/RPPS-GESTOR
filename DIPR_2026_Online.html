@@ -6,6 +6,53 @@
 <title>DIPR 2026 – Demonstrativo de Informações Previdenciárias e Repasses</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBMdF8G5PxqL-FEOOk0ysATW7RS12TstXM",
+  authDomain: "dipr-3b828.firebaseapp.com",
+  projectId: "dipr-3b828",
+  storageBucket: "dipr-3b828.firebasestorage.app",
+  messagingSenderId: "280332089453",
+  appId: "1:280332089453:web:cd9cecd5bacd71f92c6764"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+
+// ── Salvar dados do mês ──
+window.fbSalvar = async function(monthId, dados) {
+  try {
+    await setDoc(doc(db, 'dipr_dados', monthId), dados);
+    return true;
+  } catch(e) { console.error('Erro ao salvar:', e); return false; }
+};
+
+// ── Carregar dados do mês ──
+window.fbCarregar = async function(monthId) {
+  try {
+    const snap = await getDoc(doc(db, 'dipr_dados', monthId));
+    return snap.exists() ? snap.data() : null;
+  } catch(e) { console.error('Erro ao carregar:', e); return null; }
+};
+
+// ── Registrar acesso ──
+window.fbRegistrarAcesso = async function(dados) {
+  try {
+    await addDoc(collection(db, 'acessos'), {
+      ...dados,
+      timestamp: serverTimestamp()
+    });
+  } catch(e) { console.error('Erro ao registrar acesso:', e); }
+};
+
+// Sinaliza que Firebase está pronto
+window.firebaseReady = true;
+window.dispatchEvent(new Event('firebase-ready'));
+</script>
 <style>
   :root {
     --blue: #1a56db;
@@ -380,9 +427,85 @@
     .dipr-table { font-size: 12px; }
     .totals-bar { grid-template-columns: 1fr 1fr; }
   }
+
+  /* ── LOGIN SCREEN ── */
+  #login-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .login-box {
+    background: #ffffff; border-radius: 16px;
+    padding: 40px 36px; width: 100%; max-width: 420px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    text-align: center;
+  }
+  .login-logo {
+    width: 56px; height: 56px; border-radius: 14px;
+    background: linear-gradient(135deg, #1241a8, #1a56db);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 20px;
+  }
+  .login-box h2 {
+    font-size: 20px; font-weight: 700; color: #111827;
+    margin-bottom: 4px;
+  }
+  .login-box p {
+    font-size: 13px; color: #6b7280; margin-bottom: 28px;
+  }
+  .login-field {
+    width: 100%; padding: 12px 16px;
+    border: 1.5px solid #e5e7eb; border-radius: 10px;
+    font-size: 14px; font-family: 'IBM Plex Sans', sans-serif;
+    color: #111827; outline: none; margin-bottom: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+  .login-field:focus { border-color: #1a56db; }
+  .login-field::placeholder { color: #9ca3af; }
+  .login-btn {
+    width: 100%; padding: 13px;
+    background: #1241a8; color: white;
+    border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600;
+    font-family: 'IBM Plex Sans', sans-serif;
+    cursor: pointer; transition: background 0.2s;
+    margin-bottom: 12px;
+  }
+  .login-btn:hover { background: #1a56db; }
+  .login-btn:disabled { background: #93c5fd; cursor: not-allowed; }
+  .login-error {
+    font-size: 12px; color: #dc2626;
+    margin-top: -6px; margin-bottom: 10px; display: none;
+  }
+  .login-footer {
+    font-size: 11px; color: #9ca3af; margin-top: 20px;
+    border-top: 1px solid #f3f4f6; padding-top: 14px;
+  }
+  #app-content { display: none; }
 </style>
 </head>
 <body>
+
+<!-- ── LOGIN OVERLAY ── -->
+<div id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">🏛️</div>
+    <h2>DIPR 2026 — RPPS</h2>
+    <p>Prefeitura Municipal · Acesso Restrito<br>Identifique-se para continuar</p>
+    <input class="login-field" id="login-nome" type="text" placeholder="Seu nome completo" maxlength="80" autocomplete="name" />
+    <input class="login-field" id="login-setor" type="text" placeholder="Setor / Cargo (ex: Financeiro)" maxlength="60" />
+    <div class="login-error" id="login-error">Por favor, preencha seu nome.</div>
+    <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
+    <div class="login-footer">
+      🔒 Este acesso é registrado com data, hora e informações do dispositivo.<br>
+      Apenas para uso autorizado da Prefeitura Municipal.
+    </div>
+  </div>
+</div>
+
+<div id="app-content">
 
 <header class="header">
   <div class="header-inner">
@@ -576,6 +699,8 @@ function updateState(el) {
     calcularPorBase(month, section, fonte);
   }
   updateTotals(month);
+  // Auto-salvar no Firebase
+  agendarSalvamento(month);
 }
 
 function formatCell(el) {
@@ -1279,7 +1404,8 @@ function exportPDF() {
       <tr><td class="label">DES. ADMINISTRATIVAS</td><td style="text-align:right">${money(de.administrativas)}</td></tr>
       <tr><td class="label">DESPESAS COM RESTITUIÇÕES</td><td style="text-align:right">${money(de.restituicoes)}</td></tr>
     </tbody></table>
-  </body></html>`;
+  </div><!-- end app-content -->
+</body></html>`;
 
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -1314,6 +1440,145 @@ function build() {
     mainContent.appendChild(panel);
   });
 }
+
+
+/* ── FIREBASE: SALVAR / CARREGAR / LOG ── */
+
+let saveTimer = null;
+
+// Salva mês atual no Firebase (com debounce de 2s)
+function agendarSalvamento(monthId) {
+  clearTimeout(saveTimer);
+  mostrarStatus('💾 Salvando…', '#f59e0b');
+  saveTimer = setTimeout(async () => {
+    if (!window.fbSalvar) return;
+    const dados = JSON.parse(JSON.stringify(state[monthId]));
+    const ok = await window.fbSalvar(monthId, dados);
+    if (ok) mostrarStatus('✅ Salvo na nuvem', '#10b981');
+    else    mostrarStatus('⚠️ Erro ao salvar', '#ef4444');
+    setTimeout(() => mostrarStatus('', ''), 3000);
+  }, 2000);
+}
+
+// Carrega todos os meses do Firebase ao iniciar
+async function carregarTudoDoFirebase() {
+  if (!window.fbCarregar) {
+    // Firebase ainda não pronto, tenta novamente quando estiver
+    window.addEventListener('firebase-ready', () => carregarTudoDoFirebase(), { once: true });
+    return;
+  }
+  mostrarStatus('☁️ Carregando dados…', '#1a56db');
+  let carregados = 0;
+  for (const m of MESES) {
+    const dados = await window.fbCarregar(m.id);
+    if (dados) {
+      state[m.id] = dados;
+      // Marca a aba como tendo dados
+      const tab = document.getElementById('tab_' + m.id);
+      if (tab) tab.classList.add('has-data');
+      carregados++;
+    }
+  }
+  // Re-renderiza o painel ativo com os dados carregados
+  const activePanel = document.querySelector('.month-panel.active');
+  if (activePanel) {
+    const mid = activePanel.id.replace('panel_', '');
+    activePanel.outerHTML = (() => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderMonthPanel(mid);
+      return tmp.firstElementChild.outerHTML;
+    })();
+    // Reativa o painel
+    const np = document.getElementById('panel_' + mid);
+    if (np) { np.classList.add('active'); updateTotals(mid); }
+  }
+  mostrarStatus(carregados > 0 ? `✅ ${carregados} meses carregados` : '📋 Nenhum dado salvo ainda', '#10b981');
+  setTimeout(() => mostrarStatus('', ''), 3000);
+}
+
+function mostrarStatus(msg, cor) {
+  let el = document.getElementById('save-status');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'save-status';
+    el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9998;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;font-family:IBM Plex Sans,sans-serif;transition:all 0.3s;background:white;box-shadow:0 2px 12px rgba(0,0,0,0.15)';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.color = cor;
+  el.style.opacity = msg ? '1' : '0';
+}
+
+/* ── CONTROLE DE ACESSO E LOG ── */
+
+async function fazerLogin() {
+  const nome = document.getElementById('login-nome').value.trim();
+  const setor = document.getElementById('login-setor').value.trim();
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+
+  if (!nome) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Por favor, preencha seu nome.';
+    document.getElementById('login-nome').focus();
+    return;
+  }
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Registrando acesso…';
+
+  const hora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const resolucao = `${screen.width}x${screen.height}`;
+  const dispositivo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+  const navegador = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Outro';
+
+  let ip = 'N/D', cidade = 'N/D', pais = 'N/D';
+  try {
+    const geo = await fetch('https://ipapi.co/json/');
+    const g = await geo.json();
+    ip = g.ip || 'N/D';
+    cidade = g.city || 'N/D';
+    pais = g.country_name || 'N/D';
+  } catch(e) {}
+
+  // Registra no Firebase
+  if (window.fbRegistrarAcesso) {
+    window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
+  } else {
+    window.addEventListener('firebase-ready', () => {
+      window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
+    }, { once: true });
+  }
+
+  sessionStorage.setItem('dipr_usuario', nome);
+  sessionStorage.setItem('dipr_setor', setor);
+
+  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('app-content').style.display = 'block';
+
+  const sub = document.querySelector('.header-sub');
+  if (sub) sub.textContent = `Prefeitura Municipal · ${nome}${setor ? ' — ' + setor : ''}`;
+
+  // Carrega dados do Firebase
+  await carregarTudoDoFirebase();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  ['login-nome','login-setor'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
+  });
+
+  const nome = sessionStorage.getItem('dipr_usuario');
+  if (nome) {
+    document.getElementById('login-overlay').style.display = 'none';
+    document.getElementById('app-content').style.display = 'block';
+    const setor = sessionStorage.getItem('dipr_setor') || '';
+    const sub = document.querySelector('.header-sub');
+    if (sub) sub.textContent = `Prefeitura Municipal · ${nome}${setor ? ' — ' + setor : ''}`;
+    carregarTudoDoFirebase();
+  }
+});
 
 build();
 </script>
