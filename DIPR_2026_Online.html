@@ -467,10 +467,25 @@ const dadosIniciais = {
 // Estado atual dos dados (começa com os dados iniciais)
 const state = {};
 
+function recalcularTodosBase(monthId) {
+  ['folhaNormal', 'folha13'].forEach(section => {
+    FONTES.forEach(fonte => {
+      const r = state[monthId]?.[section]?.[fonte];
+      if (!r || !r.base) return;
+      const base = parseFloat(r.base);
+      if (isNaN(base) || base === 0) return;
+      r.patronal = parseFloat((base * 0.22).toFixed(2));
+      r.servidor  = parseFloat((base * 0.14).toFixed(2));
+      r.lei       = parseFloat((base * 0.55).toFixed(2));
+    });
+  });
+}
+
 function initState() {
   MESES.forEach(m => {
     if (dadosIniciais[m.id]) {
       state[m.id] = JSON.parse(JSON.stringify(dadosIniciais[m.id]));
+      recalcularTodosBase(m.id);
     } else {
       state[m.id] = {
         folhaNormal: {},
@@ -514,13 +529,37 @@ function dateInput(monthId, path, value) {
   return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" onchange="updateState(this)">`;
 }
 
+function calcularPorBase(monthId, section, fonte) {
+  const r = state[monthId]?.[section]?.[fonte];
+  if (!r) return;
+  const base = parseFloat(r.base);
+  if (isNaN(base) || base === 0) return;
+  r.patronal = parseFloat((base * 0.22).toFixed(2));
+  r.servidor  = parseFloat((base * 0.14).toFixed(2));
+  r.lei       = parseFloat((base * 0.55).toFixed(2));
+  ['patronal', 'servidor', 'lei'].forEach(campo => {
+    const sel = `input[data-month="${monthId}"][data-path="${section}.${fonte}.${campo}"]`;
+    const el2 = document.querySelector(sel);
+    if (el2 && document.activeElement !== el2) {
+      el2.value = fmtBRL(r[campo]);
+    }
+  });
+}
+
 function updateState(el) {
   const month = el.dataset.month;
-  const path = el.dataset.path.split('.');
+  const pathStr = el.dataset.path;
+  const path = pathStr.split('.');
   let obj = state[month];
   for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
   const isMoney = el.dataset.money === 'true';
   obj[path[path.length - 1]] = isMoney ? (toNum(el.value) || '') : el.value;
+  const fieldChanged = path[path.length - 1];
+  if (fieldChanged === 'base' && path.length === 3) {
+    const section = path[0];
+    const fonte   = path[1];
+    calcularPorBase(month, section, fonte);
+  }
   updateTotals(month);
 }
 
