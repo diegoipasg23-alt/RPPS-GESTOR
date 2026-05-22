@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Diego Camargo da Silva">
+<meta name="copyright" content="© 2026 Diego Camargo da Silva - Todos os direitos reservados">
+<meta name="description" content="DIPR 2026 - Sistema de Preenchimento Online desenvolvido por Diego Camargo da Silva para o IPASG - Instituto de Previdência e Assistência dos Servidores de Goiandira">
 <title>DIPR 2026 – Demonstrativo de Informações Previdenciárias e Repasses</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
@@ -493,14 +496,16 @@ window.dispatchEvent(new Event('firebase-ready'));
   <div class="login-box">
     <div class="login-logo">🏛️</div>
     <h2>DIPR 2026 — RPPS</h2>
-    <p>Prefeitura Municipal · Acesso Restrito<br>Identifique-se para continuar</p>
+    <p>IPASG · Acesso Restrito<br>Identifique-se para continuar</p>
     <input class="login-field" id="login-nome" type="text" placeholder="Seu nome completo" maxlength="80" autocomplete="name" />
     <input class="login-field" id="login-setor" type="text" placeholder="Setor / Cargo (ex: Financeiro)" maxlength="60" />
     <div class="login-error" id="login-error">Por favor, preencha seu nome.</div>
     <button class="login-btn" id="login-btn" onclick="fazerLogin()">Entrar no Sistema</button>
     <div class="login-footer">
       🔒 Este acesso é registrado com data, hora e informações do dispositivo.<br>
-      Apenas para uso autorizado da Prefeitura Municipal.
+      Apenas para uso autorizado do IPASG.<br><br>
+      <span style="font-size:10px;color:#b0b8c1;">© 2026 Diego Camargo da Silva · Todos os direitos reservados<br>
+      Desenvolvido exclusivamente para o IPASG — Goiandira/GO</span>
     </div>
   </div>
 </div>
@@ -513,7 +518,7 @@ window.dispatchEvent(new Event('firebase-ready'));
       <div class="header-badge">RPPS</div>
       <div>
         <h1>DIPR 2026 — Demonstrativo de Informações Previdenciárias e Repasses</h1>
-        <div class="header-sub">Prefeitura Municipal · Sistema de Preenchimento Online</div>
+        <div class="header-sub">IPASG · Sistema de Preenchimento Online</div>
       </div>
     </div>
     <div style="position:relative;display:inline-block" id="exportMenu">
@@ -1007,7 +1012,7 @@ function renderMonthPanel(monthId) {
       <div class="section-card">
         <div class="section-header" onclick="toggleSection('fn_${monthId}')">
           <div class="section-icon icon-blue">📋</div>
-          <div class="section-title">Folha Normal — Prefeitura Municipal</div>
+          <div class="section-title">Folha Normal — IPASG</div>
           <div class="section-toggle open" id="tog_fn_${monthId}">▾</div>
         </div>
         <div class="section-body" id="fn_${monthId}">${renderFolhaNormal(monthId)}</div>
@@ -1220,14 +1225,14 @@ async function exportExcel() {
 
     ws.getRow(row).height = 14;
     const sCell = ws.getCell(row, 1);
-    sCell.value = 'Prefeitura Municipal  |  ' + m.label;
+    sCell.value = 'IPASG  |  ' + m.label;
     applyStyle(sCell, styleSub);
     ws.mergeCells(row, 1, row, 13);
     row++;
     row++; // linha vazia
 
     // ── FOLHA NORMAL ──
-    addSectionHeader(ws, row, '📋  FOLHA NORMAL — PREFEITURA MUNICIPAL', 13); row++;
+    addSectionHeader(ws, row, '📋  FOLHA NORMAL — IPASG', 13); row++;
     addColHeaders(ws, row, ['FONTE','Qtd Servidores','Qtd Dependentes','Valor Bruto','Base de Cálculo','Orig. Patronal','Orig. Servidor','Orig. Lei 1219/12','Dt. Vencimento','Recalc. Patronal','Recalc. Servidor','Recalc. Lei 1219/12','Dt. Pgto']); row++;
     FONTES.forEach(f => {
       const r = state[mid]?.folhaNormal?.[f] || {};
@@ -1361,7 +1366,7 @@ function exportPDF() {
 
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">${style}</head><body>
     <h1>DIPR — Demonstrativo de Informações Previdenciárias e Repasses</h1>
-    <div class="sub">Prefeitura Municipal &nbsp;|&nbsp; ${activeMes.label} &nbsp;|&nbsp; Gerado em ${new Date().toLocaleDateString('pt-BR')}</div>
+    <div class="sub">IPASG &nbsp;|&nbsp; ${activeMes.label} &nbsp;|&nbsp; Gerado em ${new Date().toLocaleDateString('pt-BR')}</div>
 
     <h2>Folha Normal</h2>
     <table><thead><tr><th>Fonte</th><th>Qtd Serv.</th><th>Qtd Dep.</th><th>Valor Bruto</th><th>Base de Cálculo</th><th>Orig. Patronal</th><th>Orig. Servidor</th><th>Orig. Lei 1219/12</th><th>Dt. Venc.</th></tr></thead>
@@ -1405,6 +1410,15 @@ function exportPDF() {
       <tr><td class="label">DESPESAS COM RESTITUIÇÕES</td><td style="text-align:right">${money(de.restituicoes)}</td></tr>
     </tbody></table>
   </div><!-- end app-content -->
+
+<!-- RODAPÉ DE DIREITOS AUTORAIS -->
+<footer style="background:#0f172a;color:#94a3b8;text-align:center;padding:14px 24px;font-family:'IBM Plex Sans',sans-serif;font-size:11px;line-height:1.7;border-top:2px solid #1241a8;">
+  © 2026 <strong style="color:#e2e8f0;">Diego Camargo da Silva</strong> — Todos os direitos reservados.<br>
+  Sistema desenvolvido e idealizado por <strong style="color:#e2e8f0;">Diego Camargo da Silva</strong>, exclusivamente para o
+  <strong style="color:#e2e8f0;">IPASG — Instituto de Previdência e Assistência dos Servidores de Goiandira/GO</strong>.<br>
+  É vedada a cópia, reprodução, adaptação ou redistribuição sem autorização expressa do autor.
+</footer>
+
 </body></html>`;
 
   const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
@@ -1557,7 +1571,7 @@ async function fazerLogin() {
   document.getElementById('app-content').style.display = 'block';
 
   const sub = document.querySelector('.header-sub');
-  if (sub) sub.textContent = `Prefeitura Municipal · ${nome}${setor ? ' — ' + setor : ''}`;
+  if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
 
   // Carrega dados do Firebase
   await carregarTudoDoFirebase();
@@ -1575,7 +1589,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('app-content').style.display = 'block';
     const setor = sessionStorage.getItem('dipr_setor') || '';
     const sub = document.querySelector('.header-sub');
-    if (sub) sub.textContent = `Prefeitura Municipal · ${nome}${setor ? ' — ' + setor : ''}`;
+    if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
     carregarTudoDoFirebase();
   }
 });
