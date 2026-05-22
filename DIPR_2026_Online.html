@@ -153,6 +153,25 @@ window.dispatchEvent(new Event('firebase-ready'));
   }
   .btn-save:hover { background: var(--blue-light); }
 
+  .btn-save-manual {
+    background: #22c55e;
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: var(--font);
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(34,197,94,0.35);
+    letter-spacing: 0.3px;
+  }
+  .btn-save-manual:hover { background: #16a34a; transform: translateY(-1px); }
+  .btn-save-manual:active { transform: translateY(0); }
+  .btn-save-manual:disabled { background: #86efac; cursor: not-allowed; transform: none; }
+
   /* MONTH TABS */
   .tabs-bar {
     background: var(--white);
@@ -521,12 +540,15 @@ window.dispatchEvent(new Event('firebase-ready'));
         <div class="header-sub">IPASG · Sistema de Preenchimento Online</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:10px">
+    <button class="btn-save-manual" id="btnSalvarManual" onclick="salvarManual()" title="Salvar dados agora">💾 Salvar</button>
     <div style="position:relative;display:inline-block" id="exportMenu">
       <button class="btn-save" onclick="toggleExportMenu()">⬇ Exportar ▾</button>
       <div id="exportDropdown" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:190px;z-index:200;overflow:hidden;">
         <button onclick="exportExcel()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📊 Exportar Excel (.xlsx)</button>
         <button onclick="exportPDF()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📄 Exportar PDF</button>
       </div>
+    </div>
     </div>
   </div>
 </header>
@@ -1086,6 +1108,7 @@ function toggleSection(id) {
 }
 
 function switchTab(monthId) {
+  activeMesId = monthId;
   document.querySelectorAll('.month-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   const panel = document.getElementById(`panel_${monthId}`);
@@ -1435,6 +1458,7 @@ function exportPDF() {
 // BUILD UI
 function build() {
   initState();
+  activeMesId = MESES[0].id; // Define o mês ativo inicial
 
   const tabsContainer = document.getElementById('tabsContainer');
   const mainContent = document.getElementById('mainContent');
@@ -1459,35 +1483,71 @@ function build() {
 /* ── FIREBASE: SALVAR / CARREGAR / LOG ── */
 
 let saveTimer = null;
+let activeMesId = null; // Rastreia o mês ativo globalmente
 
-// Salva mês atual no Firebase (com debounce de 2s)
+/* ── localStorage fallback ── */
+function lsSalvar(monthId, dados) {
+  try { localStorage.setItem('dipr_' + monthId, JSON.stringify(dados)); } catch(e) {}
+}
+function lsCarregar(monthId) {
+  try {
+    const raw = localStorage.getItem('dipr_' + monthId);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+/* ── Salvar MANUALMENTE (botão) ── */
+async function salvarManual() {
+  const btn = document.getElementById('btnSalvarManual');
+  if (!activeMesId) return;
+  clearTimeout(saveTimer);
+  btn.disabled = true;
+  btn.textContent = '⏳ Salvando…';
+  const dados = JSON.parse(JSON.stringify(state[activeMesId]));
+  // Sempre salva no localStorage (garantia offline)
+  lsSalvar(activeMesId, dados);
+  // Tenta salvar no Firebase
+  let ok = false;
+  if (window.fbSalvar) ok = await window.fbSalvar(activeMesId, dados);
+  mostrarStatus(ok ? '✅ Salvo na nuvem!' : '✅ Salvo localmente!', ok ? '#10b981' : '#f59e0b');
+  btn.disabled = false;
+  btn.textContent = '💾 Salvar';
+  setTimeout(() => mostrarStatus('', ''), 3000);
+}
+
+// Salva mês atual no Firebase (com debounce de 2s) + localStorage imediato
 function agendarSalvamento(monthId) {
   clearTimeout(saveTimer);
+  // Salva imediatamente no localStorage (garantia offline)
+  lsSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
   mostrarStatus('💾 Salvando…', '#f59e0b');
   saveTimer = setTimeout(async () => {
     if (!window.fbSalvar) return;
     const dados = JSON.parse(JSON.stringify(state[monthId]));
     const ok = await window.fbSalvar(monthId, dados);
     if (ok) mostrarStatus('✅ Salvo na nuvem', '#10b981');
-    else    mostrarStatus('⚠️ Erro ao salvar', '#ef4444');
+    else    mostrarStatus('⚠️ Salvo só localmente', '#f59e0b');
     setTimeout(() => mostrarStatus('', ''), 3000);
   }, 2000);
 }
 
-// Carrega todos os meses do Firebase ao iniciar
+// Carrega todos os meses do Firebase ao iniciar, com fallback para localStorage
 async function carregarTudoDoFirebase() {
   if (!window.fbCarregar) {
-    // Firebase ainda não pronto, tenta novamente quando estiver
+    // Firebase ainda não pronto — usa localStorage imediatamente enquanto aguarda
+    carregarDoLocalStorage();
     window.addEventListener('firebase-ready', () => carregarTudoDoFirebase(), { once: true });
     return;
   }
   mostrarStatus('☁️ Carregando dados…', '#1a56db');
   let carregados = 0;
   for (const m of MESES) {
-    const dados = await window.fbCarregar(m.id);
+    let dados = await window.fbCarregar(m.id);
+    // Se Firebase não devolveu dados, tenta localStorage
+    if (!dados) dados = lsCarregar(m.id);
     if (dados) {
       state[m.id] = dados;
-      // Marca a aba como tendo dados
+      lsSalvar(m.id, dados); // sincroniza localStorage
       const tab = document.getElementById('tab_' + m.id);
       if (tab) tab.classList.add('has-data');
       carregados++;
@@ -1502,12 +1562,40 @@ async function carregarTudoDoFirebase() {
       tmp.innerHTML = renderMonthPanel(mid);
       return tmp.firstElementChild.outerHTML;
     })();
-    // Reativa o painel
     const np = document.getElementById('panel_' + mid);
     if (np) { np.classList.add('active'); updateTotals(mid); }
   }
   mostrarStatus(carregados > 0 ? `✅ ${carregados} meses carregados` : '📋 Nenhum dado salvo ainda', '#10b981');
   setTimeout(() => mostrarStatus('', ''), 3000);
+}
+
+// Carrega dados do localStorage (offline/fallback)
+function carregarDoLocalStorage() {
+  let carregados = 0;
+  for (const m of MESES) {
+    const dados = lsCarregar(m.id);
+    if (dados) {
+      state[m.id] = dados;
+      const tab = document.getElementById('tab_' + m.id);
+      if (tab) tab.classList.add('has-data');
+      carregados++;
+    }
+  }
+  if (carregados > 0) {
+    const activePanel = document.querySelector('.month-panel.active');
+    if (activePanel) {
+      const mid = activePanel.id.replace('panel_', '');
+      activePanel.outerHTML = (() => {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = renderMonthPanel(mid);
+        return tmp.firstElementChild.outerHTML;
+      })();
+      const np = document.getElementById('panel_' + mid);
+      if (np) { np.classList.add('active'); updateTotals(mid); }
+    }
+    mostrarStatus(`📦 ${carregados} meses (local)`, '#f59e0b');
+    setTimeout(() => mostrarStatus('', ''), 3000);
+  }
 }
 
 function mostrarStatus(msg, cor) {
