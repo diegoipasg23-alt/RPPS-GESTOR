@@ -9,52 +9,49 @@
 <title>DIPR 2026 – Demonstrativo de Informações Previdenciárias e Repasses</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc, serverTimestamp }
-  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBMdF8G5PxqL-FEOOk0ysATW7RS12TstXM",
-  authDomain: "dipr-3b828.firebaseapp.com",
-  projectId: "dipr-3b828",
-  storageBucket: "dipr-3b828.firebasestorage.app",
-  messagingSenderId: "280332089453",
-  appId: "1:280332089453:web:cd9cecd5bacd71f92c6764"
-};
-
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
-
-// ── Salvar dados do mês ──
-window.fbSalvar = async function(monthId, dados) {
+<!-- Firebase via compat (scripts normais, sem module, sem corrida assíncrona) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+(function() {
+  const firebaseConfig = {
+    apiKey: "AIzaSyBMdF8G5PxqL-FEOOk0ysATW7RS12TstXM",
+    authDomain: "dipr-3b828.firebaseapp.com",
+    projectId: "dipr-3b828",
+    storageBucket: "dipr-3b828.firebasestorage.app",
+    messagingSenderId: "280332089453",
+    appId: "1:280332089453:web:cd9cecd5bacd71f92c6764"
+  };
   try {
-    await setDoc(doc(db, 'dipr_dados', monthId), dados);
-    return true;
-  } catch(e) { console.error('Erro ao salvar:', e); return false; }
-};
+    const fbApp = firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-// ── Carregar dados do mês ──
-window.fbCarregar = async function(monthId) {
-  try {
-    const snap = await getDoc(doc(db, 'dipr_dados', monthId));
-    return snap.exists() ? snap.data() : null;
-  } catch(e) { console.error('Erro ao carregar:', e); return null; }
-};
+    window.fbSalvar = async function(monthId, dados) {
+      try {
+        await db.collection('dipr_dados').doc(monthId).set(dados);
+        return true;
+      } catch(e) { console.error('Erro Firebase ao salvar:', e); return false; }
+    };
 
-// ── Registrar acesso ──
-window.fbRegistrarAcesso = async function(dados) {
-  try {
-    await addDoc(collection(db, 'acessos'), {
-      ...dados,
-      timestamp: serverTimestamp()
-    });
-  } catch(e) { console.error('Erro ao registrar acesso:', e); }
-};
+    window.fbCarregar = async function(monthId) {
+      try {
+        const snap = await db.collection('dipr_dados').doc(monthId).get();
+        return snap.exists ? snap.data() : null;
+      } catch(e) { console.error('Erro Firebase ao carregar:', e); return null; }
+    };
 
-// Sinaliza que Firebase está pronto
-window.firebaseReady = true;
-window.dispatchEvent(new Event('firebase-ready'));
+    window.fbRegistrarAcesso = async function(dados) {
+      try { await db.collection('acessos').add({ ...dados, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
+      catch(e) { console.error('Erro Firebase acesso:', e); }
+    };
+
+    window.firebaseOk = true;
+    console.log('✅ Firebase inicializado com sucesso');
+  } catch(e) {
+    console.error('❌ Firebase falhou ao inicializar:', e);
+    window.firebaseOk = false;
+  }
+})();
 </script>
 <style>
   :root {
@@ -522,9 +519,9 @@ window.dispatchEvent(new Event('firebase-ready'));
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-    <button id="btnSalvarManual" onclick="salvarManual()" style="background:#22c55e;color:white;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 6px rgba(34,197,94,0.4);transition:background 0.15s;">💾 Salvar</button>
-    <div style="position:relative;display:inline-block" id="exportMenu">
-      <button class="btn-save" onclick="toggleExportMenu()">⬇ Exportar ▾</button>
+      <button id="btnSalvarManual" onclick="salvarManual()" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(34,197,94,0.4);letter-spacing:0.3px;">💾 Salvar</button>
+      <div style="position:relative;display:inline-block" id="exportMenu">
+        <button class="btn-save" onclick="toggleExportMenu()">⬇ Exportar ▾</button>
       <div id="exportDropdown" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:190px;z-index:200;overflow:hidden;">
         <button onclick="exportExcel()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📊 Exportar Excel (.xlsx)</button>
         <button onclick="exportPDF()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📄 Exportar PDF</button>
@@ -1088,8 +1085,6 @@ function toggleSection(id) {
   if (tog) tog.classList.toggle('open', isHidden);
 }
 
-let activeMesId = null;
-
 function switchTab(monthId) {
   activeMesId = monthId;
   document.querySelectorAll('.month-panel').forEach(p => p.classList.remove('active'));
@@ -1441,7 +1436,6 @@ function exportPDF() {
 // BUILD UI
 function build() {
   initState();
-  activeMesId = MESES[0].id;
 
   const tabsContainer = document.getElementById('tabsContainer');
   const mainContent = document.getElementById('mainContent');
@@ -1464,125 +1458,101 @@ function build() {
 
 
 /* ══════════════════════════════════════════════════
-   PERSISTÊNCIA: localStorage (imediato) + Firebase (nuvem)
+   PERSISTÊNCIA DEFINITIVA
+   1) localStorage → salva/carrega INSTANTÂNEO, offline
+   2) Firebase → sincroniza na nuvem em paralelo
    ══════════════════════════════════════════════════ */
 
 let saveTimer = null;
+let activeMesId = MESES[0].id;
 
-// ── helpers localStorage ──
+/* ── localStorage ── */
 function lsSalvar(monthId, dados) {
-  try { localStorage.setItem('dipr_dados_' + monthId, JSON.stringify(dados)); } catch(e) {}
+  try { localStorage.setItem('dipr2026_' + monthId, JSON.stringify(dados)); } catch(e) {}
 }
 function lsCarregar(monthId) {
   try {
-    const raw = localStorage.getItem('dipr_dados_' + monthId);
-    return raw ? JSON.parse(raw) : null;
+    const r = localStorage.getItem('dipr2026_' + monthId);
+    return r ? JSON.parse(r) : null;
   } catch(e) { return null; }
 }
 
-// ── Re-renderiza TODOS os painéis com os dados atuais do state ──
-function reRenderizarTodosPaineis() {
+/* ── Re-renderiza TODOS os painéis com state atual ── */
+function reRenderizarTodos() {
   MESES.forEach(m => {
-    const painel = document.getElementById('panel_' + m.id);
-    if (!painel) return;
-    const ativo = painel.classList.contains('active');
-    const novoHTML = renderMonthPanel(m.id);
+    const el = document.getElementById('panel_' + m.id);
+    if (!el) return;
+    const ativo = el.classList.contains('active');
     const tmp = document.createElement('div');
-    tmp.innerHTML = novoHTML;
+    tmp.innerHTML = renderMonthPanel(m.id);
     const novo = tmp.firstElementChild;
     if (ativo) novo.classList.add('active');
-    painel.replaceWith(novo);
+    el.replaceWith(novo);
     if (ativo) updateTotals(m.id);
+    // marca aba com ponto verde
+    const tab = document.getElementById('tab_' + m.id);
+    if (tab) tab.classList.toggle('has-data', lsCarregar(m.id) !== null);
   });
 }
 
-// ── Salvar (debounce 1.5s) — sempre localStorage + tenta Firebase ──
+/* ── Salvar: localStorage imediato + Firebase com debounce ── */
 function agendarSalvamento(monthId) {
-  // Salva IMEDIATAMENTE no localStorage — nunca perde dado
+  // SEMPRE salva no localStorage imediatamente — nunca perde dado
   lsSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
+  mostrarStatus('💾 Salvo localmente', '#f59e0b');
+  const tab = document.getElementById('tab_' + monthId);
+  if (tab) tab.classList.add('has-data');
+
   clearTimeout(saveTimer);
-  mostrarStatus('💾 Salvando…', '#f59e0b');
   saveTimer = setTimeout(async () => {
-    if (window.fbSalvar) {
-      const ok = await window.fbSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
-      mostrarStatus(ok ? '✅ Salvo na nuvem' : '✅ Salvo localmente', ok ? '#10b981' : '#f59e0b');
-    } else {
-      mostrarStatus('✅ Salvo localmente', '#f59e0b');
-    }
+    if (!window.fbSalvar) { mostrarStatus('', ''); return; }
+    const ok = await window.fbSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
+    mostrarStatus(ok ? '✅ Salvo na nuvem' : '✅ Salvo localmente', ok ? '#10b981' : '#f59e0b');
     setTimeout(() => mostrarStatus('', ''), 3000);
   }, 1500);
 }
 
-// ── Salvar Manual (botão) — imediato ──
+/* ── Botão Salvar manual ── */
 async function salvarManual() {
-  const btn = document.getElementById('btnSalvarManual');
   if (!activeMesId) return;
   clearTimeout(saveTimer);
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Salvando…'; }
-  // Salva localStorage imediatamente
+  const btn = document.getElementById('btnSalvarManual');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳…'; }
   lsSalvar(activeMesId, JSON.parse(JSON.stringify(state[activeMesId])));
   let ok = false;
-  if (window.fbSalvar) {
-    ok = await window.fbSalvar(activeMesId, JSON.parse(JSON.stringify(state[activeMesId])));
-  }
+  if (window.fbSalvar) ok = await window.fbSalvar(activeMesId, JSON.parse(JSON.stringify(state[activeMesId])));
   mostrarStatus(ok ? '✅ Salvo na nuvem!' : '✅ Salvo localmente!', ok ? '#10b981' : '#f59e0b');
   if (btn) { btn.disabled = false; btn.textContent = '💾 Salvar'; }
   setTimeout(() => mostrarStatus('', ''), 3000);
 }
 
-// ── Carregar dados ao iniciar ──
-// Estratégia: localStorage é INSTANTÂNEO (dados aparecem imediatamente),
-// Firebase sincroniza em seguida e atualiza se tiver dados mais recentes.
-async function carregarTudoDoFirebase() {
-  // PASSO 1: carrega localStorage AGORA, sem esperar nada
-  let carregadosLocal = 0;
+/* ── Carregar ao entrar: localStorage primeiro, Firebase depois ── */
+async function carregarDados() {
+  // PASSO 1: localStorage — instantâneo
+  let n = 0;
   MESES.forEach(m => {
-    const dados = lsCarregar(m.id);
-    if (dados) {
-      state[m.id] = dados;
-      carregadosLocal++;
-    }
+    const d = lsCarregar(m.id);
+    if (d) { state[m.id] = d; n++; }
   });
-  if (carregadosLocal > 0) {
-    reRenderizarTodosPaineis();
-    // Marca abas com dados
-    MESES.forEach(m => {
-      const tab = document.getElementById('tab_' + m.id);
-      if (tab && lsCarregar(m.id)) tab.classList.add('has-data');
-    });
-    mostrarStatus(`📦 ${carregadosLocal} meses carregados`, '#10b981');
-    setTimeout(() => mostrarStatus('', ''), 2000);
-  }
-
-  // PASSO 2: tenta Firebase em paralelo (não bloqueia a tela)
-  const tentarFirebase = async () => {
-    if (!window.fbCarregar) return;
-    mostrarStatus('☁️ Sincronizando nuvem…', '#1a56db');
-    let carregadosNuvem = 0;
-    for (const m of MESES) {
-      const dados = await window.fbCarregar(m.id);
-      if (dados) {
-        state[m.id] = dados;
-        lsSalvar(m.id, dados); // mantém localStorage sincronizado
-        const tab = document.getElementById('tab_' + m.id);
-        if (tab) tab.classList.add('has-data');
-        carregadosNuvem++;
-      }
-    }
-    if (carregadosNuvem > 0) {
-      reRenderizarTodosPaineis();
-      mostrarStatus(`✅ Nuvem: ${carregadosNuvem} meses`, '#10b981');
-    } else {
-      mostrarStatus('', '');
-    }
-    setTimeout(() => mostrarStatus('', ''), 3000);
-  };
-
-  if (window.fbCarregar) {
-    tentarFirebase();
+  if (n > 0) {
+    reRenderizarTodos();
+    mostrarStatus('📦 Dados locais carregados', '#10b981');
   } else {
-    window.addEventListener('firebase-ready', tentarFirebase, { once: true });
+    mostrarStatus('📋 Nenhum dado local ainda', '#6b7280');
   }
+  setTimeout(() => mostrarStatus('', ''), 2000);
+
+  // PASSO 2: Firebase — assíncrono, atualiza em cima se tiver dados mais recentes
+  if (!window.fbCarregar) return;
+  mostrarStatus('☁️ Sincronizando…', '#1a56db');
+  let nf = 0;
+  for (const m of MESES) {
+    const d = await window.fbCarregar(m.id);
+    if (d) { state[m.id] = d; lsSalvar(m.id, d); nf++; }
+  }
+  if (nf > 0) reRenderizarTodos();
+  mostrarStatus(nf > 0 ? `☁️ Nuvem: ${nf} meses` : '📦 Usando dados locais', '#10b981');
+  setTimeout(() => mostrarStatus('', ''), 3000);
 }
 
 function mostrarStatus(msg, cor) {
@@ -1598,8 +1568,7 @@ function mostrarStatus(msg, cor) {
   el.style.opacity = msg ? '1' : '0';
 }
 
-/* ── CONTROLE DE ACESSO E LOG ── */
-
+/* ── LOGIN ── */
 async function fazerLogin() {
   const nome = document.getElementById('login-nome').value.trim();
   const setor = document.getElementById('login-setor').value.trim();
@@ -1614,42 +1583,25 @@ async function fazerLogin() {
   }
   errEl.style.display = 'none';
   btn.disabled = true;
-  btn.textContent = 'Registrando acesso…';
+  btn.textContent = 'Entrando…';
 
-  const hora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-  const resolucao = `${screen.width}x${screen.height}`;
-  const dispositivo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
-  const navegador = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Outro';
-
-  let ip = 'N/D', cidade = 'N/D', pais = 'N/D';
-  try {
-    const geo = await fetch('https://ipapi.co/json/');
-    const g = await geo.json();
-    ip = g.ip || 'N/D';
-    cidade = g.city || 'N/D';
-    pais = g.country_name || 'N/D';
-  } catch(e) {}
-
-  // Registra no Firebase
-  if (window.fbRegistrarAcesso) {
-    window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
-  } else {
-    window.addEventListener('firebase-ready', () => {
-      window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
-    }, { once: true });
-  }
-
+  // Salva login em localStorage (persiste ao fechar o browser)
   localStorage.setItem('dipr_usuario', nome);
   localStorage.setItem('dipr_setor', setor);
 
+  // Registra acesso no Firebase (sem bloquear)
+  const hora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const dispositivo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+  const navegador = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Outro';
+  let ip = 'N/D', cidade = 'N/D';
+  try { const g = await (await fetch('https://ipapi.co/json/')).json(); ip = g.ip||'N/D'; cidade = g.city||'N/D'; } catch(e) {}
+  if (window.fbRegistrarAcesso) window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, dispositivo, navegador });
+
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
-
   const sub = document.querySelector('.header-sub');
   if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
-
-  // Carrega dados do Firebase
-  await carregarTudoDoFirebase();
+  await carregarDados();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1658,6 +1610,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
   });
 
+  // Usa localStorage para manter login entre sessões
   const nome = localStorage.getItem('dipr_usuario');
   if (nome) {
     document.getElementById('login-overlay').style.display = 'none';
@@ -1665,7 +1618,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const setor = localStorage.getItem('dipr_setor') || '';
     const sub = document.querySelector('.header-sub');
     if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
-    carregarTudoDoFirebase();
+    carregarDados();
   }
 });
 
