@@ -626,25 +626,33 @@ function recalcularTodosBase(monthId) {
 
 function initState() {
   MESES.forEach(m => {
+    // PRIORIDADE 1: localStorage (dados que o usuário salvou)
+    const salvo = lsCarregar(m.id);
+    if (salvo) {
+      state[m.id] = salvo;
+      return;
+    }
+    // PRIORIDADE 2: dadosIniciais da planilha
     if (dadosIniciais[m.id]) {
       state[m.id] = JSON.parse(JSON.stringify(dadosIniciais[m.id]));
       recalcularTodosBase(m.id);
-    } else {
-      state[m.id] = {
-        folhaNormal: {},
-        folha13: {},
-        aposentados: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decData: '' },
-        pensionistas: { normalBruto: '', normalBase: '', normalQtd: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decRetido: '', decData: '' },
-        unidadeGestora: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalPatronal: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decPatronal: '', decData: '' },
-        outrasReceitas: { aporte: '', aporteDt: '', compFin: '', compFinDt: '', cedidos: '', cedidosDt: '', rendAplic: '', rendAplicDt: '' },
-        despesas: { administrativas: '', restituicoes: '' },
-        parcelamentos: [{ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' }],
-      };
-      FONTES.forEach(f => {
-        state[m.id].folhaNormal[f] = { serv: '', dep: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
-        state[m.id].folha13[f] = { quant: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
-      });
+      return;
     }
+    // PRIORIDADE 3: estado vazio
+    state[m.id] = {
+      folhaNormal: {},
+      folha13: {},
+      aposentados: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decData: '' },
+      pensionistas: { normalBruto: '', normalBase: '', normalQtd: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decRetido: '', decData: '' },
+      unidadeGestora: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalPatronal: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decPatronal: '', decData: '' },
+      outrasReceitas: { aporte: '', aporteDt: '', compFin: '', compFinDt: '', cedidos: '', cedidosDt: '', rendAplic: '', rendAplicDt: '' },
+      despesas: { administrativas: '', restituicoes: '' },
+      parcelamentos: [{ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' }],
+    };
+    FONTES.forEach(f => {
+      state[m.id].folhaNormal[f] = { serv: '', dep: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+      state[m.id].folha13[f] = { quant: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+    });
   });
 }
 
@@ -665,11 +673,11 @@ function numInput(monthId, path, value, cls) {
   const isMoney = !cls || cls === 'num-input';
   const raw = (value !== '' && value !== null && value !== undefined) ? value : '';
   const display = isMoney && raw !== '' ? fmtBRL(raw) : raw;
-  return `<input type="text" class="cell-input ${cls || 'num-input'}" id="${id}" value="${display}" data-month="${monthId}" data-path="${path}" data-money="${isMoney}" onchange="updateState(this)" onblur="formatCell(this)" onfocus="unformatCell(this)">`;
+  return `<input type="text" class="cell-input ${cls || 'num-input'}" id="${id}" value="${display}" data-month="${monthId}" data-path="${path}" data-money="${isMoney}" oninput="updateState(this)" onchange="updateState(this)" onblur="formatCell(this)" onfocus="unformatCell(this)">`;
 }
 
 function dateInput(monthId, path, value) {
-  return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" onchange="updateState(this)">`;
+  return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" oninput="updateState(this)" onchange="updateState(this)">`;
 }
 
 function calcularPorBase(monthId, section, fonte) {
@@ -1526,23 +1534,15 @@ async function salvarManual() {
   setTimeout(() => mostrarStatus('', ''), 3000);
 }
 
-/* ── Carregar ao entrar: localStorage primeiro, Firebase depois ── */
+/* ── Carregar ao entrar: localStorage já foi no initState, aqui só sincroniza Firebase ── */
 async function carregarDados() {
-  // PASSO 1: localStorage — instantâneo
-  let n = 0;
+  // Marca abas que têm dados salvos
   MESES.forEach(m => {
-    const d = lsCarregar(m.id);
-    if (d) { state[m.id] = d; n++; }
+    const tab = document.getElementById('tab_' + m.id);
+    if (tab) tab.classList.toggle('has-data', lsCarregar(m.id) !== null);
   });
-  if (n > 0) {
-    reRenderizarTodos();
-    mostrarStatus('📦 Dados locais carregados', '#10b981');
-  } else {
-    mostrarStatus('📋 Nenhum dado local ainda', '#6b7280');
-  }
-  setTimeout(() => mostrarStatus('', ''), 2000);
 
-  // PASSO 2: Firebase — assíncrono, atualiza em cima se tiver dados mais recentes
+  // Sincroniza com Firebase em background
   if (!window.fbCarregar) return;
   mostrarStatus('☁️ Sincronizando…', '#1a56db');
   let nf = 0;
@@ -1551,7 +1551,7 @@ async function carregarDados() {
     if (d) { state[m.id] = d; lsSalvar(m.id, d); nf++; }
   }
   if (nf > 0) reRenderizarTodos();
-  mostrarStatus(nf > 0 ? `☁️ Nuvem: ${nf} meses` : '📦 Usando dados locais', '#10b981');
+  mostrarStatus(nf > 0 ? `☁️ Nuvem: ${nf} meses` : '', '#10b981');
   setTimeout(() => mostrarStatus('', ''), 3000);
 }
 
@@ -1604,13 +1604,16 @@ async function fazerLogin() {
   await carregarDados();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+// O script está no fim do <body> — DOM já existe. Executa direto.
+(function iniciar() {
+  build();
+
   ['login-nome','login-setor'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
   });
 
-  // Usa localStorage para manter login entre sessões
+  // Login persistente via localStorage — não pede login de novo ao reabrir
   const nome = localStorage.getItem('dipr_usuario');
   if (nome) {
     document.getElementById('login-overlay').style.display = 'none';
@@ -1620,9 +1623,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
     carregarDados();
   }
-});
-
-build();
+})();
 </script>
 </body>
 </html>
