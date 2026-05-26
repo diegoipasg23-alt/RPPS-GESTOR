@@ -9,49 +9,30 @@
 <title>DIPR 2026 – Demonstrativo de Informações Previdenciárias e Repasses</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
-<!-- Firebase via compat (scripts normais, sem module, sem corrida assíncrona) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
-(function() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyBMdF8G5PxqL-FEOOk0ysATW7RS12TstXM",
-    authDomain: "dipr-3b828.firebaseapp.com",
-    projectId: "dipr-3b828",
-    storageBucket: "dipr-3b828.firebasestorage.app",
-    messagingSenderId: "280332089453",
-    appId: "1:280332089453:web:cd9cecd5bacd71f92c6764"
-  };
-  try {
-    const fbApp = firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    window.fbSalvar = async function(monthId, dados) {
-      try {
-        await db.collection('dipr_dados').doc(monthId).set(dados);
-        return true;
-      } catch(e) { console.error('Erro Firebase ao salvar:', e); return false; }
-    };
-
-    window.fbCarregar = async function(monthId) {
-      try {
-        const snap = await db.collection('dipr_dados').doc(monthId).get();
-        return snap.exists ? snap.data() : null;
-      } catch(e) { console.error('Erro Firebase ao carregar:', e); return null; }
-    };
-
-    window.fbRegistrarAcesso = async function(dados) {
-      try { await db.collection('acessos').add({ ...dados, timestamp: firebase.firestore.FieldValue.serverTimestamp() }); }
-      catch(e) { console.error('Erro Firebase acesso:', e); }
-    };
-
-    window.firebaseOk = true;
-    console.log('✅ Firebase inicializado com sucesso');
-  } catch(e) {
-    console.error('❌ Firebase falhou ao inicializar:', e);
-    window.firebaseOk = false;
-  }
-})();
+firebase.initializeApp({
+  apiKey: "AIzaSyBMdF8G5PxqL-FEOOk0ysATW7RS12TstXM",
+  authDomain: "dipr-3b828.firebaseapp.com",
+  projectId: "dipr-3b828",
+  storageBucket: "dipr-3b828.firebasestorage.app",
+  messagingSenderId: "280332089453",
+  appId: "1:280332089453:web:cd9cecd5bacd71f92c6764"
+});
+const db = firebase.firestore();
+window.fbSalvar = async (monthId, dados) => {
+  try { await db.collection('dipr_dados').doc(monthId).set(dados); return true; }
+  catch(e) { return false; }
+};
+window.fbCarregar = async (monthId) => {
+  try { const s = await db.collection('dipr_dados').doc(monthId).get(); return s.exists ? s.data() : null; }
+  catch(e) { return null; }
+};
+window.fbRegistrarAcesso = async (dados) => {
+  try { await db.collection('acessos').add({...dados, ts: firebase.firestore.FieldValue.serverTimestamp()}); }
+  catch(e) {}
+};
 </script>
 <style>
   :root {
@@ -519,14 +500,14 @@
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px">
-      <button id="btnSalvarManual" onclick="salvarManual()" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(34,197,94,0.4);letter-spacing:0.3px;">💾 Salvar</button>
+      <button id="btnSalvarManual" onclick="salvarManual()" style="background:#22c55e;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(34,197,94,0.4);">💾 Salvar</button>
       <div style="position:relative;display:inline-block" id="exportMenu">
         <button class="btn-save" onclick="toggleExportMenu()">⬇ Exportar ▾</button>
-      <div id="exportDropdown" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:190px;z-index:200;overflow:hidden;">
-        <button onclick="exportExcel()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📊 Exportar Excel (.xlsx)</button>
-        <button onclick="exportPDF()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📄 Exportar PDF</button>
+        <div id="exportDropdown" style="display:none;position:absolute;right:0;top:110%;background:white;border:1px solid #d1d5db;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);min-width:190px;z-index:200;overflow:hidden;">
+          <button onclick="exportExcel()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📊 Exportar Excel (.xlsx)</button>
+          <button onclick="exportPDF()" style="display:block;width:100%;padding:11px 18px;text-align:left;border:none;background:none;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:#1f2937;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='none'">📄 Exportar PDF</button>
+        </div>
       </div>
-    </div>
     </div>
   </div>
 </header>
@@ -610,17 +591,6 @@ const dadosIniciais = {
 // Estado atual dos dados (começa com os dados iniciais)
 const state = {};
 
-/* ── localStorage — definidas ANTES de initState para evitar undefined ── */
-function lsSalvar(monthId, dados) {
-  try { localStorage.setItem('dipr2026_' + monthId, JSON.stringify(dados)); } catch(e) {}
-}
-function lsCarregar(monthId) {
-  try {
-    const r = localStorage.getItem('dipr2026_' + monthId);
-    return r ? JSON.parse(r) : null;
-  } catch(e) { return null; }
-}
-
 function recalcularTodosBase(monthId) {
   ['folhaNormal', 'folha13'].forEach(section => {
     FONTES.forEach(fonte => {
@@ -637,33 +607,25 @@ function recalcularTodosBase(monthId) {
 
 function initState() {
   MESES.forEach(m => {
-    // PRIORIDADE 1: localStorage (dados que o usuário salvou)
-    const salvo = lsCarregar(m.id);
-    if (salvo) {
-      state[m.id] = salvo;
-      return;
-    }
-    // PRIORIDADE 2: dadosIniciais da planilha
     if (dadosIniciais[m.id]) {
       state[m.id] = JSON.parse(JSON.stringify(dadosIniciais[m.id]));
       recalcularTodosBase(m.id);
-      return;
+    } else {
+      state[m.id] = {
+        folhaNormal: {},
+        folha13: {},
+        aposentados: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decData: '' },
+        pensionistas: { normalBruto: '', normalBase: '', normalQtd: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decRetido: '', decData: '' },
+        unidadeGestora: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalPatronal: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decPatronal: '', decData: '' },
+        outrasReceitas: { aporte: '', aporteDt: '', compFin: '', compFinDt: '', cedidos: '', cedidosDt: '', rendAplic: '', rendAplicDt: '' },
+        despesas: { administrativas: '', restituicoes: '' },
+        parcelamentos: [{ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' }],
+      };
+      FONTES.forEach(f => {
+        state[m.id].folhaNormal[f] = { serv: '', dep: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+        state[m.id].folha13[f] = { quant: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
+      });
     }
-    // PRIORIDADE 3: estado vazio
-    state[m.id] = {
-      folhaNormal: {},
-      folha13: {},
-      aposentados: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decData: '' },
-      pensionistas: { normalBruto: '', normalBase: '', normalQtd: '', normalRetido: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decRetido: '', decData: '' },
-      unidadeGestora: { normalBruto: '', normalBase: '', normalQtd: '', normalDep: '', normalRetido: '', normalPatronal: '', normalData: '', decBruto: '', decBase: '', decQtd: '', decDep: '', decRetido: '', decPatronal: '', decData: '' },
-      outrasReceitas: { aporte: '', aporteDt: '', compFin: '', compFinDt: '', cedidos: '', cedidosDt: '', rendAplic: '', rendAplicDt: '' },
-      despesas: { administrativas: '', restituicoes: '' },
-      parcelamentos: [{ num: '', consolid: '', parcNum: '', parcVal: '', vencDt: '', pgDt: '' }],
-    };
-    FONTES.forEach(f => {
-      state[m.id].folhaNormal[f] = { serv: '', dep: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
-      state[m.id].folha13[f] = { quant: '', bruto: '', base: '', patronal: '', servidor: '', lei: '', venc: '', rePatronal: '', reServidor: '', reLei: '', pgto: '' };
-    });
   });
 }
 
@@ -684,11 +646,11 @@ function numInput(monthId, path, value, cls) {
   const isMoney = !cls || cls === 'num-input';
   const raw = (value !== '' && value !== null && value !== undefined) ? value : '';
   const display = isMoney && raw !== '' ? fmtBRL(raw) : raw;
-  return `<input type="text" class="cell-input ${cls || 'num-input'}" id="${id}" value="${display}" data-month="${monthId}" data-path="${path}" data-money="${isMoney}" oninput="updateState(this)" onchange="updateState(this)" onblur="formatCell(this)" onfocus="unformatCell(this)">`;
+  return `<input type="text" class="cell-input ${cls || 'num-input'}" id="${id}" value="${display}" data-month="${monthId}" data-path="${path}" data-money="${isMoney}" onchange="updateState(this)" onblur="formatCell(this)" onfocus="unformatCell(this)">`;
 }
 
 function dateInput(monthId, path, value) {
-  return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" oninput="updateState(this)" onchange="updateState(this)">`;
+  return `<input type="date" class="cell-input date-input" data-month="${monthId}" data-path="${path}" value="${value || ''}" onchange="updateState(this)">`;
 }
 
 function calcularPorBase(monthId, section, fonte) {
@@ -1455,6 +1417,7 @@ function exportPDF() {
 // BUILD UI
 function build() {
   initState();
+  activeMesId = MESES[0].id;
 
   const tabsContainer = document.getElementById('tabsContainer');
   const mainContent = document.getElementById('mainContent');
@@ -1476,51 +1439,36 @@ function build() {
 }
 
 
-/* ══════════════════════════════════════════════════
-   PERSISTÊNCIA DEFINITIVA
-   1) localStorage → salva/carrega INSTANTÂNEO, offline
-   2) Firebase → sincroniza na nuvem em paralelo
-   ══════════════════════════════════════════════════ */
+/* ── FIREBASE: SALVAR / CARREGAR / LOG ── */
 
-let saveTimer = null;
-let activeMesId = MESES[0].id;
-
-/* ── Re-renderiza TODOS os painéis com state atual ── */
-function reRenderizarTodos() {
-  MESES.forEach(m => {
-    const el = document.getElementById('panel_' + m.id);
-    if (!el) return;
-    const ativo = el.classList.contains('active');
-    const tmp = document.createElement('div');
-    tmp.innerHTML = renderMonthPanel(m.id);
-    const novo = tmp.firstElementChild;
-    if (ativo) novo.classList.add('active');
-    el.replaceWith(novo);
-    if (ativo) updateTotals(m.id);
-    // marca aba com ponto verde
-    const tab = document.getElementById('tab_' + m.id);
-    if (tab) tab.classList.toggle('has-data', lsCarregar(m.id) !== null);
-  });
+// ── localStorage helpers ──
+function lsSalvar(monthId, dados) {
+  try { localStorage.setItem('dipr2026_' + monthId, JSON.stringify(dados)); } catch(e) {}
+}
+function lsCarregar(monthId) {
+  try { const r = localStorage.getItem('dipr2026_' + monthId); return r ? JSON.parse(r) : null; }
+  catch(e) { return null; }
 }
 
-/* ── Salvar: localStorage imediato + Firebase com debounce ── */
+let saveTimer = null;
+let activeMesId = null;
+
+// Salva: localStorage IMEDIATO + Firebase com debounce
 function agendarSalvamento(monthId) {
-  // SEMPRE salva no localStorage imediatamente — nunca perde dado
   lsSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
-  mostrarStatus('💾 Salvo localmente', '#f59e0b');
   const tab = document.getElementById('tab_' + monthId);
   if (tab) tab.classList.add('has-data');
-
+  mostrarStatus('💾 Salvo', '#f59e0b');
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
     if (!window.fbSalvar) { mostrarStatus('', ''); return; }
     const ok = await window.fbSalvar(monthId, JSON.parse(JSON.stringify(state[monthId])));
     mostrarStatus(ok ? '✅ Salvo na nuvem' : '✅ Salvo localmente', ok ? '#10b981' : '#f59e0b');
     setTimeout(() => mostrarStatus('', ''), 3000);
-  }, 1500);
+  }, 2000);
 }
 
-/* ── Botão Salvar manual ── */
+// Botão salvar manual
 async function salvarManual() {
   if (!activeMesId) return;
   clearTimeout(saveTimer);
@@ -1534,25 +1482,51 @@ async function salvarManual() {
   setTimeout(() => mostrarStatus('', ''), 3000);
 }
 
-/* ── Carregar ao entrar: localStorage já foi no initState, aqui só sincroniza Firebase ── */
-async function carregarDados() {
-  // Marca abas que têm dados salvos
+// Carrega: localStorage PRIMEIRO (instantâneo), depois Firebase por cima
+async function carregarTudoDoFirebase() {
+  // PASSO 1 — localStorage: imediato, sem esperar nada
+  let nLocal = 0;
   MESES.forEach(m => {
-    const tab = document.getElementById('tab_' + m.id);
-    if (tab) tab.classList.toggle('has-data', lsCarregar(m.id) !== null);
+    const d = lsCarregar(m.id);
+    if (d) { state[m.id] = d; nLocal++; }
   });
+  if (nLocal > 0) {
+    // Re-renderiza painel ativo com dados do localStorage
+    const activePanel = document.querySelector('.month-panel.active');
+    if (activePanel) {
+      const mid = activePanel.id.replace('panel_', '');
+      const tmp = document.createElement('div');
+      tmp.innerHTML = renderMonthPanel(mid);
+      const novo = tmp.firstElementChild;
+      novo.classList.add('active');
+      activePanel.replaceWith(novo);
+      updateTotals(mid);
+    }
+    MESES.forEach(m => {
+      const tab = document.getElementById('tab_' + m.id);
+      if (tab && lsCarregar(m.id)) tab.classList.add('has-data');
+    });
+    mostrarStatus('📦 Dados carregados', '#10b981');
+    setTimeout(() => mostrarStatus('', ''), 2000);
+  }
 
-  // Sincroniza com Firebase em background
+  // PASSO 2 — Firebase: sincroniza em background
   if (!window.fbCarregar) return;
-  mostrarStatus('☁️ Sincronizando…', '#1a56db');
-  let nf = 0;
   for (const m of MESES) {
     const d = await window.fbCarregar(m.id);
-    if (d) { state[m.id] = d; lsSalvar(m.id, d); nf++; }
+    if (d) { state[m.id] = d; lsSalvar(m.id, d); }
   }
-  if (nf > 0) reRenderizarTodos();
-  mostrarStatus(nf > 0 ? `☁️ Nuvem: ${nf} meses` : '', '#10b981');
-  setTimeout(() => mostrarStatus('', ''), 3000);
+  // Re-renderiza painel ativo com dados da nuvem
+  const activePanel = document.querySelector('.month-panel.active');
+  if (activePanel) {
+    const mid = activePanel.id.replace('panel_', '');
+    const tmp = document.createElement('div');
+    tmp.innerHTML = renderMonthPanel(mid);
+    const novo = tmp.firstElementChild;
+    novo.classList.add('active');
+    activePanel.replaceWith(novo);
+    updateTotals(mid);
+  }
 }
 
 function mostrarStatus(msg, cor) {
@@ -1560,7 +1534,7 @@ function mostrarStatus(msg, cor) {
   if (!el) {
     el = document.createElement('div');
     el.id = 'save-status';
-    el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9998;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;font-family:IBM Plex Sans,sans-serif;transition:opacity 0.3s;background:white;box-shadow:0 2px 12px rgba(0,0,0,0.15)';
+    el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9998;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;font-family:IBM Plex Sans,sans-serif;transition:all 0.3s;background:white;box-shadow:0 2px 12px rgba(0,0,0,0.15)';
     document.body.appendChild(el);
   }
   el.textContent = msg;
@@ -1568,7 +1542,8 @@ function mostrarStatus(msg, cor) {
   el.style.opacity = msg ? '1' : '0';
 }
 
-/* ── LOGIN ── */
+/* ── CONTROLE DE ACESSO E LOG ── */
+
 async function fazerLogin() {
   const nome = document.getElementById('login-nome').value.trim();
   const setor = document.getElementById('login-setor').value.trim();
@@ -1583,37 +1558,50 @@ async function fazerLogin() {
   }
   errEl.style.display = 'none';
   btn.disabled = true;
-  btn.textContent = 'Entrando…';
+  btn.textContent = 'Registrando acesso…';
 
-  // Salva login em localStorage (persiste ao fechar o browser)
+  const hora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const resolucao = `${screen.width}x${screen.height}`;
+  const dispositivo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+  const navegador = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Outro';
+
+  let ip = 'N/D', cidade = 'N/D', pais = 'N/D';
+  try {
+    const geo = await fetch('https://ipapi.co/json/');
+    const g = await geo.json();
+    ip = g.ip || 'N/D';
+    cidade = g.city || 'N/D';
+    pais = g.country_name || 'N/D';
+  } catch(e) {}
+
+  // Registra no Firebase
+  if (window.fbRegistrarAcesso) {
+    window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
+  } else {
+    window.addEventListener('firebase-ready', () => {
+      window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, pais, resolucao, dispositivo, navegador });
+    }, { once: true });
+  }
+
   localStorage.setItem('dipr_usuario', nome);
   localStorage.setItem('dipr_setor', setor);
 
-  // Registra acesso no Firebase (sem bloquear)
-  const hora = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-  const dispositivo = /Mobile|Android|iPhone/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
-  const navegador = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)\/[\d.]+/)?.[0] || 'Outro';
-  let ip = 'N/D', cidade = 'N/D';
-  try { const g = await (await fetch('https://ipapi.co/json/')).json(); ip = g.ip||'N/D'; cidade = g.city||'N/D'; } catch(e) {}
-  if (window.fbRegistrarAcesso) window.fbRegistrarAcesso({ nome, setor, hora, ip, cidade, dispositivo, navegador });
-
   document.getElementById('login-overlay').style.display = 'none';
   document.getElementById('app-content').style.display = 'block';
+
   const sub = document.querySelector('.header-sub');
   if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
-  await carregarDados();
+
+  // Carrega dados do Firebase
+  await carregarTudoDoFirebase();
 }
 
-// O script está no fim do <body> — DOM já existe. Executa direto.
-(function iniciar() {
-  build();
-
+document.addEventListener('DOMContentLoaded', () => {
   ['login-nome','login-setor'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('keydown', e => { if (e.key === 'Enter') fazerLogin(); });
   });
 
-  // Login persistente via localStorage — não pede login de novo ao reabrir
   const nome = localStorage.getItem('dipr_usuario');
   if (nome) {
     document.getElementById('login-overlay').style.display = 'none';
@@ -1621,9 +1609,11 @@ async function fazerLogin() {
     const setor = localStorage.getItem('dipr_setor') || '';
     const sub = document.querySelector('.header-sub');
     if (sub) sub.textContent = `IPASG · ${nome}${setor ? ' — ' + setor : ''}`;
-    carregarDados();
+    carregarTudoDoFirebase();
   }
-})();
+});
+
+build();
 </script>
 </body>
 </html>
