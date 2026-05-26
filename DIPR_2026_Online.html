@@ -610,6 +610,17 @@ const dadosIniciais = {
 // Estado atual dos dados (começa com os dados iniciais)
 const state = {};
 
+/* ── localStorage — definidas ANTES de initState para evitar undefined ── */
+function lsSalvar(monthId, dados) {
+  try { localStorage.setItem('dipr2026_' + monthId, JSON.stringify(dados)); } catch(e) {}
+}
+function lsCarregar(monthId) {
+  try {
+    const r = localStorage.getItem('dipr2026_' + monthId);
+    return r ? JSON.parse(r) : null;
+  } catch(e) { return null; }
+}
+
 function recalcularTodosBase(monthId) {
   ['folhaNormal', 'folha13'].forEach(section => {
     FONTES.forEach(fonte => {
@@ -1473,17 +1484,6 @@ function build() {
 
 let saveTimer = null;
 let activeMesId = MESES[0].id;
-
-/* ── localStorage ── */
-function lsSalvar(monthId, dados) {
-  try { localStorage.setItem('dipr2026_' + monthId, JSON.stringify(dados)); } catch(e) {}
-}
-function lsCarregar(monthId) {
-  try {
-    const r = localStorage.getItem('dipr2026_' + monthId);
-    return r ? JSON.parse(r) : null;
-  } catch(e) { return null; }
-}
 
 /* ── Re-renderiza TODOS os painéis com state atual ── */
 function reRenderizarTodos() {
