@@ -11,12 +11,13 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:var(--fb);background:var(--white);background-image:radial-gradient(900px 480px at 100% -8%,rgba(201,168,76,0.06),transparent 60%),radial-gradient(760px 420px at -5% 0%,rgba(11,31,58,0.05),transparent 55%);background-attachment:fixed;color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 /* HEADER */
-.header{background:linear-gradient(120deg,#0B1F3A 0%,#132A4E 100%);padding:1.75rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);}
+.header{background:linear-gradient(120deg,#0B1F3A 0%,#15305A 100%);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);box-shadow:0 6px 24px rgba(11,31,58,0.18);}
 .brasao{width:56px;height:56px;background:radial-gradient(circle at 35% 30%,#E8C878,#C9A84C 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(201,168,76,0.32),inset 0 1px 0 rgba(255,255,255,0.4);}
-.brasao svg{width:30px;height:30px;stroke:var(--navy);}
+.brasao{width:64px;height:64px;background:radial-gradient(circle at 35% 30%,#E8C878,#C9A84C 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(201,168,76,0.32),inset 0 1px 0 rgba(255,255,255,0.4);}
+.brasao svg{width:34px;height:34px;stroke:var(--navy);}
 .htitle{margin-left:16px;}
-.htitle h1{font-family:var(--fd);font-size:19px;font-weight:700;color:#fff;}
-.htitle p{font-size:11px;color:var(--gold2);margin-top:3px;letter-spacing:.05em;text-transform:uppercase;}
+.htitle h1{font-family:var(--fd);font-size:23px;font-weight:700;color:#fff;letter-spacing:-0.01em;line-height:1.2;}
+.htitle p{font-size:11px;color:var(--gold2);margin-top:6px;letter-spacing:.05em;text-transform:uppercase;}
 .hright{text-align:right;}
 .hright .lbl{font-size:10px;color:var(--gold3);text-transform:uppercase;letter-spacing:.08em;}
 .hright .ano{font-family:var(--fd);font-size:32px;color:var(--gold);font-weight:700;line-height:1;margin-top:3px;}
@@ -50,8 +51,8 @@ body{font-family:var(--fb);background:var(--white);background-image:radial-gradi
 .card.n::before{background:var(--navy);}
 .card.r::before{background:var(--red);}
 .card.b::before{background:var(--blue);}
-.clbl{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:6px;}
-.cval{font-family:var(--fd);font-size:23px;font-weight:700;color:var(--navy);line-height:1;letter-spacing:-0.01em;}
+.clbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px;}
+.cval{font-family:var(--fd);font-size:28px;font-weight:700;color:var(--navy);line-height:1;letter-spacing:-0.015em;}
 .csub{font-size:11px;color:var(--text3);margin-top:4px;}
 .cbdg{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:3px 9px;border-radius:99px;margin-top:8px;}
 .bok{background:var(--green2);color:var(--green);}
@@ -68,7 +69,8 @@ table{width:100%;border-collapse:collapse;font-size:12.5px;}
 thead th{background:var(--navy);color:var(--gold2);font-weight:600;padding:11px 12px;text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;}
 thead th.r{text-align:right;}
 tbody tr{border-bottom:1px solid var(--border);}
-tbody tr:hover{background:#F5F7FB;}
+tbody tr:nth-child(even){background:rgba(11,31,58,0.025);}
+tbody tr:hover{background:#F0F4FB;}
 tbody td{padding:9px 12px;}
 tbody td.r{text-align:right;font-family:var(--fm);font-size:12px;}
 tbody td.bold{font-weight:600;color:var(--navy);}
@@ -183,7 +185,7 @@ tbody tr.row-anim{opacity:0;animation:rowFadeIn 0.35s ease forwards;}
       </svg>
     </div>
     <div class="htitle">
-      <h1>Relatório de Repasses Mensais — IPASG</h1>
+      <h1>Relatório de Repasses Mensais</h1>
       <p id="hdr-sub">IPASG — Instituto de Previdência · Município de Goiandira/GO</p>
     </div>
   </div>
