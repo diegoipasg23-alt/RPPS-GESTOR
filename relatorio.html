@@ -12,16 +12,15 @@
 body{font-family:var(--fb);background:var(--white);background-image:radial-gradient(900px 480px at 100% -8%,rgba(201,168,76,0.06),transparent 60%),radial-gradient(760px 420px at -5% 0%,rgba(11,31,58,0.05),transparent 55%);background-attachment:fixed;color:var(--text);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;}
 /* HEADER */
 .header{background:linear-gradient(120deg,#0B1F3A 0%,#15305A 100%);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold);box-shadow:0 6px 24px rgba(11,31,58,0.18);}
-.brasao{width:56px;height:56px;background:radial-gradient(circle at 35% 30%,#E8C878,#C9A84C 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(201,168,76,0.32),inset 0 1px 0 rgba(255,255,255,0.4);}
-.brasao{width:64px;height:64px;background:radial-gradient(circle at 35% 30%,#E8C878,#C9A84C 70%);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 18px rgba(201,168,76,0.32),inset 0 1px 0 rgba(255,255,255,0.4);}
-.brasao svg{width:34px;height:34px;stroke:var(--navy);}
-.htitle{margin-left:16px;}
+.brasao{width:60px;height:66px;display:flex;align-items:center;justify-content:center;flex-shrink:0;filter:drop-shadow(0 6px 16px rgba(201,168,76,0.42));}
+.brasao svg{width:60px;height:66px;}
+.htitle{margin-left:18px;}
 .htitle h1{font-family:var(--fd);font-size:23px;font-weight:700;color:#fff;letter-spacing:-0.01em;line-height:1.2;}
 .htitle p{font-size:11px;color:var(--gold2);margin-top:6px;letter-spacing:.05em;text-transform:uppercase;}
 .hright{text-align:right;}
 .hright .lbl{font-size:10px;color:var(--gold3);text-transform:uppercase;letter-spacing:.08em;}
 .hright .ano{font-family:var(--fd);font-size:32px;color:var(--gold);font-weight:700;line-height:1;margin-top:3px;}
-.pbtn{margin-top:8px;padding:6px 15px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:11px;font-weight:600;letter-spacing:.02em;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--fb);transition:all .18s ease;}
+.pbtn{padding:6px 14px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:11px;font-weight:600;letter-spacing:.02em;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--fb);transition:all .18s ease;}
 .pbtn:hover{background:var(--gold);color:var(--navy);box-shadow:0 4px 14px rgba(201,168,76,0.3);}
 .subhdr{background:var(--navy2);padding:.75rem 3rem;display:flex;flex-wrap:wrap;gap:1.5rem;border-bottom:1px solid rgba(201,168,76,.2);}
 .shi{font-size:11px;color:var(--gold3);}
@@ -171,6 +170,42 @@ tfoot td.r{text-align:right;font-family:var(--fm);}
 .alerta:nth-child(1){animation-delay:.05s}.alerta:nth-child(2){animation-delay:.15s}.alerta:nth-child(3){animation-delay:.25s}.alerta:nth-child(4){animation-delay:.35s}.alerta:nth-child(5){animation-delay:.45s}
 .bar-anim{width:0% !important;animation:barGrow 1.2s cubic-bezier(0.4,0,0.2,1) forwards;animation-delay:0.6s;}
 tbody tr.row-anim{opacity:0;animation:rowFadeIn 0.35s ease forwards;}
+/* PAINEL EXECUTIVO */
+.exec{display:grid;grid-template-columns:288px 1fr;gap:18px;margin-bottom:1.75rem;}
+.gauge-card{background:linear-gradient(150deg,#0B1F3A,#15305A);border:1px solid rgba(201,168,76,0.25);border-radius:var(--radius);padding:22px;color:#fff;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gauge-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.gauge-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--gold3);margin-bottom:4px;}
+.gwrap{position:relative;width:190px;height:190px;}
+.gwrap .gtext{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.gtext .pct{font-family:var(--fd);font-size:44px;font-weight:700;line-height:1;}
+.gtext .pctsub{font-size:11px;color:var(--gold3);margin-top:4px;}
+.gstatus{margin-top:12px;font-size:12px;font-weight:700;padding:6px 14px;border-radius:99px;letter-spacing:.03em;}
+.exec-r{display:grid;grid-template-rows:auto 1fr;gap:14px;}
+.crp-banner{display:flex;align-items:center;gap:15px;padding:16px 20px;border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid;}
+.crp-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.crp-banner h3{font-family:var(--fd);font-size:16px;font-weight:700;}
+.crp-banner p{font-size:12px;margin-top:3px;line-height:1.45;}
+.exec-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.estat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;position:relative;overflow:hidden;box-shadow:var(--shadow);}
+.estat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.estat.t::before{background:var(--navy);}.estat.g2::before{background:var(--green);}.estat.r2::before{background:var(--red);}
+.estat .k{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);}
+.estat .v{font-family:var(--fd);font-size:25px;font-weight:700;color:var(--navy);line-height:1;margin-top:9px;letter-spacing:-0.015em;}
+.estat .chip{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;margin-top:8px;}
+.exec-charts{display:grid;grid-template-columns:1.45fr 1fr;gap:18px;margin-bottom:1.75rem;}
+.legend-row{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:11.5px;color:var(--text2);}
+.legend-row span{display:inline-flex;align-items:center;gap:7px;}
+.legend-row .dot{width:10px;height:10px;border-radius:3px;}
+/* MODO APRESENTAÇÃO */
+body.apres .subhdr,body.apres .legenda{display:none;}
+body.apres .main{max-width:1400px;}
+body.apres .exec{grid-template-columns:340px 1fr;}
+body.apres .gwrap{width:230px;height:230px;}
+body.apres .gtext .pct{font-size:54px;}
+body.apres .estat .v{font-size:30px;}
+body.apres .stitle{font-size:22px;}
+body.apres .tabs-bar{position:static;}
+@media(max-width:880px){.exec{grid-template-columns:1fr;}.exec-charts{grid-template-columns:1fr;}.exec-stats{grid-template-columns:1fr;}}
 @media print{.pbtn,.tabs-bar,.legenda{display:none;}body{background:white;}.header,.subhdr,thead,tfoot{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.tab-panel{display:block!important;page-break-before:always;}.tab-panel:first-child{page-break-before:auto;}}
 </style>
 </head>
@@ -179,9 +214,13 @@ tbody tr.row-anim{opacity:0;animation:rowFadeIn 0.35s ease forwards;}
 <div class="header">
   <div style="display:flex;align-items:center">
     <div class="brasao">
-      <svg viewBox="0 0 36 36" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M18 4L6 9v9c0 8 5 14 12 16 7-2 12-8 12-16V9L18 4z"/>
-        <path d="M13 18l3 3 7-7"/>
+      <svg viewBox="0 0 128 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="shB" x1="20" y1="8" x2="108" y2="132" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#F5E4B0"/><stop offset="0.55" stop-color="#E8C878"/><stop offset="1" stop-color="#C9A84C"/></linearGradient></defs>
+        <path d="M64 7 L114 24 V64 C114 96 92 121 64 131 C36 121 14 96 14 64 V24 Z" fill="url(#shB)" stroke="#F5E4B0" stroke-width="2.5"/>
+        <path d="M64 16 L106 30 V64 C106 91 88 113 64 122 C40 113 22 91 22 64 V30 Z" fill="none" stroke="#0B1F3A" stroke-opacity="0.2" stroke-width="1.5"/>
+        <g fill="#0B1F3A"><rect x="40" y="44" width="48" height="7" rx="2"/><rect x="44" y="51" width="40" height="5" rx="1.5"/><rect x="49" y="58" width="30" height="38" rx="1.5"/><rect x="44" y="98" width="40" height="5" rx="1.5"/><rect x="39" y="103" width="50" height="8" rx="2.5"/></g>
+        <g stroke="#C9A84C" stroke-width="2" stroke-linecap="round" opacity="0.5"><line x1="57" y1="62" x2="57" y2="92"/><line x1="64" y1="62" x2="64" y2="92"/><line x1="71" y1="62" x2="71" y2="92"/></g>
+        <path d="M52 36 L64 28 L76 36" fill="none" stroke="#0B1F3A" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </div>
     <div class="htitle">
@@ -192,7 +231,11 @@ tbody tr.row-anim{opacity:0;animation:rowFadeIn 0.35s ease forwards;}
   <div class="hright">
     <div class="lbl">Exercício</div>
     <div class="ano">2026</div>
-    <button class="pbtn" onclick="window.print()">⎙ Imprimir / PDF</button>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap">
+      <button class="pbtn" onclick="toggleApresentacao()" id="btn-apres">▶ Apresentação</button>
+      <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
+      <button class="pbtn" onclick="window.print()">⎙ PDF</button>
+    </div>
   </div>
 </div>
 
@@ -338,6 +381,73 @@ function buildChartMes(key, mes) {
   chartsMap[key] = new Chart(ctx,{type:'bar',data:{labels:ORGAOS,datasets:[{data:vals,backgroundColor:['#0B1F3A','#C9A84C','#1A7A4A','#534AB7','#9B2020'],borderRadius:5}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)}}},scales:{x:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},y:{grid:{display:false}}}}});
 }
 
+function execTotais(dados){
+  const meses=Object.values(dados.meses||{});
+  let TG=0,TP=0,TD=0,SV=0,SA=0,SR=0;const porOrgao={};ORGAOS.forEach(o=>porOrgao[o]=0);
+  const labels=[],dV=[],dA=[],dR=[];
+  meses.sort((a,b)=>a.competencia.localeCompare(b.competencia));
+  for(const m of meses){const t=calcTotais(m);TG+=(+m.total||0);TP+=t.pago;TD+=t.debito;
+    let v=0,a=0,r=0;for(const o of ORGAOS)for(const tp of TIPOS){const g=m.orgaos?.[o]?.[tp];if(!g)continue;const val=+g.valor||0;if(g.status==='verde')v+=val;else if(g.status==='azul')a+=val;else r+=val;porOrgao[o]+=val;}
+    SV+=v;SA+=a;SR+=r;labels.push(m.competencia.split('/')[0]);dV.push(v);dA.push(a);dR.push(r);}
+  const pct=TG>0?(TP/TG*100):0;
+  return {TG,TP,TD,SV,SA,SR,porOrgao,labels,dV,dA,dR,pct,n:meses.length};
+}
+
+function buildExecPanel(dados){
+  const x=execTotais(dados);
+  const brlMi=v=>'R$ '+(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' mi';
+  return `
+    <div class="stitle"><span class="slbl">painel executivo</span>Visão Geral · Exercício 2026</div>
+    <div class="exec">
+      <div class="gauge-card">
+        <div class="gauge-lbl">Índice de Adimplência</div>
+        <div class="gwrap">
+          <svg width="190" height="190" viewBox="0 0 200 200" style="transform:rotate(-90deg)">
+            <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="16"/>
+            <circle id="exec-gauge" cx="100" cy="100" r="82" fill="none" stroke="#E8C878" stroke-width="16" stroke-linecap="round" stroke-dasharray="515" stroke-dashoffset="515"/>
+          </svg>
+          <div class="gtext"><div class="pct" id="exec-pct">0%</div><div class="pctsub">repasses quitados</div></div>
+        </div>
+        <div class="gstatus" id="exec-status">—</div>
+      </div>
+      <div class="exec-r">
+        <div class="crp-banner" id="exec-crp"><div class="crp-icon" id="exec-crp-ico"></div><div><h3 id="exec-crp-t">Situação do CRP</h3><p id="exec-crp-x"></p></div></div>
+        <div class="exec-stats">
+          <div class="estat t"><div class="k">Total devido (acum.)</div><div class="v">${brlMi(x.TG)}</div><div class="chip" style="background:#E6F1FB;color:#0C447C">${x.n} competências</div></div>
+          <div class="estat g2"><div class="k">Repassado</div><div class="v">${brlMi(x.TP)}</div><div class="chip sb-green">${(x.TP/x.TG*100).toFixed(1).replace('.',',')}% do total</div></div>
+          <div class="estat r2"><div class="k">Em débito</div><div class="v">${brlMi(x.TD)}</div><div class="chip sb-red">${(x.TD/x.TG*100).toFixed(1).replace('.',',')}% do total</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="exec-charts">
+      <div class="box" style="margin-bottom:0"><div class="btitle">Status por competência <span>no prazo · com acréscimos · em débito</span></div><canvas id="exec-stack" height="150"></canvas>
+        <div class="legend-row"><span><span class="dot" style="background:#1A7A4A"></span>No prazo</span><span><span class="dot" style="background:#1A5CA8"></span>Com acréscimos</span><span><span class="dot" style="background:#9B2020"></span>Em débito</span></div>
+      </div>
+      <div class="box" style="margin-bottom:0"><div class="btitle">Composição por órgão <span>acumulado</span></div><canvas id="exec-donut" height="150"></canvas></div>
+    </div>`;
+}
+
+function buildExecVisual(dados){
+  const x=execTotais(dados);
+  // gauge
+  const g=document.getElementById('exec-gauge');
+  if(g){const C=515,off=C*(1-x.pct/100);g.style.stroke=x.pct>=90?'#34D399':x.pct>=60?'#E8C878':'#F2B8B8';setTimeout(()=>{g.style.transition='stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1)';g.style.strokeDashoffset=off;},120);}
+  const pe=document.getElementById('exec-pct');
+  if(pe){const t0=performance.now();(function u(t){const p=Math.min((t-t0)/1400,1),e=1-Math.pow(1-p,3);pe.textContent=(x.pct*e).toFixed(1).replace('.',',')+'%';if(p<1)requestAnimationFrame(u);})(performance.now());}
+  const gs=document.getElementById('exec-status');
+  if(gs){if(x.pct>=90){gs.textContent='ADIMPLENTE';gs.style.background='rgba(52,211,153,.22)';gs.style.color='#6EE7B7';}else if(x.pct>=60){gs.textContent='ATENÇÃO';gs.style.background='rgba(232,200,120,.2)';gs.style.color='#F5E4B0';}else{gs.textContent='SITUAÇÃO CRÍTICA';gs.style.background='rgba(239,68,68,.22)';gs.style.color='#FCA5A5';}}
+  // crp banner
+  const cb=document.getElementById('exec-crp'),ci=document.getElementById('exec-crp-ico'),ct=document.getElementById('exec-crp-t'),cx=document.getElementById('exec-crp-x');
+  if(cb){if(x.TD>0){cb.style.background='var(--red-l)';cb.style.borderColor='rgba(155,32,32,.3)';ci.style.background='#FBD5D5';ci.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9B2020" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';ct.style.color='#7F1D1D';ct.textContent='CRP em risco de suspensão';cx.style.color='#991B1B';cx.innerHTML='Débito acumulado de <strong>'+fmt(x.TD)+'</strong> compromete o Certificado de Regularidade Previdenciária (Lei 9.717/98, art. 7º). Recomenda-se regularização ou parcelamento imediato.';}else{cb.style.background='var(--green-l)';cb.style.borderColor='rgba(26,122,74,.3)';ci.style.background='#BBF7D0';ci.innerHTML='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>';ct.style.color='#14532D';ct.textContent='CRP regular';cx.style.color='#166534';cx.textContent='Repasses em conformidade com a Lei 9.717/98.';}}
+  // charts
+  if(chartsMap.execStack)chartsMap.execStack.destroy();
+  if(chartsMap.execDonut)chartsMap.execDonut.destroy();
+  const cs=document.getElementById('exec-stack');
+  if(cs)chartsMap.execStack=new Chart(cs,{type:'bar',data:{labels:x.labels,datasets:[{label:'No prazo',data:x.dV,backgroundColor:'#1A7A4A',borderRadius:4,stack:'s'},{label:'Com acréscimos',data:x.dA,backgroundColor:'#1A5CA8',borderRadius:4,stack:'s'},{label:'Em débito',data:x.dR,backgroundColor:'#9B2020',borderRadius:4,stack:'s'}]},options:{plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{x:{grid:{display:false}},y:{ticks:{callback:v=>'R$ '+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+  const cd=document.getElementById('exec-donut');
+  if(cd)chartsMap.execDonut=new Chart(cd,{type:'doughnut',data:{labels:ORGAOS,datasets:[{data:ORGAOS.map(o=>x.porOrgao[o]),backgroundColor:['#0B1F3A','#C9A84C','#1A7A4A','#1A5CA8','#9B2020'],borderWidth:2,borderColor:'#fff'}]},options:{cutout:'60%',plugins:{legend:{position:'right',labels:{boxWidth:11,font:{size:11.5},padding:11}},tooltip:{callbacks:{label:c=>c.label+': '+fmt(c.raw)}}}}});
+}
+
 function buildGeral(dados) {
   const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
   const cfg = dados.config||{};
@@ -391,6 +501,7 @@ function buildGeral(dados) {
 
   return `
   <div class="main">
+    ${buildExecPanel(dados)}
     <!-- RESUMO EXECUTIVO -->
     <div class="resumo-exec">
       <h3>
@@ -584,7 +695,8 @@ function renderTudo(dados) {
     container.appendChild(panel);
   }
 
-  document.getElementById('loading-geral').style.display='none';
+  { const lg=document.getElementById('loading-geral'); if(lg) lg.style.display='none'; }
+  buildExecVisual(dados);
   animateTabContent('geral');
   Chart.defaults.font.family='DM Sans';Chart.defaults.color='#4A5D78';
 }
@@ -623,6 +735,27 @@ window.toggleAlerta = function(el,e){
   el.classList.remove('rippling');void el.offsetWidth;el.classList.add('rippling');
   setTimeout(()=>el.classList.remove('rippling'),600);
 };
+
+window.toggleApresentacao = function(){
+  document.body.classList.toggle('apres');
+  const on=document.body.classList.contains('apres');
+  const b=document.getElementById('btn-apres');
+  if(b)b.textContent=on?'✕ Sair':'▶ Apresentação';
+  if(on&&document.documentElement.requestFullscreen){document.documentElement.requestFullscreen().catch(()=>{});}
+  else if(!on&&document.fullscreenElement&&document.exitFullscreen){document.exitFullscreen().catch(()=>{});}
+};
+
+window.exportarCSV = function(){
+  const d=window._dadosFirebase; if(!d){alert('Dados ainda não carregados.');return;}
+  const meses=Object.values(d.meses||{}).sort((a,b)=>a.competencia.localeCompare(b.competencia));
+  let csv='Competência;Órgão;Tipo;Valor;Vencimento;Data Pgto;Status\n';
+  const STN={verde:'No prazo',azul:'Com acréscimos',debito:'Em débito'};
+  for(const m of meses)for(const o of ORGAOS)for(const tp of TIPOS){const g=m.orgaos?.[o]?.[tp];if(!g)continue;
+    csv+=`${m.competencia};${o};${tp.charAt(0).toUpperCase()+tp.slice(1)};${(+g.valor||0).toFixed(2).replace('.',',')};${m.prazo||''};${g.data_pgto||''};${STN[g.status]||g.status}\n`;}
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='repasses-ipasg-2026.csv';a.click();URL.revokeObjectURL(a.href);
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('apres'))window.toggleApresentacao();});
 
 function animateCount(el,target,isR){
   const dur=1200,start=performance.now();
