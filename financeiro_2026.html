@@ -232,7 +232,7 @@
   </div>
 </div>
 
-<div class="footer">DIEGO CAMARGO · FINANÇAS 2026</div>
+<div class="footer">DIEGO CAMARGO · FINANÇAS 2026 &nbsp;·&nbsp; <span onclick="resetData()" style="cursor:pointer;color:#3a4060;text-decoration:underline;">resetar dados</span></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -283,6 +283,30 @@ var D = {
 };
 
 var NX = {jun:{rec:200,desp:200},jul:{rec:200,desp:200}};
+
+var STORAGE_KEY = 'financeiro2026_v1';
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({D:D,NX:NX})); } catch(e) {}
+}
+function loadData() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    var s = JSON.parse(raw);
+    if (s && s.D) {
+      if (s.D.jun && s.D.jun.rec)  D.jun.rec  = s.D.jun.rec;
+      if (s.D.jun && s.D.jun.desp) D.jun.desp = s.D.jun.desp;
+      if (s.D.jul && s.D.jul.rec)  D.jul.rec  = s.D.jul.rec;
+      if (s.D.jul && s.D.jul.desp) D.jul.desp = s.D.jul.desp;
+    }
+    if (s && s.NX) NX = s.NX;
+  } catch(e) {}
+}
+function resetData() {
+  if (!confirm('Apagar todos os lançamentos extras e voltar aos dados originais?')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
 
 function f(v) {
   return 'R$ ' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -450,6 +474,7 @@ function addEntry(m, tp) {
   if (isNaN(val) || val <= 0) { showToast('Informe um valor válido.','r'); valEl.focus(); return; }
   D[m][tp].push({id: NX[m][tp]++, n: name, v: val});
   descEl.value = ''; valEl.value = '';
+  saveData();
   renderAll();
   showToast((tp==='rec'?'✅ Receita':'✅ Despesa') + ' lançada: ' + name, tp==='rec'?'g':'r');
 }
@@ -460,6 +485,7 @@ function delEntry(m, tp, id) {
     if (arr[i].id === id) {
       var name = arr[i].n;
       arr.splice(i,1);
+      saveData();
       renderAll();
       showToast('🗑 Removido: ' + name, 'r');
       return;
@@ -502,6 +528,7 @@ document.addEventListener('keydown', function(e) {
   }
 });
 
+loadData();
 renderAll();
 </script>
 </body>
