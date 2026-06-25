@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanças Pessoais 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+  :root {
+    --bg:#0d0f14;--surface:#161a22;--surface2:#1e2330;--border:#2a3040;
+    --text:#e8eaf0;--muted:#7a8299;
+    --green:#2dce7a;--green-dim:rgba(45,206,122,.12);
+    --red:#ff5c5c;--red-dim:rgba(255,92,92,.12);
+    --blue:#4f8ef7;--yellow:#f7c94f;--accent:#6c63ff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;padding:24px 16px 80px;}
+  h1,h3,.num{font-family:'Space Grotesk',sans-serif;}
+  .header{text-align:center;margin-bottom:32px;}
+  .header .eyebrow{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:8px;}
+  .header h1{font-size:clamp(22px,5vw,34px);font-weight:700;}
+  .header p{color:var(--muted);font-size:13px;margin-top:6px;}
+  .tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;}
+  .tab{padding:9px 22px;border-radius:99px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .tab:hover:not(.active){border-color:var(--accent);color:var(--text);}
+  .month{display:none;}.month.active{display:block;}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px;}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .card.green::before{background:var(--green);}
+  .card.red::before{background:var(--red);}
+  .card.blue::before{background:var(--blue);}
+  .card.pos::before{background:var(--green);}
+  .card.neg::before{background:var(--red);}
+  .card .label{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .card .num{font-size:clamp(18px,3.5vw,24px);font-weight:700;}
+  .card.green .num{color:var(--green);}
+  .card.red .num{color:var(--red);}
+  .card.blue .num{color:var(--blue);}
+  .card.pos .num{color:var(--green);}
+  .card.neg .num{color:var(--red);}
+  .card .sub{font-size:11px;color:var(--muted);margin-top:5px;}
+  .badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:600;margin-top:7px;}
+  .badge.pos{background:rgba(45,206,122,.12);color:var(--green);}
+  .badge.neg{background:rgba(255,92,92,.12);color:var(--red);}
+  .two-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+  @media(max-width:600px){.two-cols{grid-template-columns:1fr;}}
+  .section-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;}
+  .section-box h3{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .item-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+  .item-row:last-child{border-bottom:none;}
+  .item-row .iname{color:var(--text);}
+  .vg{color:var(--green);font-weight:600;font-family:'Space Grotesk',sans-serif;}
+  .vr{color:var(--red);font-weight:600;font-family:'Space Grotesk',sans-serif;}
+  .vb{color:var(--blue);font-weight:600;font-family:'Space Grotesk',sans-serif;}
+  .item-row.trow{margin-top:4px;padding-top:10px;border-top:1.5px solid var(--border);border-bottom:none;font-weight:700;}
+  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:2px 6px;border-radius:4px;transition:color .15s;line-height:1;}
+  .del-btn:hover{color:var(--red);}
+  .carry-box{background:var(--surface2);border:1px dashed var(--border);border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:10px;margin-bottom:18px;font-size:13px;color:var(--muted);}
+  .prog-wrap{margin-top:16px;}
+  .prog-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px;}
+  .prog-bar{height:7px;background:var(--surface2);border-radius:99px;overflow:hidden;}
+  .prog-fill{height:100%;border-radius:99px;transition:width .6s ease;}
+  .pf-red{background:var(--red);}.pf-green{background:var(--green);}.pf-yellow{background:var(--yellow);}
+  /* LAUNCH */
+  .launch-section{margin-bottom:20px;}
+  .launch-toggle{display:flex;gap:8px;margin-bottom:12px;}
+  .lt-btn{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+  .lt-btn.arec.active{background:rgba(45,206,122,.12);border-color:var(--green);color:var(--green);}
+  .lt-btn.adesp.active{background:rgba(255,92,92,.12);border-color:var(--red);color:var(--red);}
+  .lt-btn:hover:not(.active){border-color:var(--accent);color:var(--text);}
+  .launch-form{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;display:none;}
+  .launch-form.open{display:block;}
+  .frow{display:flex;flex-direction:column;gap:10px;}
+  .frow-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .flabel{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .finput{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;}
+  .finput:focus{border-color:var(--accent);}
+  .add-btn{width:100%;padding:12px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s;letter-spacing:.5px;}
+  .add-btn:hover{opacity:.85;}
+  .add-btn.arec{background:var(--green);color:#0d0f14;}
+  .add-btn.adesp{background:var(--red);color:#fff;}
+  /* RESUMO */
+  .yearly{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;margin-top:20px;}
+  .yearly h3{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
+  .ygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;}
+  .yitem{text-align:center;}
+  .yitem .ylabel{font-size:11px;color:var(--muted);margin-bottom:5px;}
+  .yitem .yval{font-size:18px;font-family:'Space Grotesk',sans-serif;font-weight:700;}
+  /* TOAST */
+  .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 20px;font-size:13px;font-family:'Space Grotesk',sans-serif;color:var(--text);box-shadow:0 8px 24px rgba(0,0,0,.4);transition:transform .3s,opacity .3s;opacity:0;z-index:999;pointer-events:none;}
+  .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+  .toast.tg{border-color:var(--green);color:var(--green);}
+  .toast.tr{border-color:var(--red);color:var(--red);}
+  .footer{text-align:center;margin-top:40px;font-size:11px;color:var(--border);letter-spacing:1px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="eyebrow">Controle Financeiro</div>
+  <h1>Finanças Pessoais 2026</h1>
+  <p>Diego Camargo · Junho &amp; Julho/2026</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchMonth('jun',this)">Junho</button>
+  <button class="tab" onclick="switchMonth('jul',this)">Julho</button>
+  <button class="tab" onclick="switchMonth('resumo',this)">Resumo</button>
+</div>
+
+<!-- JUNHO -->
+<div class="month active" id="month-jun">
+  <div class="summary-grid">
+    <div class="card green"><div class="label">Receitas</div><div class="num" id="c-jun-rec">—</div><div class="sub" id="s-jun-rec">—</div></div>
+    <div class="card red"><div class="label">Despesas</div><div class="num" id="c-jun-desp">—</div><div class="sub" id="s-jun-desp">—</div></div>
+    <div class="card" id="c-jun-sal-card"><div class="label">Saldo</div><div class="num" id="c-jun-sal">—</div><span class="badge" id="b-jun"></span></div>
+  </div>
+  <div class="launch-section">
+    <div class="launch-toggle">
+      <button class="lt-btn arec" id="tb-jun-rec" onclick="toggleForm('jun','rec')">＋ Receita</button>
+      <button class="lt-btn adesp" id="tb-jun-desp" onclick="toggleForm('jun','desp')">＋ Despesa</button>
+    </div>
+    <div class="launch-form" id="f-jun-rec">
+      <div class="frow">
+        <div class="frow-inputs">
+          <div><label class="flabel">Descrição</label><input class="finput" id="d-jun-rec" placeholder="Ex: Freelance" /></div>
+          <div><label class="flabel">Valor (R$)</label><input class="finput" id="v-jun-rec" type="number" placeholder="0.00" min="0" step="0.01" /></div>
+        </div>
+        <button class="add-btn arec" onclick="addEntry('jun','rec')">＋ Confirmar Receita</button>
+      </div>
+    </div>
+    <div class="launch-form" id="f-jun-desp">
+      <div class="frow">
+        <div class="frow-inputs">
+          <div><label class="flabel">Descrição</label><input class="finput" id="d-jun-desp" placeholder="Ex: Mercado" /></div>
+          <div><label class="flabel">Valor (R$)</label><input class="finput" id="v-jun-desp" type="number" placeholder="0.00" min="0" step="0.01" /></div>
+        </div>
+        <button class="add-btn adesp" onclick="addEntry('jun','desp')">＋ Confirmar Despesa</button>
+      </div>
+    </div>
+  </div>
+  <div class="two-cols">
+    <div class="section-box"><h3>Receitas</h3><div id="l-jun-rec"></div></div>
+    <div class="section-box"><h3>Despesas</h3><div id="l-jun-desp"></div></div>
+  </div>
+  <div class="section-box">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>Comprometimento das receitas</span><span id="p-jun-pct">—</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="p-jun-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- JULHO -->
+<div class="month" id="month-jul">
+  <div class="carry-box" id="jul-carry">
+    <span>↩</span><span id="jul-carry-txt">—</span>
+  </div>
+  <div class="summary-grid">
+    <div class="card green"><div class="label">Receitas Brutas</div><div class="num" id="c-jul-rec">—</div><div class="sub" id="s-jul-rec">—</div></div>
+    <div class="card blue"><div class="label">Receita Líquida</div><div class="num" id="c-jul-liq">—</div><div class="sub">Após saldo de junho</div></div>
+    <div class="card red"><div class="label">Despesas</div><div class="num" id="c-jul-desp">—</div><div class="sub" id="s-jul-desp">—</div></div>
+    <div class="card" id="c-jul-sal-card"><div class="label">Saldo Final</div><div class="num" id="c-jul-sal">—</div><span class="badge" id="b-jul"></span></div>
+  </div>
+  <div class="launch-section">
+    <div class="launch-toggle">
+      <button class="lt-btn arec" id="tb-jul-rec" onclick="toggleForm('jul','rec')">＋ Receita</button>
+      <button class="lt-btn adesp" id="tb-jul-desp" onclick="toggleForm('jul','desp')">＋ Despesa</button>
+    </div>
+    <div class="launch-form" id="f-jul-rec">
+      <div class="frow">
+        <div class="frow-inputs">
+          <div><label class="flabel">Descrição</label><input class="finput" id="d-jul-rec" placeholder="Ex: Freelance" /></div>
+          <div><label class="flabel">Valor (R$)</label><input class="finput" id="v-jul-rec" type="number" placeholder="0.00" min="0" step="0.01" /></div>
+        </div>
+        <button class="add-btn arec" onclick="addEntry('jul','rec')">＋ Confirmar Receita</button>
+      </div>
+    </div>
+    <div class="launch-form" id="f-jul-desp">
+      <div class="frow">
+        <div class="frow-inputs">
+          <div><label class="flabel">Descrição</label><input class="finput" id="d-jul-desp" placeholder="Ex: Mercado" /></div>
+          <div><label class="flabel">Valor (R$)</label><input class="finput" id="v-jul-desp" type="number" placeholder="0.00" min="0" step="0.01" /></div>
+        </div>
+        <button class="add-btn adesp" onclick="addEntry('jul','desp')">＋ Confirmar Despesa</button>
+      </div>
+    </div>
+  </div>
+  <div class="two-cols">
+    <div class="section-box"><h3>Receitas</h3><div id="l-jul-rec"></div></div>
+    <div class="section-box"><h3>Despesas</h3><div id="l-jul-desp"></div></div>
+  </div>
+  <div class="section-box">
+    <div class="prog-wrap">
+      <div class="prog-label"><span>Comprometimento da receita líquida</span><span id="p-jul-pct">—</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="p-jul-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- RESUMO -->
+<div class="month" id="month-resumo">
+  <div class="summary-grid">
+    <div class="card green"><div class="label">Total Recebido</div><div class="num" id="r-rec">—</div><div class="sub">Jun + Jul</div></div>
+    <div class="card red"><div class="label">Total Gasto</div><div class="num" id="r-desp">—</div><div class="sub">Jun + Jul</div></div>
+    <div class="card" id="r-sal-card"><div class="label">Saldo Acumulado</div><div class="num" id="r-sal">—</div><span class="badge" id="r-badge"></span></div>
+  </div>
+  <div class="yearly">
+    <h3>Comparativo Mensal</h3>
+    <div class="ygrid">
+      <div class="yitem"><div class="ylabel">Receita Jun</div><div class="yval" id="y-rj" style="color:var(--green)">—</div></div>
+      <div class="yitem"><div class="ylabel">Despesa Jun</div><div class="yval" id="y-dj" style="color:var(--red)">—</div></div>
+      <div class="yitem"><div class="ylabel">Saldo Jun</div><div class="yval" id="y-sj">—</div></div>
+      <div class="yitem"><div class="ylabel">Receita Jul</div><div class="yval" id="y-ru" style="color:var(--green)">—</div></div>
+      <div class="yitem"><div class="ylabel">Despesa Jul</div><div class="yval" id="y-du" style="color:var(--yellow)">—</div></div>
+      <div class="yitem"><div class="ylabel">Saldo Jul</div><div class="yval" id="y-su">—</div></div>
+    </div>
+    <div class="prog-wrap" style="margin-top:20px">
+      <div class="prog-label"><span>Junho</span><span id="r-jpct">—</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="r-jfill" style="width:0%"></div></div>
+    </div>
+    <div class="prog-wrap" style="margin-top:10px">
+      <div class="prog-label"><span>Julho</span><span id="r-upct">—</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="r-ufill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="section-box" style="margin-top:18px">
+    <h3>Análise</h3>
+    <div id="r-analise"></div>
+  </div>
+</div>
+
+<div class="footer">DIEGO CAMARGO · FINANÇAS 2026</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var D = {
+  jun: {
+    rec: [
+      {id:1,  n:'Prefeitura',  v:3148.07},
+      {id:2,  n:'IPASG',       v:4000.91},
+      {id:3,  n:'Escritório',  v:790.00},
+      {id:4,  n:'Extra',       v:1465.00},
+      {id:5,  n:'Sky',         v:360.00},
+      {id:6,  n:'Vitória',     v:4661.00}
+    ],
+    desp: [
+      {id:1,  n:'Nubank',       v:1834.58},
+      {id:2,  n:'BB',           v:5530.72},
+      {id:3,  n:'Santander',    v:3347.52},
+      {id:4,  n:'Digio',        v:1317.26},
+      {id:5,  n:'RecargaPay',   v:1451.64},
+      {id:6,  n:'Mercado Pago', v:1824.63},
+      {id:7,  n:'Americanas',   v:687.51}
+    ]
+  },
+  jul: {
+    rec: [
+      {id:1,  n:'Prefeitura',  v:2009.00},
+      {id:2,  n:'IPASG',       v:2431.50},
+      {id:3,  n:'Escritório',  v:790.00},
+      {id:4,  n:'Extra',       v:5465.00},
+      {id:5,  n:'Vitória',     v:3591.50}
+    ],
+    desp: [
+      {id:1,  n:'Nubank',       v:1379.49},
+      {id:2,  n:'BB',           v:2181.80},
+      {id:3,  n:'Santander',    v:1737.52},
+      {id:4,  n:'Digio',        v:245.00},
+      {id:5,  n:'Mercado Pago', v:1303.72},
+      {id:6,  n:'Americanas',   v:687.51},
+      {id:7,  n:'Seguro Carro', v:245.00},
+      {id:8,  n:'FIES',         v:180.00},
+      {id:9,  n:'Internet',     v:100.00},
+      {id:10, n:'Telefone',     v:50.00},
+      {id:11, n:'Spotify',      v:40.00},
+      {id:12, n:'Energia',      v:100.00},
+      {id:13, n:'Água',         v:65.00}
+    ]
+  }
+};
+
+var NX = {jun:{rec:200,desp:200},jul:{rec:200,desp:200}};
+
+function f(v) {
+  return 'R$ ' + Math.abs(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function total(arr) {
+  var s = 0;
+  for (var i=0;i<arr.length;i++) s += arr[i].v;
+  return s;
+}
+function sgn(v, pos, neg) { return v >= 0 ? pos : neg; }
+function setEl(id, txt) { document.getElementById(id).textContent = txt; }
+function setH(id, html) { document.getElementById(id).innerHTML = html; }
+
+function showToast(msg, tipo) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (tipo === 'r' ? 'tr' : 'tg') + ' show';
+  setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+function renderList(m, tp) {
+  var arr = D[m][tp];
+  var isRec = tp === 'rec';
+  var cls = isRec ? 'vg' : 'vr';
+  var html = '';
+  for (var i=0;i<arr.length;i++) {
+    var item = arr[i];
+    html += '<div class="item-row">'
+          + '<span class="iname">' + item.n + '</span>'
+          + '<span style="display:flex;align-items:center;gap:8px;">'
+          + '<span class="' + cls + '">' + f(item.v) + '</span>'
+          + '<button class="del-btn" onclick="delEntry(\'' + m + '\',\'' + tp + '\',' + item.id + ')">✕</button>'
+          + '</span></div>';
+  }
+  var tot = total(arr);
+  html += '<div class="item-row trow"><span class="iname">TOTAL</span><span class="' + cls + '">' + f(tot) + '</span></div>';
+  setH('l-' + m + '-' + tp, html);
+}
+
+function renderCards(m) {
+  var rec  = total(D[m].rec);
+  var desp = total(D[m].desp);
+
+  if (m === 'jun') {
+    var sal = rec - desp;
+    setEl('c-jun-rec', f(rec));
+    setEl('s-jun-rec', D.jun.rec.length + ' fontes');
+    setEl('c-jun-desp', f(desp));
+    setEl('s-jun-desp', D.jun.desp.length + ' itens');
+    setEl('c-jun-sal', (sal < 0 ? '- ' : '') + f(sal));
+    document.getElementById('c-jun-sal-card').className = 'card ' + sgn(sal,'pos','neg');
+    var bj = document.getElementById('b-jun');
+    bj.className = 'badge ' + sgn(sal,'pos','neg');
+    bj.textContent = sgn(sal, '▲ Superávit', '▼ Déficit');
+    var pct = rec > 0 ? (desp / rec * 100) : 0;
+    setEl('p-jun-pct', pct.toFixed(1) + '%');
+    var fill = document.getElementById('p-jun-fill');
+    fill.style.width = Math.min(pct, 100) + '%';
+    fill.className = 'prog-fill ' + (pct > 100 ? 'pf-red' : pct > 80 ? 'pf-yellow' : 'pf-green');
+  }
+
+  if (m === 'jul') {
+    var jSal = total(D.jun.rec) - total(D.jun.desp);
+    var liq  = rec + jSal;
+    var sal  = liq - desp;
+    setEl('c-jul-rec', f(rec));
+    setEl('s-jul-rec', D.jul.rec.length + ' fontes');
+    setEl('c-jul-liq', (liq < 0 ? '- ' : '') + f(liq));
+    setEl('c-jul-desp', f(desp));
+    setEl('s-jul-desp', D.jul.desp.length + ' itens');
+    setEl('c-jul-sal', (sal < 0 ? '- ' : '') + f(sal));
+    document.getElementById('c-jul-sal-card').className = 'card ' + sgn(sal,'pos','neg');
+    var bu = document.getElementById('b-jul');
+    bu.className = 'badge ' + sgn(sal,'pos','neg');
+    bu.textContent = sgn(sal, '▲ Superávit', '▼ Déficit');
+    // carry
+    var ct = document.getElementById('jul-carry-txt');
+    if (jSal < 0) {
+      ct.innerHTML = 'Déficit arrastado de junho: <strong style="color:var(--red)">- ' + f(jSal) + '</strong> deduzido das receitas.';
+    } else {
+      ct.innerHTML = 'Superávit de junho: <strong style="color:var(--green)">+ ' + f(jSal) + '</strong> somado às receitas.';
+    }
+    var pct = liq > 0 ? (desp / liq * 100) : 0;
+    setEl('p-jul-pct', pct.toFixed(1) + '%');
+    var fill = document.getElementById('p-jul-fill');
+    fill.style.width = Math.min(pct, 100) + '%';
+    fill.className = 'prog-fill ' + (pct > 100 ? 'pf-red' : pct > 80 ? 'pf-yellow' : 'pf-green');
+  }
+}
+
+function renderResumo() {
+  var jRec  = total(D.jun.rec);
+  var jDesp = total(D.jun.desp);
+  var jSal  = jRec - jDesp;
+  var uRec  = total(D.jul.rec);
+  var uDesp = total(D.jul.desp);
+  var uLiq  = uRec + jSal;
+  var uSal  = uLiq - uDesp;
+  var totR  = jRec + uRec;
+  var totD  = jDesp + uDesp;
+  var acum  = uSal;
+
+  setEl('r-rec',  f(totR));
+  setEl('r-desp', f(totD));
+  setEl('r-sal',  (acum < 0 ? '- ' : '') + f(acum));
+  document.getElementById('r-sal-card').className = 'card ' + sgn(acum,'pos','neg');
+  var rb = document.getElementById('r-badge');
+  rb.className = 'badge ' + sgn(acum,'pos','neg');
+  rb.textContent = sgn(acum,'▲ Positivo','▼ Negativo');
+
+  setEl('y-rj', 'R$ ' + Math.round(jRec).toLocaleString('pt-BR'));
+  setEl('y-dj', 'R$ ' + Math.round(jDesp).toLocaleString('pt-BR'));
+  var ysj = document.getElementById('y-sj');
+  ysj.textContent = (jSal < 0 ? '- ' : '+ ') + 'R$ ' + Math.round(Math.abs(jSal)).toLocaleString('pt-BR');
+  ysj.style.color = jSal >= 0 ? 'var(--green)' : 'var(--red)';
+
+  setEl('y-ru', 'R$ ' + Math.round(uRec).toLocaleString('pt-BR'));
+  setEl('y-du', 'R$ ' + Math.round(uDesp).toLocaleString('pt-BR'));
+  var ysu = document.getElementById('y-su');
+  ysu.textContent = (uSal < 0 ? '- ' : '+ ') + 'R$ ' + Math.round(Math.abs(uSal)).toLocaleString('pt-BR');
+  ysu.style.color = uSal >= 0 ? 'var(--green)' : 'var(--red)';
+
+  var jPct = jRec > 0 ? (jDesp / jRec * 100) : 0;
+  setEl('r-jpct', jPct.toFixed(1) + '% ' + (jPct > 100 ? '🔴' : '🟢'));
+  var jf = document.getElementById('r-jfill');
+  jf.style.width = Math.min(jPct,100) + '%';
+  jf.className = 'prog-fill ' + (jPct > 100 ? 'pf-red' : jPct > 80 ? 'pf-yellow' : 'pf-green');
+
+  var uPct = uRec > 0 ? (uDesp / uRec * 100) : 0;
+  setEl('r-upct', uPct.toFixed(1) + '% ' + (uPct > 100 ? '🔴' : '🟢'));
+  var uf = document.getElementById('r-ufill');
+  uf.style.width = Math.min(uPct,100) + '%';
+  uf.className = 'prog-fill ' + (uPct > 100 ? 'pf-red' : uPct > 80 ? 'pf-yellow' : 'pf-green');
+
+  // analise
+  var mjd = {n:'—',v:0}; for (var i=0;i<D.jun.desp.length;i++) { if(D.jun.desp[i].v>mjd.v) mjd=D.jun.desp[i]; }
+  var mud = {n:'—',v:0}; for (var i=0;i<D.jul.desp.length;i++) { if(D.jul.desp[i].v>mud.v) mud=D.jul.desp[i]; }
+  var mur = {n:'—',v:0}; for (var i=0;i<D.jul.rec.length;i++) { if(D.jul.rec[i].v>mur.v) mur=D.jul.rec[i]; }
+
+  setH('r-analise',
+    '<div class="item-row"><span class="iname">' + (jSal<0?'📉':'📈') + ' Junho fechou ' + (jSal<0?'no vermelho':'no azul') + '</span>'
+    + '<span class="' + (jSal<0?'vr':'vg') + '">' + (jSal<0?'- ':'') + f(jSal) + '</span></div>'
+    + '<div class="item-row"><span class="iname">' + (uSal<0?'📉':'📈') + ' Julho fechou ' + (uSal<0?'no vermelho':'no azul') + '</span>'
+    + '<span class="' + (uSal<0?'vr':'vg') + '">' + (uSal<0?'- ':'') + f(uSal) + '</span></div>'
+    + '<div class="item-row"><span class="iname">💰 Saldo líquido acumulado</span>'
+    + '<span class="' + (acum<0?'vr':'vg') + '">' + (acum<0?'- ':'') + f(acum) + '</span></div>'
+    + '<div class="item-row"><span class="iname">📊 Maior gasto Jun (' + mjd.n + ')</span><span class="vr">' + f(mjd.v) + '</span></div>'
+    + '<div class="item-row"><span class="iname">📊 Maior gasto Jul (' + mud.n + ')</span><span class="vr">' + f(mud.v) + '</span></div>'
+    + '<div class="item-row"><span class="iname">✅ Maior receita Jul (' + mur.n + ')</span><span class="vg">' + f(mur.v) + '</span></div>'
+  );
+}
+
+function renderAll() {
+  renderList('jun','rec'); renderList('jun','desp'); renderCards('jun');
+  renderList('jul','rec'); renderList('jul','desp'); renderCards('jul');
+  renderResumo();
+}
+
+function addEntry(m, tp) {
+  var descEl = document.getElementById('d-' + m + '-' + tp);
+  var valEl  = document.getElementById('v-' + m + '-' + tp);
+  var name   = descEl.value.trim();
+  var val    = parseFloat(valEl.value);
+  if (!name) { showToast('Informe a descrição.','r'); descEl.focus(); return; }
+  if (isNaN(val) || val <= 0) { showToast('Informe um valor válido.','r'); valEl.focus(); return; }
+  D[m][tp].push({id: NX[m][tp]++, n: name, v: val});
+  descEl.value = ''; valEl.value = '';
+  renderAll();
+  showToast((tp==='rec'?'✅ Receita':'✅ Despesa') + ' lançada: ' + name, tp==='rec'?'g':'r');
+}
+
+function delEntry(m, tp, id) {
+  var arr = D[m][tp];
+  for (var i=0;i<arr.length;i++) {
+    if (arr[i].id === id) {
+      var name = arr[i].n;
+      arr.splice(i,1);
+      renderAll();
+      showToast('🗑 Removido: ' + name, 'r');
+      return;
+    }
+  }
+}
+
+function toggleForm(m, tp) {
+  var formId  = 'f-' + m + '-' + tp;
+  var otherId = 'f-' + m + '-' + (tp==='rec'?'desp':'rec');
+  var btnId   = 'tb-' + m + '-' + tp;
+  var oBtnId  = 'tb-' + m + '-' + (tp==='rec'?'desp':'rec');
+  var form    = document.getElementById(formId);
+  var isOpen  = form.classList.contains('open');
+  document.getElementById(otherId).classList.remove('open');
+  document.getElementById(oBtnId).classList.remove('active');
+  if (isOpen) {
+    form.classList.remove('open');
+    document.getElementById(btnId).classList.remove('active');
+  } else {
+    form.classList.add('open');
+    document.getElementById(btnId).classList.add('active');
+    document.getElementById('d-' + m + '-' + tp).focus();
+  }
+}
+
+function switchMonth(id, btn) {
+  document.querySelectorAll('.month').forEach(function(m){ m.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById('month-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Enter') return;
+  var id = e.target.id;
+  if (id && id.indexOf('v-') === 0) {
+    var parts = id.split('-');
+    addEntry(parts[1], parts[2]);
+  }
+});
+
+renderAll();
+</script>
+</body>
+</html>
