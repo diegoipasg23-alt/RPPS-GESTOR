@@ -102,6 +102,7 @@
   <div class="eyebrow">Controle Financeiro</div>
   <h1>Finanças Pessoais 2026</h1>
   <p>Diego Camargo · Junho &amp; Julho/2026</p>
+  <p id="save-indicator" style="font-size:11px;margin-top:8px;color:var(--muted);">Carregando...</p>
 </div>
 
 <div class="tabs">
@@ -286,12 +287,23 @@ var NX = {jun:{rec:200,desp:200},jul:{rec:200,desp:200}};
 
 var STORAGE_KEY = 'financeiro2026_v1';
 function saveData() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({D:D,NX:NX})); } catch(e) {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({D:D,NX:NX}));
+    var el = document.getElementById('save-indicator');
+    if (el) { el.textContent = '💾 Salvo às ' + new Date().toLocaleTimeString('pt-BR'); el.style.color='var(--green)'; }
+  } catch(e) {
+    var el = document.getElementById('save-indicator');
+    if (el) { el.textContent = '⚠️ Erro ao salvar: ' + e.message; el.style.color='var(--red)'; }
+  }
 }
 function loadData() {
   try {
     var raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    var el = document.getElementById('save-indicator');
+    if (!raw) {
+      if (el) { el.textContent = '📂 Sem dados salvos — usando dados originais'; el.style.color='var(--muted)'; }
+      return;
+    }
     var s = JSON.parse(raw);
     if (s && s.D) {
       if (s.D.jun && s.D.jun.rec)  D.jun.rec  = s.D.jun.rec;
@@ -300,7 +312,11 @@ function loadData() {
       if (s.D.jul && s.D.jul.desp) D.jul.desp = s.D.jul.desp;
     }
     if (s && s.NX) NX = s.NX;
-  } catch(e) {}
+    if (el) { el.textContent = '✅ Dados carregados do armazenamento local'; el.style.color='var(--green)'; }
+  } catch(e) {
+    var el = document.getElementById('save-indicator');
+    if (el) { el.textContent = '⚠️ Erro ao carregar: ' + e.message; el.style.color='var(--red)'; }
+  }
 }
 function resetData() {
   if (!confirm('Apagar todos os lançamentos extras e voltar aos dados originais?')) return;
