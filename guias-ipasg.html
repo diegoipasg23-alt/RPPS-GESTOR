@@ -347,11 +347,10 @@ function buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,badgeBg,badgeTxt){
         par(run(fmt(valor),{bold:true,size:26,color:AZUL}),docx.AlignmentType.RIGHT),
       ],{bg:AZUL_LT,borders:allThin(),margins:{top:60,bottom:60,left:80,right:120}}),
     ]),
-    // 7 — Abatimentos / Salário Família / Vencimento
+    // 7 — Vencimento
     row([
-      cell([par(run('ABATIMENTOS',{bold:true,size:14,color:'888888',caps:true})),par(run('—',{size:18,color:'cccccc'}))],{borders:allThin(),w:3100}),
-      cell([par(run('SALÁRIO FAMÍLIA',{bold:true,size:14,color:'888888',caps:true})),par(run('—',{size:18,color:'cccccc'}))],{borders:allThin(),w:3100}),
-      cell([par(run('VENCIMENTO',{bold:true,size:14,color:'888888',caps:true})),par(run(venc,{bold:true,size:18}))],{borders:allThin()}),
+      cell([par(run('VENCIMENTO',{bold:true,size:14,color:AZUL,caps:true})),par(run(venc,{bold:true,size:20,color:'cc0000'}))],{borders:allThin(),bg:'fff8f8',w:3100}),
+      cell([par(run('ALÍQUOTA APLICADA',{bold:true,size:14,color:AZUL,caps:true})),par(run(tipoLabel.split('—')[1]||'',{bold:true,size:20}))],{borders:allThin(),bg:'f8f8ff'}),
     ]),
     // 8 — Base de cálculo
     row([
@@ -411,11 +410,14 @@ function buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,badgeBg,badgeTxt){
     ],{borders:{top:bn,bottom:bt,left:bn,right:bn},span:2,margins:{top:80,bottom:120,left:120,right:120}})]),
     // 12 — Rodapé
     row([
-      cell(par(run('PREFEITURA MUNICIPAL DE GOIANDIRA — GOIÁS',{size:15,color:'8aadd4',caps:true})),
-        {bg:AZUL,borders:allNone(),margins:{top:60,bottom:60,left:120,right:120}}),
-      cell(par(run('IPASG',{bold:true,size:16,color:DOURADO,caps:true}),docx.AlignmentType.RIGHT),
-        {bg:AZUL,borders:allNone(),margins:{top:60,bottom:60,left:120,right:120}}),
+      cell(par(run('IPASG · CNPJ: 24.811.911/0001-67 · Goiandira/GO',{size:13,color:'8aadd4',caps:true})),
+        {bg:AZUL,borders:allNone(),margins:{top:50,bottom:50,left:120,right:120}}),
+      cell(par(run('© Criado e desenvolvido por Diego Camargo da Silva',{size:12,color:DOURADO,italic:true}),docx.AlignmentType.RIGHT),
+        {bg:AZUL,borders:allNone(),margins:{top:50,bottom:50,left:80,right:120}}),
     ]),
+    // 12b — Rodapé proteção
+    row([cell(par(run('Documento sujeito à proteção. Reprodução não autorizada. Sistema RPPS-GESTOR · IPASG',{size:11,color:'5a7fb0',italic:true})),
+      {bg:'0d1f3c',borders:allNone(),span:2,margins:{top:30,bottom:30,left:120,right:120}})]),
   ]);
 }
 
@@ -444,7 +446,23 @@ async function gerarTodos(){
   }
   var comp=(document.getElementById('competencia').value||'').trim().toUpperCase();
   var venc=(document.getElementById('vencimento').value||'').trim();
-  if(!comp||!venc){showStatus('Preencha Competência e Vencimento.','err');return;}
+  // Calcular vencimento automaticamente como último dia do mês subsequente
+  if(comp && !venc){
+    var meses={'JANEIRO':0,'FEVEREIRO':1,'MARÇO':2,'ABRIL':3,'MAIO':4,'JUNHO':5,
+               'JULHO':6,'AGOSTO':7,'SETEMBRO':8,'OUTUBRO':9,'NOVEMBRO':10,'DEZEMBRO':11};
+    var parts=comp.split('/');
+    if(parts.length===2){
+      var mes=meses[parts[0].trim()];
+      var ano=parseInt(parts[1].trim());
+      if(mes!==undefined && !isNaN(ano)){
+        var mesProx=mes+1>=12?0:mes+1;
+        var anoProx=mes+1>=12?ano+1:ano;
+        var ult=new Date(anoProx,mesProx+1,0);
+        venc=String(ult.getDate()).padStart(2,'0')+'/'+String(mesProx+1).padStart(2,'0')+'/'+anoProx;
+      }
+    }
+  }
+  if(!comp||!venc){showStatus('Preencha Competência e Vencimento (ou deixe o campo vencimento vazio para cálculo automático).','err');return;}
 
   var btn=document.getElementById('btnGerar');
   btn.disabled=true;
