@@ -291,150 +291,150 @@ function tbl(rows){
   });
 }
 
-// ─── Monta uma via completa ───────────────────────────────────────────────────
-function buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,badgeBg,badgeTxt){
+// ─── Monta uma via completa (compacta) ─────────────────────────────────────────
+function buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,titulo){
   var fmt=function(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2});};
   var obs=getObs(tipo,orgao.fundeb,comp);
-  var bn=bNone(), bt=bThin(), bg=bGold();
+  var bn=bNone(), bt=bThin();
+  var aliqLabel=tipoLabel.indexOf('—')>=0?tipoLabel.split('—')[1].trim():'';
+  var W2=4500; // metade da largura
 
   return tbl([
-    // 1 — Cabeçalho
-    row([
-      cell(par(run('IPASG',{bold:true,size:28,color:DOURADO,caps:true}),docx.AlignmentType.CENTER),
-        {bg:AZUL,borders:allNone(),w:900,margins:{top:80,bottom:80,left:80,right:80}}),
-      cell([
-        par(run('PREFEITURA MUNICIPAL DE GOIANDIRA',{bold:true,size:22,color:'FFFFFF',caps:true}),docx.AlignmentType.CENTER),
-        par(run('ESTADO DE GOIÁS',{size:14,color:'E0E0E0',caps:true}),docx.AlignmentType.CENTER),
-        par(run('INSTITUTO DE PREVIDÊNCIA — IPASG',{bold:true,size:14,color:DOURADO,caps:true}),docx.AlignmentType.CENTER),
-      ],{bg:AZUL,borders:allNone(),margins:{top:80,bottom:80,left:120,right:120}}),
-    ]),
-    // 2 — Faixa dourada
-    row([cell(par(run(' ',{size:4})),{bg:DOURADO,borders:allNone(),span:2,margins:{top:8,bottom:8,left:0,right:0}})]),
-    // 3 — Título guia + badge via
-    row([
-      cell(par(run('GUIA DE RECOLHIMENTO',{bold:true,size:20,color:AZUL,caps:true})),
-        {bg:AZUL_LT,borders:{top:bn,bottom:bt,left:bn,right:bn},w:6500}),
-      cell(par(run(badgeTxt,{bold:true,size:14,color:'FFFFFF',caps:true}),docx.AlignmentType.CENTER),
-        {bg:badgeBg,borders:allNone(),margins:{top:60,bottom:60,left:80,right:80}}),
-    ]),
-    // 4 — Dados do órgão
+    // Cabeçalho azul compacto
     row([
       cell([
-        par(run('ÓRGÃO / RAZÃO SOCIAL',{bold:true,size:14,color:AZUL,caps:true})),
-        par(run(orgao.nome,{bold:true,size:18,color:'111111'})),
-        par(run('PRAÇA JOSÉ ABDALA, 001 — CEP: 75.740-000',{size:14,color:'555555'})),
-        par(run('Goiandira — GO  ·  Fone: (64) 3462-7010',{size:14,color:'555555'})),
-      ],{borders:allThin(),w:5600}),
-      cell([
-        par(run('CNPJ',{bold:true,size:14,color:AZUL,caps:true})),
-        par(run(orgao.cnpj,{bold:true,size:18})),
-        par(run(' ',{size:8})),
-        par(run('COMPETÊNCIA',{bold:true,size:14,color:AZUL,caps:true})),
-        par(run(comp,{bold:true,size:18})),
-      ],{borders:allThin()}),
+        par(run('IPASG',{bold:true,size:18,color:DOURADO,caps:true})),
+        par(run('PREFEITURA MUNICIPAL DE GOIANDIRA — GOIÁS',{size:12,color:'FFFFFF',caps:true})),
+        par(run('INSTITUTO DE PREVIDÊNCIA — CNPJ: 24.811.911/0001-67',{size:11,color:'c0d4e8',caps:true})),
+      ],{bg:AZUL,borders:allNone(),span:2,margins:{top:60,bottom:60,left:100,right:100}})
     ]),
-    // 5 — Barra dados
-    row([cell(par(run('DADOS DO RECOLHIMENTO',{bold:true,size:15,color:'FFFFFF',caps:true})),
-      {bg:AZUL,borders:allNone(),span:2,margins:{top:50,bottom:50,left:120,right:120}})]),
-    // 6 — Tipo + valor
+    // Faixa dourada fina
+    row([cell(par(run(' ',{size:2})),{bg:DOURADO,borders:allNone(),span:2,margins:{top:4,bottom:4,left:0,right:0}})]),
+    // Título guia + via
+    row([
+      cell(par(run('GUIA DE RECOLHIMENTO',{bold:true,size:17,color:AZUL,caps:true})),
+        {bg:AZUL_LT,borders:{top:bn,bottom:bt,left:bn,right:bn},w:6000}),
+      cell(par(run(titulo,{bold:true,size:11,color:'FFFFFF',caps:true}),docx.AlignmentType.CENTER),
+        {bg:AZUL,borders:allNone(),margins:{top:50,bottom:50,left:60,right:60}}),
+    ]),
+    // Órgão + CNPJ/Competência numa linha
     row([
       cell([
-        par(run('TIPO DE CONTRIBUIÇÃO',{bold:true,size:14,color:AZUL,caps:true})),
-        par(run(tipoLabel,{bold:true,size:20,color:'111111'})),
-      ],{bg:AZUL_LT,borders:allThin(),w:6200}),
+        par(run('ÓRGÃO PAGADOR',{bold:true,size:12,color:AZUL,caps:true})),
+        par(run(orgao.nome,{bold:true,size:16,color:'111111'})),
+        par(run('CNPJ: '+orgao.cnpj+'  ·  Goiandira — GO',{size:13,color:'555555'})),
+      ],{borders:allThin(),w:6000}),
       cell([
-        par(run('R$',{size:16,color:'777777'}),docx.AlignmentType.RIGHT),
-        par(run(fmt(valor),{bold:true,size:26,color:AZUL}),docx.AlignmentType.RIGHT),
-      ],{bg:AZUL_LT,borders:allThin(),margins:{top:60,bottom:60,left:80,right:120}}),
+        par(run('COMPETÊNCIA',{bold:true,size:12,color:AZUL,caps:true})),
+        par(run(comp,{bold:true,size:16})),
+        par(run('VENCIMENTO',{bold:true,size:12,color:AZUL,caps:true})),
+        par(run(venc,{bold:true,size:16,color:'cc0000'})),
+      ],{borders:allThin(),margins:{top:50,bottom:50,left:80,right:80}}),
     ]),
-    // 7 — Vencimento
-    row([
-      cell([par(run('VENCIMENTO',{bold:true,size:14,color:AZUL,caps:true})),par(run(venc,{bold:true,size:20,color:'cc0000'}))],{borders:allThin(),bg:'fff8f8',w:3100}),
-      cell([par(run('ALÍQUOTA APLICADA',{bold:true,size:14,color:AZUL,caps:true})),par(run(tipoLabel.split('—')[1]||'',{bold:true,size:20}))],{borders:allThin(),bg:'f8f8ff'}),
-    ]),
-    // 8 — Base de cálculo
-    row([
-      cell(par(run('BASE DE CÁLCULO',{bold:true,size:16,color:'666666',caps:true})),
-        {bg:'fafafa',borders:allThin(),w:6200}),
-      cell([
-        par(run('R$',{size:16,color:'999999'}),docx.AlignmentType.RIGHT),
-        par(run(fmt(base),{size:20,color:'444444'}),docx.AlignmentType.RIGHT),
-      ],{bg:'fafafa',borders:allThin(),margins:{top:60,bottom:60,left:80,right:120}}),
-    ]),
-    // 9 — Total
-    row([
-      cell(par(run('TOTAL A RECOLHER',{bold:true,size:18,color:'FFFFFF',caps:true})),
-        {bg:AZUL,borders:allNone(),w:6200,margins:{top:80,bottom:80,left:120,right:120}}),
-      cell([
-        par(run('R$',{size:16,color:'8aadd4'}),docx.AlignmentType.RIGHT),
-        par(run(fmt(valor),{bold:true,size:28,color:DOURADO}),docx.AlignmentType.RIGHT),
-      ],{bg:AZUL,borders:allNone(),margins:{top:80,bottom:80,left:80,right:120}}),
-    ]),
-    // 10 — OBS
-    row([cell(par(run('* '+obs,{italic:true,size:16,color:'5a4a00'})),
-      {bg:AMARELO_LT,borders:{top:bg,bottom:bt,left:bn,right:bn},span:2,margins:{top:60,bottom:60,left:120,right:120}})]),
-    // 11 — Assinaturas
+    // Tipo + Alíquota + Base + Total — numa tabela
     row([cell([
-      par(run('AUTENTICAÇÃO BANCÁRIA OU ASSINATURA / CARIMBO DO GESTOR E DA CONTABILIDADE',{bold:true,size:14,color:AZUL,caps:true})),
-      par(run(' ',{size:8})),
-      // Linha com assinatura (esq) e espaço para contabilidade (dir)
-      new docx.Paragraph({
-        spacing:{before:0,after:0},
-        children:[
-          new docx.ImageRun({
-            data: Uint8Array.from(atob(SIG_B64), c => c.charCodeAt(0)),
-            transformation:{ width:160, height:68 },
-          }),
-          new docx.TextRun({text:'          _______________________________',size:18,color:'999999',font:'Arial'}),
+      // sub-tabela de dados
+      new docx.Table({
+        width:{size:4500,type:docx.WidthType.DXA},
+        borders:{top:bNone(),bottom:bNone(),left:bNone(),right:bNone(),insideH:bNone(),insideV:bNone()},
+        rows:[
+          new docx.TableRow({children:[
+            new docx.TableCell({children:[par(run('TIPO DE CONTRIBUIÇÃO',{bold:true,size:12,color:AZUL,caps:true}))],width:{size:4500,type:docx.WidthType.DXA},borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL_LT,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:40,bottom:40,left:100,right:100}}),
+            new docx.TableCell({children:[par(run('ALÍQUOTA',{bold:true,size:12,color:AZUL,caps:true}))],width:{size:1500,type:docx.WidthType.DXA},borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL_LT,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:40,bottom:40,left:80,right:80}}),
+            new docx.TableCell({children:[par(run('BASE DE CÁLCULO',{bold:true,size:12,color:AZUL,caps:true}))],width:{size:2000,type:docx.WidthType.DXA},borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:'fafafa',color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:40,bottom:40,left:80,right:80}}),
+            new docx.TableCell({children:[par(run('TOTAL A RECOLHER',{bold:true,size:12,color:'FFFFFF',caps:true}),docx.AlignmentType.CENTER)],width:{size:1360,type:docx.WidthType.DXA},borders:allNone(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:40,bottom:40,left:60,right:60}}),
+          ]}),
+          new docx.TableRow({children:[
+            new docx.TableCell({children:[par(run(tipoLabel,{bold:true,size:16,color:'111111'}))],borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL_LT,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:50,bottom:50,left:100,right:100}}),
+            new docx.TableCell({children:[par(run(aliqLabel,{bold:true,size:16,color:AZUL}),docx.AlignmentType.CENTER)],borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL_LT,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:50,bottom:50,left:60,right:60}}),
+            new docx.TableCell({children:[par(run('R$ '+fmt(base),{size:16,color:'444444'}),docx.AlignmentType.RIGHT)],borders:allThin(),shading:{type:docx.ShadingType.CLEAR,fill:'fafafa',color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:50,bottom:50,left:60,right:100}}),
+            new docx.TableCell({children:[par(run('R$ '+fmt(valor),{bold:true,size:18,color:DOURADO}),docx.AlignmentType.CENTER)],borders:allNone(),shading:{type:docx.ShadingType.CLEAR,fill:AZUL,color:'auto'},verticalAlign:docx.VerticalAlign.CENTER,margins:{top:50,bottom:50,left:60,right:60}}),
+          ]}),
         ]
       }),
-      new docx.Paragraph({
-        spacing:{before:0,after:0},
-        children:[
-          new docx.TextRun({text:'_______________________________',size:18,color:'999999',font:'Arial'}),
-          new docx.TextRun({text:'          Responsável pela Contabilidade',size:16,color:'999999',font:'Arial'}),
-        ]
-      }),
-      new docx.Paragraph({
-        spacing:{before:0,after:0},
-        children:[
-          new docx.TextRun({text:'Diego Camargo da Silva',size:16,bold:true,color:AZUL,font:'Arial'}),
-        ]
-      }),
-      new docx.Paragraph({
-        spacing:{before:0,after:0},
-        children:[
-          new docx.TextRun({text:'Gestor — IPASG',size:14,color:'555555',font:'Arial'}),
-        ]
-      }),
-    ],{borders:{top:bn,bottom:bt,left:bn,right:bn},span:2,margins:{top:80,bottom:120,left:120,right:120}})]),
-    // 12 — Rodapé
+    ],{borders:allNone(),span:2,margins:{top:0,bottom:0,left:0,right:0}})]),
+    // OBS
+    row([cell(par(run(obs,{italic:true,size:14,color:'5a4a00'})),
+      {bg:AMARELO_LT,borders:{top:bGold(),bottom:bt,left:bn,right:bn},span:2,margins:{top:50,bottom:50,left:100,right:100}})]),
+    // Assinaturas
     row([
-      cell(par(run('IPASG · CNPJ: 24.811.911/0001-67 · Goiandira/GO',{size:13,color:'8aadd4',caps:true})),
-        {bg:AZUL,borders:allNone(),margins:{top:50,bottom:50,left:120,right:120}}),
-      cell(par(run('© Criado e desenvolvido por Diego Camargo da Silva',{size:12,color:DOURADO,italic:true}),docx.AlignmentType.RIGHT),
-        {bg:AZUL,borders:allNone(),margins:{top:50,bottom:50,left:80,right:120}}),
+      cell([
+        par(run('Gestor / IPASG',{bold:true,size:13,color:AZUL,caps:true})),
+        new docx.Paragraph({spacing:{before:0,after:0},children:[
+          new docx.ImageRun({data:Uint8Array.from(atob(SIG_B64),c=>c.charCodeAt(0)),transformation:{width:130,height:55}}),
+        ]}),
+        par(run('Diego Camargo da Silva',{bold:true,size:14,color:AZUL})),
+        par(run('Gestor — IPASG',{size:12,color:'666666'})),
+      ],{borders:{top:bn,bottom:bt,left:bn,right:bt},margins:{top:60,bottom:60,left:100,right:100}}),
+      cell([
+        par(run('Contabilidade / Autenticação',{bold:true,size:13,color:AZUL,caps:true})),
+        par(run(' ',{size:36})),
+        par(run('_________________________________',{size:14,color:'999999'})),
+        par(run('Responsável pela Contabilidade',{size:12,color:'999999',italic:true})),
+      ],{borders:{top:bn,bottom:bt,left:bn,right:bn},margins:{top:60,bottom:60,left:100,right:100}}),
     ]),
-    // 12b — Rodapé proteção
-    row([cell(par(run('Documento sujeito à proteção. Reprodução não autorizada. Sistema RPPS-GESTOR · IPASG',{size:11,color:'5a7fb0',italic:true})),
-      {bg:'0d1f3c',borders:allNone(),span:2,margins:{top:30,bottom:30,left:120,right:120}})]),
+    // Rodapé
+    row([
+      cell(par(run('IPASG · 24.811.911/0001-67 · Goiandira/GO',{size:12,color:'8aadd4',caps:true})),
+        {bg:AZUL,borders:allNone(),margins:{top:40,bottom:40,left:100,right:100}}),
+      cell(par(run('© Diego Camargo da Silva · RPPS-GESTOR · Reprodução não autorizada',{size:10,color:DOURADO,italic:true}),docx.AlignmentType.RIGHT),
+        {bg:AZUL,borders:allNone(),margins:{top:40,bottom:40,left:60,right:100}}),
+    ]),
   ]);
 }
 
-// ─── Monta o documento (2 vias) ───────────────────────────────────────────────
+// ─── Monta o documento (2 vias lado a lado) ───────────────────────────────────
 function buildDoc(orgao,tipo,tipoLabel,aliq,comp,venc){
   var base=parseFloat(document.getElementById('base_'+orgao.id).value)||0;
   var valor=base*aliq;
-  var via1=buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,AZUL,'VIA DO ÓRGÃO RECEBEDOR');
-  var corte=new docx.Paragraph({
-    alignment:docx.AlignmentType.CENTER,
-    spacing:{before:140,after:140},
-    children:[new docx.TextRun({text:'— — — — — — — — — — recortar aqui — — — — — — — — — —',size:18,color:'AAAAAA'})]
+
+  // Via 1 (recebedor) e Via 2 (pagador) lado a lado numa tabela de 2 colunas
+  var via1=buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,'VIA RECEBEDOR');
+  var via2=buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,'VIA PAGADOR');
+
+  // Separador vertical com linha tracejada entre as 2 vias
+  var linhaCorte=new docx.TableCell({
+    children:[new docx.Paragraph({
+      alignment:docx.AlignmentType.CENTER,
+      spacing:{before:0,after:0},
+      children:[new docx.TextRun({text:'✂',size:18,color:'AAAAAA',font:'Arial'})]
+    })],
+    width:{size:200,type:docx.WidthType.DXA},
+    borders:{
+      top:{style:docx.BorderStyle.NONE,size:0,color:'FFFFFF'},
+      bottom:{style:docx.BorderStyle.NONE,size:0,color:'FFFFFF'},
+      left:{style:docx.BorderStyle.DASHED,size:6,color:'AAAAAA'},
+      right:{style:docx.BorderStyle.DASHED,size:6,color:'AAAAAA'},
+    },
+    verticalAlign:docx.VerticalAlign.CENTER,
+    margins:{top:0,bottom:0,left:0,right:0},
   });
-  var via2=buildVia(orgao,tipo,tipoLabel,valor,base,comp,venc,CINZA,'VIA DO ÓRGÃO PAGADOR');
+
+  var tblPrincipal=new docx.Table({
+    width:{size:9360,type:docx.WidthType.DXA},
+    borders:{top:bNone(),bottom:bNone(),left:bNone(),right:bNone(),insideH:bNone(),insideV:bNone()},
+    rows:[new docx.TableRow({children:[
+      new docx.TableCell({
+        children:[via1],
+        width:{size:4580,type:docx.WidthType.DXA},
+        borders:{top:bNone(),bottom:bNone(),left:bNone(),right:bNone()},
+        margins:{top:0,bottom:0,left:0,right:0},
+        verticalAlign:docx.VerticalAlign.TOP,
+      }),
+      linhaCorte,
+      new docx.TableCell({
+        children:[via2],
+        width:{size:4580,type:docx.WidthType.DXA},
+        borders:{top:bNone(),bottom:bNone(),left:bNone(),right:bNone()},
+        margins:{top:0,bottom:0,left:0,right:0},
+        verticalAlign:docx.VerticalAlign.TOP,
+      }),
+    ]})]
+  });
+
   return new docx.Document({sections:[{
-    properties:{page:{margin:{top:500,bottom:500,left:700,right:700}}},
-    children:[via1,corte,via2]
+    properties:{page:{margin:{top:400,bottom:400,left:400,right:400},orientation:'landscape'}},
+    children:[tblPrincipal]
   }]});
 }
 
