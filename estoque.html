@@ -580,6 +580,78 @@ tbody td.r{text-align:right;font-weight:700;}
         <div id="alertas-lista"></div>
       </div>
 
+      <!-- ===== META DE VENDAS + PONTO DE EQUILIBRIO ===== -->
+      <div id="pg-meta" style="display:none">
+
+        <div class="meta-box">
+          <div class="meta-row">
+            <div><div class="meta-lbl">Meta do Mês</div><div class="meta-val" id="meta-meta">R$ 0,00</div></div>
+            <div style="text-align:right"><div class="meta-lbl">Vendido</div><div class="meta-val" id="meta-real">R$ 0,00</div></div>
+          </div>
+          <div class="meta-bar-bg"><div class="meta-bar-fill" id="meta-bar" style="width:0%"></div></div>
+          <div class="meta-pct-row"><span id="meta-pct">0% atingido</span><span id="meta-falta"></span></div>
+        </div>
+
+        <!-- PONTO DE EQUILIBRIO -->
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:13px;font-weight:900">🏪 Ponto de Equilíbrio da Loja</div>
+            <button onclick="abrirModal('custofixo')" style="border:none;background:var(--roxo2);color:var(--roxo);font-family:var(--fn);font-size:11px;font-weight:900;padding:6px 12px;border-radius:8px;cursor:pointer">+ Custo Fixo</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+            <div style="background:#FEE2E2;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:#991B1B" id="pe-fixo">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:#B91C1C;text-transform:uppercase">Custos Fixos/mês</div></div>
+            <div style="background:#EDE9FE;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:var(--roxo)" id="pe-margem">—</div><div style="font-size:9px;font-weight:800;color:#6D28D9;text-transform:uppercase">Margem Real</div></div>
+            <div style="background:#FEF3C7;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:#92400E" id="pe-valor">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:#B45309;text-transform:uppercase">Precisa Vender</div></div>
+          </div>
+          <div class="meta-bar-bg" style="background:#F1F5F9"><div class="meta-bar-fill" id="pe-bar" style="width:0%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80)"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-top:6px">
+            <span id="pe-status" style="color:var(--text2)">Cadastre os custos fixos da loja</span>
+            <span id="pe-liquido" style="color:var(--text2)"></span>
+          </div>
+          <div id="cf-lista" style="margin-top:12px"></div>
+        </div>
+
+        <!-- COMPARATIVO MES ANTERIOR -->
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:900;margin-bottom:12px">📊 Este mês vs. mês anterior</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div style="background:#F8FAFC;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Faturamento</div><div style="font-size:13px;font-weight:900;color:var(--verde)" id="cmp-fat-atual">R$ 0,00</div><div style="font-size:10px;color:var(--text3)" id="cmp-fat-ant">R$ 0,00</div><div id="cmp-fat-var"></div></div>
+            <div style="background:#F8FAFC;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Lucro</div><div style="font-size:13px;font-weight:900;color:var(--roxo)" id="cmp-luc-atual">R$ 0,00</div><div style="font-size:10px;color:var(--text3)" id="cmp-luc-ant">R$ 0,00</div><div id="cmp-luc-var"></div></div>
+            <div style="background:#F8FAFC;border-radius:9px;padding:10px;text-align:center"><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;margin-bottom:3px">Nº Vendas</div><div style="font-size:13px;font-weight:900" id="cmp-qtd-atual">0</div><div style="font-size:10px;color:var(--text3)" id="cmp-qtd-ant">0</div><div id="cmp-qtd-var"></div></div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:900;margin-bottom:10px">🛍️ Vendas do mês por produto</div>
+        <div class="meta-prod-list" id="meta-lista"></div>
+      </div>
+
+      <!-- ===== MARKETING ===== -->
+      <div id="pg-marketing" style="display:none">
+        <div class="mkt-grid">
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-mg"></canvas></div>
+          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-ft"></canvas></div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px"><canvas id="chart-sz"></canvas></div>
+
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:900;margin-bottom:10px">🏆 Ranking de Produtos</div>
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:12px">
+              <thead><tr style="text-align:left;color:var(--text3);font-size:10px;text-transform:uppercase"><th style="padding:6px 4px">#</th><th style="padding:6px 4px">Produto</th><th style="padding:6px 4px">Cat.</th><th style="padding:6px 4px;text-align:right">Qtd</th><th style="padding:6px 4px;text-align:right">Fat.</th><th style="padding:6px 4px;text-align:right">Lucro</th><th style="padding:6px 4px;text-align:right">Margem</th></tr></thead>
+              <tbody id="rank-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div style="font-size:13px;font-weight:900">😴 Produtos Parados</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)">há <input type="number" id="dias-inp" value="15" min="1" onchange="if(window._rp)window._rp()" style="width:50px;padding:4px 6px;border:1px solid var(--border);border-radius:7px;font-family:var(--fn);font-weight:800;text-align:center"> dias</div>
+          </div>
+          <div id="parados-list"></div>
+        </div>
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main-area -->
 </div><!-- /app -->
@@ -728,6 +800,19 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="mbtns">
       <button class="mbtn s" onclick="fecharModal('meta')">Cancelar</button>
       <button class="mbtn p" onclick="salvarMeta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="ov-custofixo">
+  <div class="modal">
+    <h2>🏪 Cadastrar Custo Fixo</h2>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:12px">Tudo que a loja paga todo mês mesmo sem vender: aluguel, energia, internet, água, sacolas, taxas...</p>
+    <div class="fg"><label>Descrição</label><input type="text" id="cf-nome" placeholder="Ex: Aluguel"></div>
+    <div class="fg"><label>Valor Mensal (R$)</label><input type="number" id="cf-valor" placeholder="0.00" step="0.01"></div>
+    <div class="mbtns">
+      <button class="mbtn s" onclick="fecharModal('custofixo')">Cancelar</button>
+      <button class="mbtn p" onclick="salvarCustoFixo()">Salvar</button>
     </div>
   </div>
 </div>
@@ -1467,6 +1552,8 @@ function salvarProduto(){if(window._sp)window._sp();else setTimeout(salvarProdut
 function confirmarMov(){if(window._cm)window._cm();else setTimeout(confirmarMov,150);}
 function salvarForn(){if(window._sf)window._sf();else setTimeout(salvarForn,150);}
 function salvarMeta(){if(window._sm)window._sm();else setTimeout(salvarMeta,150);}
+function salvarCustoFixo(){if(window._scf)window._scf();else setTimeout(salvarCustoFixo,150);}
+function excluirCustoFixo(id){if(window._ecf)window._ecf(id);}
 function abrirMov(id,tipo){if(window._am)window._am(id,tipo);}
 function excluirProd(id){if(window._ep)window._ep(id);}
 function editarProd(id){if(window._editarProd)window._editarProd(id);}
@@ -1500,7 +1587,24 @@ const rM=ref(db,'loja/movimentacoes');
 const rF=ref(db,'loja/fornecedores');
 const rMt=ref(db,'loja/meta');
 
-let prods={},movs={},forns={},metaData={};
+let prods={},movs={},forns={},metaData={},custosFixos={};
+const rCF=ref(db,'loja/custosfixos');
+onValue(rCF,s=>{try{custosFixos=s.val()||{};renderMeta();}catch(e){console.error("Erro rCF:",e);}});
+
+window._scf=async function(){
+  const nome=document.getElementById('cf-nome').value.trim();
+  const valor=parseFloat(document.getElementById('cf-valor').value||0);
+  if(!nome||valor<=0){toast('Preencha descrição e valor','tr');return;}
+  try{
+    await push(rCF,{nome,valor,ts:Date.now()});
+    document.getElementById('cf-nome').value='';document.getElementById('cf-valor').value='';
+    fecharModal('custofixo');toast('🏪 Custo fixo salvo!');
+  }catch(e){console.error(e);toast('Erro ao salvar','tr');}
+};
+window._ecf=async function(id){
+  try{await remove(ref(db,'loja/custosfixos/'+id));toast('🗑 Custo removido','tr');}
+  catch(e){console.error(e);}
+};
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 const CATS={cosmetico:{n:'Cosméticos',e:'💄',cc:'cc'},chocolate:{n:'Chocolates',e:'🍫',cc:'ch'},utilidades:{n:'Utensílios',e:'🏠',cc:'cu'}};
 
@@ -1693,6 +1797,37 @@ function renderMeta(){
   if(mb)mb.style.width=pct+'%';if(mp)mp.textContent=pct+'% atingido';
   if(mf)mf.textContent=falta<=0&&mt>0?'🎉 Meta atingida!':'Falta '+fmt(falta);
   if(falta<=0&&mt>0&&!window._conf){window._conf=true;confetti();}
+
+  // ===== PONTO DE EQUILIBRIO =====
+  const cfTotal=Object.values(custosFixos).reduce((s,c)=>s+parseFloat(c.valor||0),0);
+  const custoMes=vendas.reduce((s,m)=>s+parseFloat(m.cunit||0)*parseInt(m.qtd||0),0);
+  const lucroBruto=real-custoMes;
+  // Margem real do mês; se ainda não houver vendas, assume 50% (markup 100%)
+  const margem=real>0?(lucroBruto/real):0.5;
+  const pe=margem>0?cfTotal/margem:0;
+  const pePct=pe>0?Math.min((real/pe)*100,100).toFixed(1):0;
+  const lucroLiquido=lucroBruto-cfTotal;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('pe-fixo',fmt(cfTotal));
+  set('pe-margem',real>0?(margem*100).toFixed(1)+'%':'50% (est.)');
+  set('pe-valor',fmt(pe));
+  const peb=document.getElementById('pe-bar');if(peb)peb.style.width=pePct+'%';
+  const pes=document.getElementById('pe-status');
+  if(pes){
+    if(cfTotal<=0){pes.textContent='Cadastre os custos fixos da loja';pes.style.color='var(--text2)';}
+    else if(real>=pe){pes.textContent='✅ Loja no lucro! Equilíbrio superado';pes.style.color='var(--verde)';}
+    else{pes.textContent='Falta '+fmt(pe-real)+' para empatar ('+pePct+'%)';pes.style.color='#B45309';}
+  }
+  const pel=document.getElementById('pe-liquido');
+  if(pel&&cfTotal>0){
+    pel.textContent='Líquido: '+fmt(lucroLiquido);
+    pel.style.color=lucroLiquido>=0?'var(--verde)':'var(--red)';
+  }
+  const cfl=document.getElementById('cf-lista');
+  if(cfl){
+    const ents=Object.entries(custosFixos);
+    cfl.innerHTML=ents.length?ents.map(([id,c])=>`<div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:8px;padding:8px 11px;margin-bottom:6px"><div style="flex:1;font-size:12px;font-weight:800">${c.nome}</div><div style="font-size:12px;font-weight:900;color:#991B1B">${fmt(c.valor)}</div><button onclick="excluirCustoFixo('${id}')" style="border:none;background:none;cursor:pointer;font-size:13px;opacity:.5">🗑</button></div>`).join(''):'';
+  }
   else if(falta>0){window._conf=false;}
   const pp={};
   vendas.forEach(m=>{const pid=m.pid||'';if(!pp[pid]){pp[pid]={nome:m.prod||'—',cat:m.cat,qtd:0,fat:0,cst:0};}pp[pid].qtd+=parseInt(m.qtd||0);pp[pid].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);pp[pid].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
