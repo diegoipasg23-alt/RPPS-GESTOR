@@ -596,17 +596,26 @@ tbody td.r{text-align:right;font-weight:700;}
         <div class="meta-box">
           <div class="meta-row">
             <div><div class="meta-lbl">Meta do Mês</div><div class="meta-val" id="meta-meta">R$ 0,00</div></div>
-            <div style="text-align:right"><div class="meta-lbl">Vendido</div><div class="meta-val" id="meta-real">R$ 0,00</div></div>
+            <div style="text-align:right">
+              <div class="meta-lbl">Vendido</div><div class="meta-val" id="meta-real">R$ 0,00</div>
+            </div>
           </div>
           <div class="meta-bar-bg"><div class="meta-bar-fill" id="meta-bar" style="width:0%"></div></div>
           <div class="meta-pct-row"><span id="meta-pct">0% atingido</span><span id="meta-falta"></span></div>
+          <button onclick="abrirModal('meta')" style="margin-top:12px;width:100%;padding:9px;border:none;border-radius:9px;background:rgba(255,255,255,.15);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer;backdrop-filter:blur(4px)">✏️ Definir / Editar Meta por Mês</button>
         </div>
 
         <!-- PONTO DE EQUILIBRIO -->
         <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-            <div style="font-size:13px;font-weight:900">🏪 Ponto de Equilíbrio da Loja</div>
+            <div style="font-size:13px;font-weight:900">🏪 Ponto de Equilíbrio da Loja <span onclick="const e=document.getElementById('pe-ajuda');e.style.display=e.style.display==='none'?'block':'none'" style="cursor:pointer;background:#EDE9FE;color:var(--roxo);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:900">?</span></div>
             <button onclick="abrirModal('custofixo')" style="border:none;background:var(--roxo2);color:var(--roxo);font-family:var(--fn);font-size:11px;font-weight:900;padding:6px 12px;border-radius:8px;cursor:pointer">+ Custo Fixo</button>
+          </div>
+          <div id="pe-ajuda" style="display:none;background:#F8FAFC;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
+            <div style="margin-bottom:8px"><b style="color:var(--text)">💰 Margem Real</b> — de cada R$ 100 que entram no caixa, quanto sobra depois de pagar o produto. Exemplo: comprou por R$ 50 e vendeu por R$ 100 → sobram R$ 50, ou seja, margem de 50%. O app calcula com as vendas de verdade do mês, não com estimativa.</div>
+            <div style="margin-bottom:8px"><b style="color:var(--text)">🏪 Ponto de Equilíbrio</b> — quanto a loja precisa vender no mês só para pagar os custos fixos (aluguel, energia, internet...). Vendeu menos que isso = prejuízo. Vendeu mais = lucro. A conta: custos fixos ÷ margem. Ex: R$ 2.000 de fixo com 50% de margem → precisa vender R$ 4.000 para empatar.</div>
+            <div style="margin-bottom:8px"><b style="color:var(--text)">🎯 Precisa Vender</b> — é o ponto de equilíbrio em reais: a linha de corte do mês. A barra abaixo mostra o quanto já caminhou até lá.</div>
+            <div><b style="color:var(--text)">✅ Líquido</b> — o que realmente sobra no bolso: lucro das vendas menos os custos fixos. Verde = no lucro. Vermelho = ainda pagando as contas da loja.</div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
             <div style="background:#FEE2E2;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:#991B1B" id="pe-fixo">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:#B91C1C;text-transform:uppercase">Custos Fixos/mês</div></div>
@@ -794,9 +803,10 @@ tbody td.r{text-align:right;font-weight:700;}
 
 <div class="overlay" id="ov-meta">
   <div class="modal">
-    <h2>🎯 Definir Meta do Mês</h2>
+    <h2>🎯 Definir / Editar Meta</h2>
+    <div class="fg"><label>Mês de Referência</label><input type="month" id="mt-mes" onchange="carregarMetaMes()"></div>
     <div class="fg"><label>Meta de Faturamento (R$)</label><input type="number" id="mt-val" placeholder="Ex: 5000.00" step="0.01"></div>
-    <div class="fg"><label>Mês de Referência</label><input type="month" id="mt-mes"></div>
+    <div id="mt-info" style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:10px"></div>
     <div class="mbtns">
       <button class="mbtn s" onclick="fecharModal('meta')">Cancelar</button>
       <button class="mbtn p" onclick="salvarMeta()">Salvar</button>
@@ -997,7 +1007,7 @@ function setFiltro(cat,el){
 }
 
 // MODAIS
-function abrirModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.add('open');}
+function abrirModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.add('open');if(id==='meta')setTimeout(()=>{if(window._cmm)window._cmm();},80);}
 function fecharModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.remove('open');}
 document.addEventListener('click',e=>{
   if(e.target.classList.contains('overlay'))e.target.classList.remove('open');
@@ -1552,8 +1562,10 @@ function salvarProduto(){if(window._sp)window._sp();else setTimeout(salvarProdut
 function confirmarMov(){if(window._cm)window._cm();else setTimeout(confirmarMov,150);}
 function salvarForn(){if(window._sf)window._sf();else setTimeout(salvarForn,150);}
 function salvarMeta(){if(window._sm)window._sm();else setTimeout(salvarMeta,150);}
+function carregarMetaMes(){if(window._cmm)window._cmm();}
 function salvarCustoFixo(){if(window._scf)window._scf();else setTimeout(salvarCustoFixo,150);}
 function excluirCustoFixo(id){if(window._ecf)window._ecf(id);}
+function excluirMov(id){if(window._em)window._em(id);}
 function abrirMov(id,tipo){if(window._am)window._am(id,tipo);}
 function excluirProd(id){if(window._ep)window._ep(id);}
 function editarProd(id){if(window._editarProd)window._editarProd(id);}
@@ -1604,6 +1616,28 @@ window._scf=async function(){
 window._ecf=async function(id){
   try{await remove(ref(db,'loja/custosfixos/'+id));toast('🗑 Custo removido','tr');}
   catch(e){console.error(e);}
+};
+
+// Excluir movimentação registrada por engano (reverte o estoque)
+window._em=async function(id){
+  const m=movs[id];
+  if(!m){toast('Movimentação não encontrada','tr');return;}
+  const isV=m.tipo==='saida';
+  const qtd=parseInt(m.qtd||0);
+  const msg=isV
+    ?'Excluir esta VENDA de '+qtd+'un de "'+(m.prod||'produto')+'"?\n\nAs '+qtd+' unidades VOLTAM para o estoque e a venda some das análises.'
+    :'Excluir esta ENTRADA de '+qtd+'un de "'+(m.prod||'produto')+'"?\n\nAs '+qtd+' unidades serão RETIRADAS do estoque.';
+  if(!confirm(msg))return;
+  try{
+    const pid=m.pid||'';
+    if(pid&&prods[pid]){
+      const atual=parseInt(prods[pid].estoque||0);
+      const novo=isV?atual+qtd:Math.max(0,atual-qtd);
+      await update(ref(db,'loja/produtos/'+pid),{estoque:novo});
+    }
+    await remove(ref(db,'loja/movimentacoes/'+id));
+    toast(isV?'🗑 Venda excluída — estoque devolvido':'🗑 Entrada excluída','tr');
+  }catch(e){console.error(e);toast('Erro ao excluir','tr');}
 };
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 const CATS={cosmetico:{n:'Cosméticos',e:'💄',cc:'cc'},chocolate:{n:'Chocolates',e:'🍫',cc:'ch'},utilidades:{n:'Utensílios',e:'🏠',cc:'cu'}};
@@ -1771,7 +1805,10 @@ function renderMovs(){
           <div class="mov-prod-nome">${m.prod||'—'}</div>
           <span class="mov-chip ${isV?'chip-v':'chip-e'}">${isV?'▼ Venda':'▲ Entrada'}</span>
         </div>
-        <div><div class="mov-hora">${hora}</div><div class="mov-data">${data}</div></div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="text-align:right"><div class="mov-hora">${hora}</div><div class="mov-data">${data}</div></div>
+          <button onclick="excluirMov('${id}')" title="Excluir esta movimentação" style="border:none;background:#FEE2E2;color:#DC2626;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:13px;flex-shrink:0">🗑</button>
+        </div>
       </div>
       <div class="mov-grid">
         <div class="mov-det"><div class="mov-det-val">${qtd}un</div><div class="mov-det-lbl">Qtd</div></div>
@@ -2092,10 +2129,26 @@ window._sm=async function(){
   const val=parseFloat(document.getElementById('mt-val').value)||0;
   const mes=document.getElementById('mt-mes').value;
   if(!val||!mes){toast('Preencha os campos!','tr');return;}
+  const jaExiste=!!metaData[mes];
   try{
-    await update(rMt,{[mes]:{valor:val,criado:Date.now()}});
-    fecharModal('meta');toast('✅ Meta definida!','tg');
+    await update(rMt,{[mes]:{valor:val,criado:metaData[mes]?.criado||Date.now(),editado:Date.now()}});
+    fecharModal('meta');toast(jaExiste?'✏️ Meta atualizada!':'✅ Meta definida!','tg');
   }catch(e){toast('Erro ao salvar meta!','tr');console.error(e);}
+};
+
+// Carrega a meta salva do mês escolhido no modal (permite editar)
+window._cmm=function(){
+  const mes=document.getElementById('mt-mes').value;
+  const inp=document.getElementById('mt-val');
+  const info=document.getElementById('mt-info');
+  const salva=metaData[mes]?.valor;
+  if(salva){
+    inp.value=salva;
+    if(info)info.textContent='✏️ Este mês já tem meta de '+fmt(salva)+' — altere o valor e salve para editar.';
+  }else{
+    inp.value='';
+    if(info)info.textContent='Nenhuma meta definida para este mês ainda.';
+  }
 };
 
 window._ep=async function(id){
