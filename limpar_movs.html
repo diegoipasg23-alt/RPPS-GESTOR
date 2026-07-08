@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limpeza de Movimentações</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#1E1B4B,#7C3AED);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+.card{background:#fff;border-radius:16px;padding:24px;max-width:420px;width:100%;text-align:center;}
+h1{font-size:18px;font-weight:900;margin-bottom:6px;}
+p{font-size:13px;color:#64748B;margin-bottom:14px;}
+.num{font-size:34px;font-weight:900;color:#DC2626;}
+.lbl{font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;margin-bottom:16px;}
+.info{background:#FEF3C7;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400E;font-weight:700;margin-bottom:16px;text-align:left;}
+button{width:100%;padding:14px;border:none;border-radius:11px;font-family:'Nunito';font-size:14px;font-weight:900;cursor:pointer;}
+#btn-del{background:#DC2626;color:#fff;}
+#btn-del:disabled{background:#E2E8F0;color:#94A3B8;cursor:not-allowed;}
+.ok{background:#D1FAE5;border-radius:10px;padding:14px;font-size:14px;color:#065F46;font-weight:800;margin-top:14px;display:none;}
+.prog{font-size:12px;color:#64748B;margin-top:10px;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🧹 Limpeza de Movimentações</h1>
+  <p>Apaga TODAS as movimentações anteriores a hoje.<br>As de <b>hoje</b> e o <b>estoque dos produtos</b> não são alterados.</p>
+  <div class="num" id="qtd">…</div>
+  <div class="lbl">movimentações antigas encontradas</div>
+  <div class="info">⚠️ Ação IRREVERSÍVEL. Recomendado: antes, abra o app de estoque e clique em <b>Backup</b>.</div>
+  <button id="btn-del" disabled onclick="apagar()">APAGAR MOVIMENTAÇÕES ANTIGAS</button>
+  <div class="prog" id="prog"></div>
+  <div class="ok" id="ok">✅ Limpeza concluída! Pode fechar esta página.</div>
+</div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+import{getDatabase,ref,get,remove}from"https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+const cfg={apiKey:"AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",authDomain:"rpps-gestor.firebaseapp.com",databaseURL:"https://rpps-gestor-default-rtdb.firebaseio.com",projectId:"rpps-gestor",storageBucket:"rpps-gestor.firebasestorage.app",messagingSenderId:"306067757224",appId:"1:306067757224:web:5f8acdc7c5199911774a9d"};
+const app=initializeApp(cfg);const db=getDatabase(app);
+const hoje=new Date();hoje.setHours(0,0,0,0);
+const corte=hoje.getTime();
+let antigas=[];
+const snap=await get(ref(db,'loja/movimentacoes'));
+const movs=snap.val()||{};
+antigas=Object.entries(movs).filter(([id,m])=>(m.ts||0)<corte).map(([id])=>id);
+document.getElementById('qtd').textContent=antigas.length;
+if(antigas.length>0)document.getElementById('btn-del').disabled=false;
+else document.getElementById('prog').textContent='Nada para apagar. Tudo limpo!';
+window.apagar=async function(){
+  if(!confirm('Tem certeza? Vai apagar '+antigas.length+' movimentações antigas. Isso NÃO tem volta.'))return;
+  const btn=document.getElementById('btn-del');btn.disabled=true;
+  const prog=document.getElementById('prog');
+  let n=0;
+  for(const id of antigas){
+    await remove(ref(db,'loja/movimentacoes/'+id));
+    n++;prog.textContent='Apagando… '+n+' / '+antigas.length;
+  }
+  prog.textContent='';
+  document.getElementById('ok').style.display='block';
+  document.getElementById('qtd').textContent='0';
+};
+</script>
+</body>
+</html>
