@@ -295,6 +295,12 @@ const db = getDatabase(app);
 const REF = ref(db, 'relatorio/dados');
 
 const ORGAOS = ['FMAS','FMS','ADM','FME','FUNDEB'];
+// Ordem cronológica dos meses — usada em abas, painéis e exportações
+const ORDEM_MESES = ['janeiro_2026','fevereiro_2026','marco_2026','abril_2026','maio_2026','junho_2026','julho_2026','agosto_2026','setembro_2026','outubro_2026','novembro_2026','dezembro_2026'];
+const ORDEM_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const idxMesKey = k => { const i = ORDEM_MESES.indexOf(k); return i < 0 ? 99 : i; };
+const idxMesComp = c => { const i = ORDEM_NOMES.indexOf((c||'').split('/')[0]); return i < 0 ? 99 : i; };
+const sortMesesEntries = obj => Object.entries(obj||{}).sort((a,b)=>idxMesKey(a[0])-idxMesKey(b[0]));
 const CHIPS = {FMAS:'c-fmas',FMS:'c-fms',ADM:'c-adm',FME:'c-fme',FUNDEB:'c-fundeb'};
 const TIPOS = ['lei','patronal','servidor'];
 const fmt = v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -386,7 +392,7 @@ function execTotais(dados){
   const meses=Object.values(dados.meses||{});
   let TG=0,TP=0,TD=0,SV=0,SA=0,SR=0;const porOrgao={};ORGAOS.forEach(o=>porOrgao[o]=0);
   const labels=[],dV=[],dA=[],dR=[];
-  meses.sort((a,b)=>a.competencia.localeCompare(b.competencia));
+  meses.sort((a,b)=>idxMesComp(a.competencia)-idxMesComp(b.competencia));
   for(const m of meses){const t=calcTotais(m);TG+=(+m.total||0);TP+=t.pago;TD+=t.debito;
     let v=0,a=0,r=0;for(const o of ORGAOS)for(const tp of TIPOS){const g=m.orgaos?.[o]?.[tp];if(!g)continue;const val=+g.valor||0;if(g.status==='verde')v+=val;else if(g.status==='azul')a+=val;else r+=val;porOrgao[o]+=val;}
     SV+=v;SA+=a;SR+=r;labels.push(m.competencia.split('/')[0]);dV.push(v);dA.push(a);dR.push(r);}
@@ -450,7 +456,7 @@ function buildExecVisual(dados){
 }
 
 function buildGeral(dados) {
-  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const meses = sortMesesEntries(dados.meses);
   const cfg = dados.config||{};
 
   // Stats globais
@@ -563,7 +569,7 @@ function buildGeral(dados) {
 }
 
 function buildAlertas(dados) {
-  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const meses = sortMesesEntries(dados.meses);
   const cfg = dados.config||{};
   const multa = cfg.multa_percentual||2.5;
   const juros = cfg.juros_mensal||1;
@@ -647,7 +653,7 @@ function renderTudo(dados) {
   document.getElementById('ftr-info').textContent = `Aposentados: ${cfg.aposentados||97} · Pensionistas: ${cfg.pensionistas||28}`;
 
   // Abas
-  const meses = Object.entries(dados.meses||{}).sort((a,b)=>a[0].localeCompare(b[0]));
+  const meses = sortMesesEntries(dados.meses);
   const tabsBar = document.getElementById('tabs-bar');
   const container = document.getElementById('panels-container');
 
@@ -658,41 +664,24 @@ function renderTudo(dados) {
   // Reconstruir aba geral
   document.getElementById('tab-geral').innerHTML = buildGeral(dados);
 
-  // Abas mensais
-  for(const [key,mes] of meses) {
-    // Tab button
+  // Abas mensais — sempre em ordem cronológica (com dados ou pendentes)
+  const nomes = {janeiro_2026:'Janeiro/2026',fevereiro_2026:'Fevereiro/2026',marco_2026:'Março/2026',abril_2026:'Abril/2026',maio_2026:'Maio/2026',junho_2026:'Junho/2026',julho_2026:'Julho/2026',agosto_2026:'Agosto/2026',setembro_2026:'Setembro/2026',outubro_2026:'Outubro/2026',novembro_2026:'Novembro/2026',dezembro_2026:'Dezembro/2026'};
+  const prazos = {janeiro_2026:'28/02/2026',fevereiro_2026:'31/03/2026',marco_2026:'30/04/2026',abril_2026:'31/05/2026',maio_2026:'30/06/2026',junho_2026:'31/07/2026',julho_2026:'31/08/2026',agosto_2026:'30/09/2026',setembro_2026:'31/10/2026',outubro_2026:'30/11/2026',novembro_2026:'31/12/2026',dezembro_2026:'31/01/2027'};
+  const mapMeses = dados.meses||{};
+
+  for(const key of ORDEM_MESES) {
+    const mes = mapMeses[key];
     const btn = document.createElement('div');
     btn.className='tab';
-    btn.textContent = mes.competencia;
+    btn.textContent = mes ? mes.competencia : nomes[key];
+    if(!mes) btn.style.color='#E65100';
     btn.onclick = function(){ showTab(key,this); };
     tabsBar.appendChild(btn);
 
-    // Panel
     const panel = document.createElement('div');
     panel.id = 'tab-'+key;
     panel.className='tab-panel';
-    panel.innerHTML = buildTabMes(key,mes);
-    container.appendChild(panel);
-  }
-
-  // Aba pendentes
-  const mesesFeitos = new Set(meses.map(([k])=>k));
-  const todosMeses = ['janeiro_2026','fevereiro_2026','marco_2026','abril_2026','maio_2026','junho_2026','julho_2026','agosto_2026','setembro_2026','outubro_2026','novembro_2026','dezembro_2026'];
-  const nomes = {janeiro_2026:'Janeiro/2026',fevereiro_2026:'Fevereiro/2026',marco_2026:'Março/2026',abril_2026:'Abril/2026',maio_2026:'Maio/2026',junho_2026:'Junho/2026',julho_2026:'Julho/2026',agosto_2026:'Agosto/2026',setembro_2026:'Setembro/2026',outubro_2026:'Outubro/2026',novembro_2026:'Novembro/2026',dezembro_2026:'Dezembro/2026'};
-  const prazos = {janeiro_2026:'28/02/2026',fevereiro_2026:'31/03/2026',marco_2026:'30/04/2026',abril_2026:'31/05/2026',maio_2026:'30/06/2026',junho_2026:'31/07/2026',julho_2026:'31/08/2026',agosto_2026:'30/09/2026',setembro_2026:'31/10/2026',outubro_2026:'30/11/2026',novembro_2026:'31/12/2026',dezembro_2026:'31/01/2027'};
-
-  for(const key of todosMeses) {
-    if(mesesFeitos.has(key)) continue;
-    const btn = document.createElement('div');
-    btn.className='tab';
-    btn.textContent = nomes[key];
-    btn.style.color='#E65100';
-    btn.onclick = function(){ showTab(key,this); };
-    tabsBar.appendChild(btn);
-    const panel = document.createElement('div');
-    panel.id='tab-'+key;
-    panel.className='tab-panel';
-    panel.innerHTML=`<div class="main"><div style="text-align:center;padding:4rem 2rem"><div style="font-size:48px;margin-bottom:1rem">📂</div><h2 style="font-family:var(--fd);color:var(--navy);margin-bottom:.75rem">${nomes[key]} — Aguardando Planilha</h2><p style="color:var(--text2);font-size:14px">Envie a planilha ao Claude para consolidação dos dados.</p><div style="margin-top:1.5rem;display:inline-block;background:#FFF3E0;color:#E65100;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600">⏱ Prazo: ${prazos[key]}</div></div></div>`;
+    panel.innerHTML = mes ? buildTabMes(key,mes) : `<div class="main"><div style="text-align:center;padding:4rem 2rem"><div style="font-size:48px;margin-bottom:1rem">📂</div><h2 style="font-family:var(--fd);color:var(--navy);margin-bottom:.75rem">${nomes[key]} — Aguardando Planilha</h2><p style="color:var(--text2);font-size:14px">Envie a planilha ao Claude para consolidação dos dados.</p><div style="margin-top:1.5rem;display:inline-block;background:#FFF3E0;color:#E65100;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600">⏱ Prazo: ${prazos[key]}</div></div></div>`;
     container.appendChild(panel);
   }
 
@@ -770,7 +759,7 @@ window.toggleApresentacao = function(){
 
 window.exportarCSV = function(){
   const d=window._dadosFirebase; if(!d){alert('Dados ainda não carregados.');return;}
-  const meses=Object.values(d.meses||{}).sort((a,b)=>a.competencia.localeCompare(b.competencia));
+  const meses=Object.values(d.meses||{}).sort((a,b)=>idxMesComp(a.competencia)-idxMesComp(b.competencia));
   let csv='Competência;Órgão;Tipo;Valor;Vencimento;Data Pgto;Status\n';
   const STN={verde:'No prazo',azul:'Com acréscimos',debito:'Em débito'};
   for(const m of meses)for(const o of ORGAOS)for(const tp of TIPOS){const g=m.orgaos?.[o]?.[tp];if(!g)continue;
