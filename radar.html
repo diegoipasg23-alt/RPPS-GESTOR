@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar de Preços — Loja</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E1B4B;--roxo:#7C3AED;--roxo2:#EDE9FE;--verde:#059669;--amber:#D97706;--red:#DC2626;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--border:#E2E8F0;--fn:'Nunito',sans-serif;--shadow:0 1px 4px rgba(15,23,42,.08);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:#F1F5F9;min-height:100vh;padding-bottom:40px;}
+.hero{background:linear-gradient(135deg,var(--navy),var(--roxo));color:#fff;padding:26px 18px 60px;text-align:center;}
+.hero h1{font-size:20px;font-weight:900;}
+.hero p{font-size:12px;opacity:.85;margin-top:4px;font-weight:700;}
+.wrap{max-width:560px;margin:-38px auto 0;padding:0 14px;}
+.card{background:#fff;border-radius:14px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px;}
+.sec{font-size:13px;font-weight:900;margin-bottom:12px;}
+input[type=text],input[type=number]{width:100%;padding:13px 14px;border:2px solid var(--border);border-radius:11px;font-family:var(--fn);font-size:15px;font-weight:800;color:var(--text);outline:none;}
+input:focus{border-color:var(--roxo);}
+.hint{font-size:11px;color:var(--text3);font-weight:700;margin-top:6px;}
+.lojas{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;}
+.loja{display:flex;align-items:center;gap:9px;padding:12px;border:2px solid var(--border);border-radius:11px;text-decoration:none;color:var(--text);font-size:13px;font-weight:900;transition:all .15s;background:#fff;}
+.loja:active{transform:scale(.97);}
+.loja.on{border-color:var(--roxo);background:var(--roxo2);}
+.loja.off{opacity:.45;pointer-events:none;}
+.loja .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;color:#fff;font-weight:900;}
+.btn-all{width:100%;margin-top:12px;padding:14px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--navy),var(--roxo));color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer;}
+.btn-all:disabled{background:#E2E8F0;color:#94A3B8;}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.fg label{display:block;font-size:10px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:5px;}
+.res{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.res>div{border-radius:10px;padding:12px 6px;text-align:center;}
+.res .v{font-size:16px;font-weight:900;}
+.res .l{font-size:9px;font-weight:800;text-transform:uppercase;margin-top:2px;}
+.verd{margin-top:12px;border-radius:10px;padding:12px 14px;font-size:12.5px;font-weight:800;display:none;line-height:1.5;}
+.dica{font-size:12px;color:var(--text2);line-height:1.65;}
+.dica b{color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>📡 Radar de Preços</h1>
+  <p>Digite uma vez · compare em todas as lojas · decida com margem na mão</p>
+</div>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="sec">🔍 O que você quer comprar?</div>
+    <input type="text" id="q" placeholder="Ex: air fryer mondial 4l" onkeyup="atualizar();if(event.key==='Enter')abrirTodas()">
+    <div class="hint">Dica: marca + modelo + tamanho = busca mais certeira</div>
+    <div class="lojas" id="lojas">
+      <a class="loja off" data-u="https://www.google.com/search?tbm=shop&q=" target="_blank" rel="noopener"><span class="ic" style="background:#4285F4">G</span>Google Shopping</a>
+      <a class="loja off" data-u="https://www.zoom.com.br/search?q=" target="_blank" rel="noopener"><span class="ic" style="background:#0A5AD6">Z</span>Zoom</a>
+      <a class="loja off" data-u="https://www.buscape.com.br/search?q=" target="_blank" rel="noopener"><span class="ic" style="background:#6D28D9">B</span>Buscapé</a>
+      <a class="loja off" data-u="https://lista.mercadolivre.com.br/" data-ml="1" target="_blank" rel="noopener"><span class="ic" style="background:#FFE600;color:#2D3277">ML</span>Mercado Livre</a>
+      <a class="loja off" data-u="https://www.amazon.com.br/s?k=" target="_blank" rel="noopener"><span class="ic" style="background:#FF9900;color:#131921">a</span>Amazon</a>
+      <a class="loja off" data-u="https://www.magazineluiza.com.br/busca/" data-slash="1" target="_blank" rel="noopener"><span class="ic" style="background:#0086FF">M</span>Magalu</a>
+      <a class="loja off" data-u="https://shopee.com.br/search?keyword=" target="_blank" rel="noopener"><span class="ic" style="background:#EE4D2D">S</span>Shopee</a>
+      <a class="loja off" data-u="https://www.casasbahia.com.br/b?q=" target="_blank" rel="noopener"><span class="ic" style="background:#E30613">CB</span>Casas Bahia</a>
+    </div>
+    <button class="btn-all" id="btn-all" disabled onclick="abrirTodas()">ABRIR COMPARADORES (Google + Zoom + Buscapé)</button>
+    <div class="hint" style="text-align:center">Comparadores primeiro: eles já mostram o menor preço entre dezenas de lojas</div>
+  </div>
+
+  <div class="card">
+    <div class="sec">🧮 Achou o menor preço? Veja se vale a revenda</div>
+    <div class="calc-grid">
+      <div class="fg"><label>Menor preço achado (R$)</label><input type="number" id="c-custo" placeholder="0,00" step="0.01" oninput="calc()"></div>
+      <div class="fg"><label>Frete (R$)</label><input type="number" id="c-frete" placeholder="0,00" step="0.01" oninput="calc()"></div>
+    </div>
+    <div class="fg" style="margin-bottom:12px"><label>Por quanto você venderia na loja (R$)</label><input type="number" id="c-venda" placeholder="Deixe vazio p/ sugerir markup 100%" step="0.01" oninput="calc()"></div>
+    <div class="res">
+      <div style="background:#EDE9FE"><div class="v" id="r-venda" style="color:var(--roxo)">—</div><div class="l" style="color:#6D28D9">Preço de Venda</div></div>
+      <div style="background:#D1FAE5"><div class="v" id="r-lucro" style="color:var(--verde)">—</div><div class="l" style="color:#047857">Lucro/Unidade</div></div>
+      <div style="background:#FEF3C7"><div class="v" id="r-margem" style="color:var(--amber)">—</div><div class="l" style="color:#B45309">Margem</div></div>
+    </div>
+    <div class="verd" id="verd"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec">📋 Como usar o radar (método de 2 minutos)</div>
+    <div class="dica">
+      <b>1.</b> Digite o produto e toque em <b>Abrir Comparadores</b> — Google Shopping, Zoom e Buscapé já varrem dezenas de lojas e mostram o menor preço.<br>
+      <b>2.</b> Confira o preço <b>com frete</b> — menor preço com frete caro não é menor preço.<br>
+      <b>3.</b> Jogue o valor na calculadora. <b>Margem de 50% ou mais</b> (markup 100%) = compra boa. Entre 35–50% = só se girar rápido. Abaixo de 35% = deixa passar.<br>
+      <b>4.</b> Desconfie de marketplace com vendedor novo ou preço muito abaixo dos demais — pra revenda, nota fiscal é obrigatória.
+    </div>
+  </div>
+
+</div>
+
+<script>
+function slug(s){return s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');}
+function atualizar(){
+  const q=document.getElementById('q').value.trim();
+  const on=q.length>=3;
+  document.querySelectorAll('.loja').forEach(a=>{
+    if(on){
+      a.classList.remove('off');a.classList.add('on');
+      const base=a.dataset.u;
+      if(a.dataset.ml)a.href=base+slug(q);
+      else if(a.dataset.slash)a.href=base+encodeURIComponent(q)+'/';
+      else a.href=base+encodeURIComponent(q);
+    }else{a.classList.add('off');a.classList.remove('on');a.removeAttribute('href');}
+  });
+  document.getElementById('btn-all').disabled=!on;
+}
+function abrirTodas(){
+  const q=document.getElementById('q').value.trim();
+  if(q.length<3)return;
+  // Abre os 3 comparadores (navegadores podem pedir permissão de pop-up na 1ª vez)
+  window.open('https://www.google.com/search?tbm=shop&q='+encodeURIComponent(q),'_blank');
+  setTimeout(()=>window.open('https://www.zoom.com.br/search?q='+encodeURIComponent(q),'_blank'),150);
+  setTimeout(()=>window.open('https://www.buscape.com.br/search?q='+encodeURIComponent(q),'_blank'),300);
+}
+function calc(){
+  const custo=(parseFloat(document.getElementById('c-custo').value)||0)+(parseFloat(document.getElementById('c-frete').value)||0);
+  let venda=parseFloat(document.getElementById('c-venda').value)||0;
+  const rv=document.getElementById('r-venda'),rl=document.getElementById('r-lucro'),rm=document.getElementById('r-margem'),vd=document.getElementById('verd');
+  if(custo<=0){rv.textContent=rl.textContent=rm.textContent='—';vd.style.display='none';return;}
+  if(!venda)venda=custo*2; // sugestão: markup 100%
+  const lucro=venda-custo;
+  const margem=venda>0?(lucro/venda)*100:0;
+  const f=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  rv.textContent=f(venda);rl.textContent=f(lucro);rm.textContent=margem.toFixed(1)+'%';
+  vd.style.display='block';
+  if(margem>=50){vd.style.background='#D1FAE5';vd.style.color='#065F46';vd.textContent='✅ COMPRA BOA — margem de '+margem.toFixed(0)+'% está no padrão da loja (50%+). Confere se o preço da concorrência local permite vender a '+f(venda)+'.';}
+  else if(margem>=35){vd.style.background='#FEF3C7';vd.style.color='#92400E';vd.textContent='⚠️ MARGEM APERTADA ('+margem.toFixed(0)+'%) — só compensa se for produto de giro rápido (tipo chocolate) ou chamariz de loja.';}
+  else{vd.style.background='#FEE2E2';vd.style.color='#991B1B';vd.textContent='❌ DEIXA PASSAR — margem de '+margem.toFixed(0)+'% não paga o custo fixo da loja. Procura fornecedor mais barato ou sobe o preço de venda.';}
+}
+</script>
+</body>
+</html>
