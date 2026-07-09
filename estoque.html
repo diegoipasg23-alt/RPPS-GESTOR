@@ -197,6 +197,10 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 
 /* ===== META ===== */
 .meta-box{background:linear-gradient(135deg,var(--navy),var(--roxo));border-radius:12px;padding:18px;color:#fff;margin-bottom:14px;}
+.rd-loja{display:flex;align-items:center;gap:9px;padding:12px;border:2px solid var(--border);border-radius:11px;text-decoration:none;color:var(--text);font-size:12.5px;font-weight:900;background:#fff;opacity:.45;pointer-events:none;transition:all .15s;}
+.rd-loja.rd-on{opacity:1;pointer-events:auto;border-color:var(--roxo);background:var(--roxo2);}
+.rd-loja:active{transform:scale(.97);}
+.rd-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:900;}
 .meta-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
 .meta-lbl{font-size:11px;opacity:.7;font-weight:700;text-transform:uppercase;}
 .meta-val{font-size:22px;font-weight:900;}
@@ -365,6 +369,11 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="sb-item" id="mi-marketing" onclick="goPage('marketing')">
       <div class="sb-icon" style="background:#D97706">📣</div>
       <span class="sb-item-lbl">Marketing</span>
+    </div>
+
+    <div class="sb-item" id="mi-radar" onclick="goPage('radar')">
+      <div class="sb-icon" style="background:#EE4D2D">📡</div>
+      <span class="sb-item-lbl">Radar de Preços</span>
     </div>
 
     <div class="sb-item" id="mi-fornecedores" onclick="goPage('fornecedores')">
@@ -661,6 +670,56 @@ tbody td.r{text-align:right;font-weight:700;}
         </div>
       </div>
 
+      <!-- ===== RADAR DE PRECOS ===== -->
+      <div id="pg-radar" style="display:none">
+
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:900;margin-bottom:10px">🔍 O que você quer comprar?</div>
+          <input type="text" id="rd-q" placeholder="Ex: air fryer mondial 4l" onkeyup="radarAtualizar()" style="width:100%;padding:13px 14px;border:2px solid var(--border);border-radius:11px;font-family:var(--fn);font-size:15px;font-weight:800;outline:none">
+          <div style="font-size:11px;color:var(--text3);font-weight:700;margin-top:6px">Dica: marca + modelo + tamanho = busca mais certeira</div>
+          <div id="rd-lojas" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px">
+            <a class="rd-loja" data-u="https://www.google.com/search?tbm=shop&q=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#4285F4">G</span>Google Shopping</a>
+            <a class="rd-loja" data-u="https://www.zoom.com.br/search?q=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#0A5AD6">Z</span>Zoom</a>
+            <a class="rd-loja" data-u="https://www.buscape.com.br/search?q=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#6D28D9">B</span>Buscapé</a>
+            <a class="rd-loja" data-u="https://lista.mercadolivre.com.br/" data-ml="1" target="_blank" rel="noopener"><span class="rd-ic" style="background:#FFE600;color:#2D3277">ML</span>Mercado Livre</a>
+            <a class="rd-loja" data-u="https://www.amazon.com.br/s?k=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#FF9900;color:#131921">a</span>Amazon</a>
+            <a class="rd-loja" data-u="https://www.magazineluiza.com.br/busca/" data-slash="1" target="_blank" rel="noopener"><span class="rd-ic" style="background:#0086FF">M</span>Magalu</a>
+            <a class="rd-loja" data-u="https://shopee.com.br/search?keyword=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#EE4D2D">S</span>Shopee</a>
+            <a class="rd-loja" data-u="https://www.casasbahia.com.br/b?q=" target="_blank" rel="noopener"><span class="rd-ic" style="background:#E30613">CB</span>Casas Bahia</a>
+          </div>
+          <a id="rd-shopee" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:12px;padding:14px;border-radius:11px;background:#EE4D2D;color:#fff;font-size:13px;font-weight:900;opacity:.45;pointer-events:none">🔥 MAIS VENDIDOS NA SHOPEE (validar demanda)</a>
+        </div>
+
+        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:900;margin-bottom:6px">🔥 Radar de Demanda — o que está girando</div>
+          <div style="font-size:11px;color:var(--text3);font-weight:700;margin-bottom:12px">Campeões de venda da Shopee por categoria da loja. Milhares de vendidos = demanda comprovada.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=organizador%20casa&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#7C3AED">🏠</span>Casa & Organização</a>
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=panela%20cozinha&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#D97706">🍳</span>Cozinha & Panelas</a>
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=hidratante%20corporal&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#DB2777">💄</span>Beleza & Cremes</a>
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=perfume%20feminino&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#059669">🌸</span>Perfumes</a>
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=jogo%20de%20cama&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#0086FF">🛏️</span>Cama & Banho</a>
+            <a class="rd-loja rd-on" href="https://shopee.com.br/search?keyword=kit%20presente&sortBy=sales" target="_blank" rel="noopener"><span class="rd-ic" style="background:#DC2626">🎁</span>Kits de Presente</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:900;margin-bottom:12px">🧮 Achou o menor preço? Veja se vale a revenda</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><label style="display:block;font-size:10px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:5px">Menor preço (R$)</label><input type="number" id="rd-custo" placeholder="0,00" step="0.01" oninput="radarCalc()" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:800;outline:none"></div>
+            <div><label style="display:block;font-size:10px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:5px">Frete (R$)</label><input type="number" id="rd-frete" placeholder="0,00" step="0.01" oninput="radarCalc()" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:800;outline:none"></div>
+          </div>
+          <div style="margin-bottom:12px"><label style="display:block;font-size:10px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:5px">Por quanto venderia na loja (R$)</label><input type="number" id="rd-venda" placeholder="Vazio = sugere markup 100%" step="0.01" oninput="radarCalc()" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:800;outline:none"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div style="background:#EDE9FE;border-radius:10px;padding:12px 6px;text-align:center"><div id="rd-r-venda" style="font-size:15px;font-weight:900;color:var(--roxo)">—</div><div style="font-size:9px;font-weight:800;color:#6D28D9;text-transform:uppercase;margin-top:2px">Preço Venda</div></div>
+            <div style="background:#D1FAE5;border-radius:10px;padding:12px 6px;text-align:center"><div id="rd-r-lucro" style="font-size:15px;font-weight:900;color:var(--verde)">—</div><div style="font-size:9px;font-weight:800;color:#047857;text-transform:uppercase;margin-top:2px">Lucro/Un</div></div>
+            <div style="background:#FEF3C7;border-radius:10px;padding:12px 6px;text-align:center"><div id="rd-r-margem" style="font-size:15px;font-weight:900;color:var(--amber)">—</div><div style="font-size:9px;font-weight:800;color:#B45309;text-transform:uppercase;margin-top:2px">Margem</div></div>
+          </div>
+          <div id="rd-verd" style="margin-top:12px;border-radius:10px;padding:12px 14px;font-size:12.5px;font-weight:800;display:none;line-height:1.5"></div>
+        </div>
+
+      </div>
+
     </div><!-- /content -->
   </div><!-- /main-area -->
 </div><!-- /app -->
@@ -900,6 +959,7 @@ const PAGE_META={
   movs:{title:'Movimentações',sub:'Histórico de entradas e vendas',pri:null,sec:null},
   meta:{title:'Meta de Vendas',sub:'Acompanhamento mensal',pri:'+ Meta',sec:null},
   marketing:{title:'Marketing',sub:'Análise de vendas e promoções',pri:null,sec:null},
+  radar:{title:'Radar de Preços',sub:'Menor preço + demanda + margem antes de comprar',pri:null,sec:null},
   fornecedores:{title:'Fornecedores / Clientes',sub:'Gerencie fornecedores e clientes',pri:'+ Fornecedor',sec:null},
   relatorio:{title:'Relatório WhatsApp',sub:'Resumo semanal para envio',pri:null,sec:null},
   alertas:{title:'Alertas',sub:'Produtos com estoque crítico',pri:null,sec:null},
@@ -1566,6 +1626,40 @@ function carregarMetaMes(){if(window._cmm)window._cmm();}
 function salvarCustoFixo(){if(window._scf)window._scf();else setTimeout(salvarCustoFixo,150);}
 function excluirCustoFixo(id){if(window._ecf)window._ecf(id);}
 function excluirMov(id){if(window._em)window._em(id);}
+
+// ===== RADAR DE PRECOS =====
+function radarSlug(s){return s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');}
+function radarAtualizar(){
+  const q=document.getElementById('rd-q').value.trim();
+  const on=q.length>=3;
+  document.querySelectorAll('#rd-lojas .rd-loja').forEach(a=>{
+    if(on){
+      a.classList.add('rd-on');
+      const base=a.dataset.u;
+      if(a.dataset.ml)a.href=base+radarSlug(q);
+      else if(a.dataset.slash)a.href=base+encodeURIComponent(q)+'/';
+      else a.href=base+encodeURIComponent(q);
+    }else{a.classList.remove('rd-on');a.removeAttribute('href');}
+  });
+  const bs=document.getElementById('rd-shopee');
+  if(on){bs.style.opacity='1';bs.style.pointerEvents='auto';bs.href='https://shopee.com.br/search?keyword='+encodeURIComponent(q)+'&sortBy=sales';}
+  else{bs.style.opacity='.45';bs.style.pointerEvents='none';bs.removeAttribute('href');}
+}
+function radarCalc(){
+  const custo=(parseFloat(document.getElementById('rd-custo').value)||0)+(parseFloat(document.getElementById('rd-frete').value)||0);
+  let venda=parseFloat(document.getElementById('rd-venda').value)||0;
+  const rv=document.getElementById('rd-r-venda'),rl=document.getElementById('rd-r-lucro'),rm=document.getElementById('rd-r-margem'),vd=document.getElementById('rd-verd');
+  if(custo<=0){rv.textContent=rl.textContent=rm.textContent='—';vd.style.display='none';return;}
+  if(!venda)venda=custo*2;
+  const lucro=venda-custo;
+  const margem=venda>0?(lucro/venda)*100:0;
+  const f=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  rv.textContent=f(venda);rl.textContent=f(lucro);rm.textContent=margem.toFixed(1)+'%';
+  vd.style.display='block';
+  if(margem>=50){vd.style.background='#D1FAE5';vd.style.color='#065F46';vd.textContent='✅ COMPRA BOA — margem de '+margem.toFixed(0)+'% no padrão da loja (50%+). Confere se a concorrência local permite vender a '+f(venda)+'.';}
+  else if(margem>=35){vd.style.background='#FEF3C7';vd.style.color='#92400E';vd.textContent='⚠️ MARGEM APERTADA ('+margem.toFixed(0)+'%) — só se for giro rápido (tipo chocolate) ou chamariz de loja.';}
+  else{vd.style.background='#FEE2E2';vd.style.color='#991B1B';vd.textContent='❌ DEIXA PASSAR — margem de '+margem.toFixed(0)+'% não paga o custo fixo. Busca fornecedor mais barato ou sobe o preço.';}
+}
 function abrirMov(id,tipo){if(window._am)window._am(id,tipo);}
 function excluirProd(id){if(window._ep)window._ep(id);}
 function editarProd(id){if(window._editarProd)window._editarProd(id);}
