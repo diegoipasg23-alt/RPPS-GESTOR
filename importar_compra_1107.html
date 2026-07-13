@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar Compra 11/07 — MWR Uberlândia</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1E1B4B;--roxo:#7C3AED;--roxo2:#EDE9FE;--verde:#059669;--amber:#D97706;--red:#DC2626;--text:#0F172A;--text2:#475569;--text3:#94A3B8;--border:#E2E8F0;--fn:'Nunito',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fn);background:#F1F5F9;padding-bottom:100px;}
+.hero{background:linear-gradient(135deg,var(--navy),var(--roxo));color:#fff;padding:22px 16px;text-align:center;}
+.hero h1{font-size:17px;font-weight:900;}
+.hero p{font-size:11.5px;opacity:.85;margin-top:4px;font-weight:700;}
+.wrap{max-width:640px;margin:0 auto;padding:14px;}
+.info{background:#FEF3C7;border-radius:11px;padding:12px 14px;font-size:12px;color:#92400E;font-weight:700;margin-bottom:12px;line-height:1.5;}
+.item{background:#fff;border-radius:11px;padding:12px;margin-bottom:9px;border:1px solid var(--border);}
+.item.done{opacity:.45;}
+.it-nome{font-size:13px;font-weight:900;margin-bottom:8px;}
+.it-grid{display:grid;grid-template-columns:52px 1fr 1fr 1.1fr;gap:7px;}
+.it-grid label{display:block;font-size:8.5px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:3px;}
+.it-grid input,.it-grid select{width:100%;padding:8px 7px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--fn);font-size:12.5px;font-weight:800;outline:none;background:#fff;}
+.it-grid input:focus{border-color:var(--roxo);}
+.foot{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:12px 16px;box-shadow:0 -4px 16px rgba(15,23,42,.08);}
+.foot-in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:12px;}
+.tot{flex:1;}
+.tot .v{font-size:16px;font-weight:900;}
+.tot .l{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;}
+#btn{padding:14px 22px;border:none;border-radius:11px;background:linear-gradient(135deg,var(--navy),var(--roxo));color:#fff;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer;}
+#btn:disabled{background:#E2E8F0;color:#94A3B8;}
+.prog{font-size:11px;font-weight:800;color:var(--text2);margin-top:4px;}
+.ok{background:#D1FAE5;border-radius:11px;padding:16px;font-size:14px;color:#065F46;font-weight:800;margin-bottom:12px;display:none;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>📥 Importar Compra — 11/07/2026</h1>
+  <p>MWR de Sousa (Uberlândia) · 29 produtos · 84 unidades · Cartão de Crédito</p>
+</div>
+
+<div class="wrap">
+  <div class="ok" id="ok">✅ Importação concluída! Abra o app de estoque — está tudo lá, com entrada registrada nas Movimentações.</div>
+  <div class="info">💳 O cupom teve <b>acréscimo de 10%</b> no cartão (R$ 1.032 → R$ 1.135,20). O custo abaixo já vem <b>com o acréscimo embutido</b> — esse é o custo real de cada peça. O preço de venda sugerido é 2× o custo real (markup 100%); ajuste o que quiser antes de importar.</div>
+  <div id="lista"></div>
+</div>
+
+<div class="foot"><div class="foot-in">
+  <div class="tot"><div class="v" id="t-info">—</div><div class="l">custo total · venda potencial</div><div class="prog" id="prog"></div></div>
+  <button id="btn" onclick="importar()">CADASTRAR TUDO</button>
+</div></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+import{getDatabase,ref,get,push,update}from"https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+const cfg={apiKey:"AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",authDomain:"rpps-gestor.firebaseapp.com",databaseURL:"https://rpps-gestor-default-rtdb.firebaseio.com",projectId:"rpps-gestor",storageBucket:"rpps-gestor.firebasestorage.app",messagingSenderId:"306067757224",appId:"1:306067757224:web:5f8acdc7c5199911774a9d"};
+const app=initializeApp(cfg);const db=getDatabase(app);
+const FATOR=1.10; // acréscimo do cartão embutido no custo real
+
+// [nome, qtd, custo tabela]  — consolidado do cupom (itens repetidos somados)
+const ITENS=[
+["Bandeja Decorativa",4,15],
+["Porta Tempero Horizontal 3 Potes",2,15],
+["Letreiro Decorativo",3,15],
+["Kit Pote Plástico Café e Açúcar",2,15],
+["Pote de Vidro com Colher",3,6],
+["Grampeador",3,15],
+["Placa Decorativa",1,15],
+["Trena 3 Metros",3,6],
+["Garrafa de Vidro Quadriculada 1L",2,15],
+["Quadro 23x50",2,15],
+["Quadro Grande",3,15],
+["Cachepot com Suporte Rosé",2,15],
+["Placas Dizeres",4,15],
+["Calendário",3,15],
+["Placa com Gancho",2,15],
+["Espelho com Cordão",8,15],
+["Cestinho com Alça",12,6],
+["Tapete Infantil",4,15],
+["Pula Corda",3,7],
+["Lança Água",2,6],
+["Brinquedo Lança Água Grande",1,15],
+["Boneca Sereia",1,15],
+["Espada de Plástico",1,15],
+["Kit Dentista Infantil",2,15],
+["Brinquedo Clean Family Set",3,15],
+["Boneca Amy Sereia",3,15],
+["Quebra-Cabeça",1,15],
+["Boneca Sheyla",3,7],
+["Jogo da Memória Capivara",1,15]
+];
+
+const lista=document.getElementById('lista');
+lista.innerHTML=ITENS.map((it,i)=>{
+  const custo=(it[2]*FATOR).toFixed(2);
+  const venda=(it[2]*FATOR*2).toFixed(2);
+  return `<div class="item" id="it-${i}">
+    <div class="it-nome">${it[0]}</div>
+    <div class="it-grid">
+      <div><label>Qtd</label><input type="number" id="q-${i}" value="${it[1]}" oninput="tot()"></div>
+      <div><label>Custo real</label><input type="number" id="c-${i}" value="${custo}" step="0.01" oninput="tot()"></div>
+      <div><label>Venda</label><input type="number" id="v-${i}" value="${venda}" step="0.01" oninput="tot()"></div>
+      <div><label>Categoria</label><select id="cat-${i}">
+        <option value="utilidades" selected>🏠 Utensílios</option>
+        <option value="cosmetico">💄 Cosméticos</option>
+        <option value="chocolate">🍫 Chocolates</option>
+      </select></div>
+    </div>
+  </div>`;
+}).join('');
+
+window.tot=function(){
+  let c=0,v=0;
+  ITENS.forEach((it,i)=>{
+    const q=parseFloat(document.getElementById('q-'+i).value)||0;
+    c+=q*(parseFloat(document.getElementById('c-'+i).value)||0);
+    v+=q*(parseFloat(document.getElementById('v-'+i).value)||0);
+  });
+  const f=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('t-info').innerHTML=f(c)+' <span style="color:var(--text3)">·</span> <span style="color:var(--verde)">'+f(v)+'</span>';
+};
+tot();
+
+const norm=s=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+
+window.importar=async function(){
+  const btn=document.getElementById('btn');
+  if(!confirm('Cadastrar os 29 produtos no Promoções Goiandira?\n\nProdutos com mesmo nome já existentes terão o estoque SOMADO (não duplica).'))return;
+  btn.disabled=true;
+  const prog=document.getElementById('prog');
+  try{
+    // Carrega produtos existentes para não duplicar
+    const snap=await get(ref(db,'loja/produtos'));
+    const exist=snap.val()||{};
+    const porNome={};Object.entries(exist).forEach(([id,p])=>{porNome[norm(p.nome||'')]={id,p};});
+    let n=0;
+    for(let i=0;i<ITENS.length;i++){
+      const nome=ITENS[i][0];
+      const qtd=parseInt(document.getElementById('q-'+i).value)||0;
+      const custo=parseFloat(document.getElementById('c-'+i).value)||0;
+      const venda=parseFloat(document.getElementById('v-'+i).value)||0;
+      const cat=document.getElementById('cat-'+i).value;
+      if(qtd<=0){document.getElementById('it-'+i).classList.add('done');continue;}
+      const ja=porNome[norm(nome)];
+      let pid;
+      if(ja){
+        pid=ja.id;
+        await update(ref(db,'loja/produtos/'+pid),{estoque:(parseInt(ja.p.estoque)||0)+qtd,preco_custo:custo,preco_venda:venda});
+      }else{
+        const novo=await push(ref(db,'loja/produtos'),{nome,categoria:cat,fornecedor_id:'',preco_custo:custo,preco_venda:venda,estoque:qtd,minimo:2,pagamento:'cartao',cartao_digitos:'',criado:Date.now()});
+        pid=novo.key;
+      }
+      await push(ref(db,'loja/movimentacoes'),{pid,prod:nome,cat,tipo:'entrada',qtd,vunit:venda,cunit:custo,obs:'Compra MWR Uberlândia 11/07 (cartão +10%)',pagamento:'',ts:Date.now()});
+      n++;prog.textContent='Cadastrando… '+n+' / '+ITENS.length;
+      document.getElementById('it-'+i).classList.add('done');
+    }
+    prog.textContent='';
+    document.getElementById('ok').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+    btn.textContent='CONCLUÍDO ✅';
+  }catch(e){
+    console.error(e);alert('Erro: '+e.message);btn.disabled=false;
+  }
+};
+</script>
+</body>
+</html>
