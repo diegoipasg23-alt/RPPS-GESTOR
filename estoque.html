@@ -452,6 +452,17 @@ tbody td.r{text-align:right;font-weight:700;}
             <button id="fp-ver" onclick="toggleVerTodos()" style="padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Ver todos</button>
             <span id="prod-count" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:600"></span>
           </div>
+          <!-- ORDENAÇÃO -->
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:800;color:var(--text2)">↕️ Ordenar por:</span>
+            <select id="fp-ordem" onchange="setOrdem(this.value)" style="padding:5px 10px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn)">
+              <option value="recentes">🕐 Mais recentes</option>
+              <option value="antigos">📆 Mais antigos</option>
+              <option value="alfa">🔤 Ordem alfabética (A→Z)</option>
+              <option value="preco">💰 Precificação (sem preço primeiro)</option>
+            </select>
+            <span id="ordem-info" style="font-size:10px;color:var(--text3);font-weight:600"></span>
+          </div>
           <!-- FILTRO CATEGORIA -->
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <span style="font-size:11px;font-weight:700;color:var(--text3)">Categoria:</span>
@@ -1019,6 +1030,14 @@ window._filtro='todos';
 window._periodoProd='todos';
 window._periodoMovs='todos';
 window._verTodos=false;
+window._ordem='recentes';
+
+function setOrdem(v){
+  window._ordem=v;
+  const info=document.getElementById('ordem-info');
+  if(info)info.textContent=(v==='recentes')?'':'exibindo a lista completa';
+  if(window._renderProd)window._renderProd();
+}
 
 function setPeriodoProd(p,el){
   window._periodoProd=p;
@@ -1783,10 +1802,27 @@ function renderProd(){
   if(periodo!=='todos'&&limites[periodo]){
     lista=lista.filter(([k,p])=>(p.criado||0)>=(agora-limites[periodo]));
   }
-  // Ordenar por mais recente
-  lista.sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
-  // Mostrar só os 5 mais recentes na página principal
-  const exibindo5=periodo==='todos'&&!window._verTodos;
+  // Ordenar conforme o modo escolhido
+  const ordem=window._ordem||'recentes';
+  const nomeDe=p=>(p.nome||'').trim();
+  if(ordem==='alfa'){
+    lista.sort((a,b)=>nomeDe(a[1]).localeCompare(nomeDe(b[1]),'pt-BR',{sensitivity:'base'}));
+  }else if(ordem==='antigos'){
+    lista.sort((a,b)=>(a[1].criado||0)-(b[1].criado||0));
+  }else if(ordem==='preco'){
+    // Sem preço de venda (R$ 0,00) primeiro, depois do mais barato ao mais caro; empate resolve por nome
+    lista.sort((a,b)=>{
+      const va=parseFloat(a[1].preco_venda)||0, vb=parseFloat(b[1].preco_venda)||0;
+      const za=va<=0?0:1, zb=vb<=0?0:1;
+      if(za!==zb)return za-zb;
+      if(va!==vb)return va-vb;
+      return nomeDe(a[1]).localeCompare(nomeDe(b[1]),'pt-BR',{sensitivity:'base'});
+    });
+  }else{
+    lista.sort((a,b)=>(b[1].criado||0)-(a[1].criado||0));
+  }
+  // Mostrar só os 5 mais recentes na página principal (apenas no modo padrão)
+  const exibindo5=periodo==='todos'&&!window._verTodos&&ordem==='recentes';
   if(exibindo5)lista=lista.slice(0,5);
   if(!lista.length){g.innerHTML=`<div class="empty"><div class="ico">📦</div><p>Nenhum produto encontrado.</p></div>`;return;}
   g.innerHTML=lista.map(([id,p],i)=>{
@@ -1799,7 +1835,9 @@ function renderProd(){
       <div class="swipe-del">🗑</div>${al}
       <span class="cat-chip ${c.cc}">${c.e} ${c.n}</span>
       <div class="prod-nome">${p.nome}</div>
-      <div class="prod-venda">${fmt(p.preco_venda)}</div>
+      ${(parseFloat(p.preco_venda)||0)<=0
+        ?`<div class="prod-venda" style="color:#DC2626">R$ 0,00 <span style="font-size:10px;font-weight:800;background:#FEE2E2;color:#DC2626;padding:2px 7px;border-radius:99px;vertical-align:middle">⚠ definir preço</span></div>`
+        :`<div class="prod-venda">${fmt(p.preco_venda)}</div>`}
       <div class="prod-custo">Custo: ${fmt(p.preco_custo)}</div>
       ${fn}
       ${p.pagamento&&p.pagamento!=='nao_informado'?`<div style="font-size:10px;color:var(--text3);margin-top:2px">${p.pagamento==='pix'?'💠 PIX':'💳 Cartão '+(p.cartao_digitos?'**** '+p.cartao_digitos:'')}</div>`:''}
