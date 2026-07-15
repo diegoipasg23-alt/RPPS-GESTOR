@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Promoções Goiandira</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
@@ -15,13 +15,51 @@
   --red:#DC2626;--red2:#FEE2E2;
   --choc:#92400E;--choc2:#FDE8C8;
   --navy:#1E1B4B;
-  --bg:#F0F4FF;--bg2:#fff;--border:#E2E8F0;
+  --bg:#F0F4FF;--bg2:#fff;--bg3:#F8FAFC;--border:#E2E8F0;
   --text:#1E293B;--text2:#64748B;--text3:#94A3B8;
   --fn:'Nunito',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
   --shadow:0 2px 8px rgba(0,0,0,0.08);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+
+
+/* ===== ANIMAÇÕES GLOBAIS ===== */
+@keyframes pgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.pg-anim{animation:pgIn .28s ease-out both;}
+.mov-item,.forn-card{animation:cardIn .32s ease both;}
+.mov-item:nth-child(1),.forn-card:nth-child(1){animation-delay:.02s}
+.mov-item:nth-child(2),.forn-card:nth-child(2){animation-delay:.06s}
+.mov-item:nth-child(3),.forn-card:nth-child(3){animation-delay:.10s}
+.mov-item:nth-child(4),.forn-card:nth-child(4){animation-delay:.14s}
+.mov-item:nth-child(5),.forn-card:nth-child(5){animation-delay:.18s}
+.mov-item:nth-child(6),.forn-card:nth-child(6){animation-delay:.22s}
+.mov-item:nth-child(n+7),.forn-card:nth-child(n+7){animation-delay:.26s}
+button{transition:transform .12s ease;}
+button:active{transform:scale(.96);}
+.skel{background:var(--bg2);border-radius:12px;border:1.5px solid var(--border);padding:14px;min-height:104px;}
+.skel div{background:var(--border);border-radius:6px;animation:bl 1.2s ease-in-out infinite;}
+@keyframes badgePulse{0%{box-shadow:0 0 0 0 rgba(220,38,38,.55)}70%{box-shadow:0 0 0 10px rgba(220,38,38,0)}100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}}
+
+/* ===== MODO ESCURO (tech) ===== */
+body.dark{
+  --rosa:#FF6B9D;--rosa2:#3A1E2B;
+  --roxo:#A78BFA;--roxo2:#2A2547;
+  --verde:#4ADE9C;--verde2:#123528;
+  --amber:#FBBF24;--amber2:#3A2A12;
+  --red:#F87171;--red2:#3A1919;
+  --choc:#E8A662;--choc2:#33230F;
+  --bg:#0E0F14;--bg2:#171923;--bg3:#12141C;--border:#262A38;
+  --text:#F1F2F6;--text2:#A8ADC0;--text3:#8A8FA3;
+  --shadow:0 2px 10px rgba(0,0,0,.45);
+}
+body.dark .sidebar{background:#0B0C11;}
+/* ===== TIPOGRAFIA TECH (nos dois temas) ===== */
+.prod-venda,.prod-custo,.venda-notif{font-family:var(--mono);letter-spacing:-.01em;}
+#btn-tema{padding:7px 11px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:14px;cursor:pointer;font-family:var(--fn);line-height:1;}
 
 /* ===== LOGIN ===== */
 #login-screen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#1E1B4B,#7C3AED 60%,#FF6B9D);display:flex;align-items:center;justify-content:center;padding:1.5rem;}
@@ -95,7 +133,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
 
 /* Topbar */
-.topbar{background:#fff;padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar{background:var(--bg2);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
 .topbar-title{font-size:16px;font-weight:800;color:var(--text);}
 .topbar-sub{font-size:12px;color:var(--text3);margin-top:1px;}
 .topbar-right{display:flex;align-items:center;gap:8px;}
@@ -112,7 +150,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .search-wrap{position:relative;margin-left:8px;}
 .search-inp{padding:7px 12px 7px 34px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;font-family:var(--fn);color:var(--text);outline:none;width:180px;background:#f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' stroke='%2394A3B8' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 10px center;transition:all .2s;}
 .search-inp:focus{border-color:var(--roxo);width:220px;}
-.search-drop{display:none;position:absolute;right:0;top:calc(100% + 5px);background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);border:1px solid var(--border);z-index:200;max-height:280px;overflow-y:auto;width:280px;}
+.search-drop{display:none;position:absolute;right:0;top:calc(100% + 5px);background:var(--bg2);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.12);border:1px solid var(--border);z-index:200;max-height:280px;overflow-y:auto;width:280px;}
 .search-drop.open{display:block;}
 .si{padding:9px 12px;display:flex;align-items:center;gap:9px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;}
 .si:last-child{border-bottom:none;}
@@ -130,7 +168,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 
 /* ===== CARDS RESUMO ===== */
 .resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem;}
-.rcard{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.rcard{background:var(--bg2);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:center;gap:12px;}
 .rcard-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
 .rcard-val{font-size:20px;font-weight:900;color:var(--text);line-height:1;}
 .rcard-lbl{font-size:11px;color:var(--text3);margin-top:2px;font-weight:600;}
@@ -138,19 +176,21 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 /* ===== GRADE PRODUTOS ===== */
 .filtros{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
 .filtros-label{font-size:12px;font-weight:700;color:var(--text3);margin-right:4px;}
-.fb{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--fn);transition:all .2s;}
+.fb{padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);font-size:12px;font-weight:700;color:var(--text2);cursor:pointer;font-family:var(--fn);transition:all .2s;}
 .fb.active{background:var(--roxo);border-color:var(--roxo);color:#fff;box-shadow:0 2px 8px rgba(124,58,237,.3);}
 .fb:hover:not(.active){border-color:var(--roxo);color:var(--roxo);}
 @keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
-.pcard{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1.5px solid var(--border);position:relative;overflow:hidden;transition:all .2s;animation:cardIn .3s ease both;}
+.pcard{background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1.5px solid var(--border);position:relative;overflow:hidden;transition:all .2s;animation:cardIn .3s ease both;}
 .pcard:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1);}
 .pcard.alerta{border-color:var(--amber);}
-.pcard.zerado{border-color:var(--red);background:#fff8f8;}
+.pcard.zerado{border-color:var(--red);background:var(--bg2)8f8;}
 .cat-chip{display:inline-block;font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;margin-bottom:7px;text-transform:uppercase;letter-spacing:.04em;}
 .cc{background:#FFD6E7;color:#C4006A;}
 .ch{background:#FDE8C8;color:#7C3100;}
 .cu{background:#EDE9FE;color:#5B21B6;}
+.cb{background:#DBEAFE;color:#1D4ED8;}
+.cd{background:#D1FAE5;color:#047857;}
 .prod-nome{font-size:13px;font-weight:800;color:var(--text);margin-bottom:3px;line-height:1.3;}
 .prod-venda{font-size:13px;color:var(--verde);font-weight:700;}
 .prod-custo{font-size:11px;color:var(--text3);}
@@ -164,7 +204,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .abtn-e:hover{background:var(--verde);color:#fff;}
 .abtn-s{background:#FFD6E7;color:#9D174D;}
 .abtn-s:hover{background:var(--rosa);color:#fff;}
-.abtn-d{background:#F1F5F9;color:#64748B;}
+.abtn-d{background:var(--bg3);color:#64748B;}
 .abtn-d:hover{background:var(--red);color:#fff;}
 @keyframes alertBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .alerta-badge{position:absolute;top:8px;right:8px;font-size:14px;animation:alertBounce 1.2s ease-in-out infinite;}
@@ -173,14 +213,14 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 /* ===== PAINEL MOVIMENTAÇÕES ===== */
 .mov-page{display:grid;grid-template-columns:1fr 320px;gap:16px;}
 .mov-header-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;}
-.mov-hcard{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.mov-hcard{background:var(--bg2);border-radius:12px;padding:14px 16px;box-shadow:var(--shadow);border:1px solid var(--border);}
 .mov-hcard-val{font-size:20px;font-weight:900;line-height:1;}
 .mov-hcard-lbl{font-size:11px;color:var(--text3);font-weight:600;margin-top:2px;}
 .lucro-box{background:linear-gradient(135deg,var(--navy),var(--roxo));border-radius:12px;padding:16px;color:#fff;margin-bottom:14px;text-align:center;}
 .lucro-val{font-size:28px;font-weight:900;}
 .lucro-lbl{font-size:11px;opacity:.7;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
 .mov-list{display:flex;flex-direction:column;gap:8px;}
-.mov-item{background:#fff;border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.mov-item{background:var(--bg2);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow);border:1px solid var(--border);}
 .mov-item-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;}
 .mov-prod-nome{font-size:13px;font-weight:800;color:var(--text);}
 .mov-hora{font-size:11px;color:var(--text3);text-align:right;}
@@ -189,7 +229,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .chip-v{background:#D1FAE5;color:#065F46;}
 .chip-e{background:#DBEAFE;color:#1E40AF;}
 .mov-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px;}
-.mov-det{background:#F8FAFC;border-radius:7px;padding:5px 8px;text-align:center;}
+.mov-det{background:var(--bg3);border-radius:7px;padding:5px 8px;text-align:center;}
 .mov-det-val{font-size:11px;font-weight:800;color:var(--text);}
 .mov-det-lbl{font-size:9px;color:var(--text3);font-weight:600;}
 .mov-lucro-row{display:flex;align-items:center;justify-content:space-between;padding-top:6px;border-top:1px solid var(--border);}
@@ -197,7 +237,7 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 
 /* ===== META ===== */
 .meta-box{background:linear-gradient(135deg,var(--navy),var(--roxo));border-radius:12px;padding:18px;color:#fff;margin-bottom:14px;}
-.rd-loja{display:flex;align-items:center;gap:9px;padding:12px;border:2px solid var(--border);border-radius:11px;text-decoration:none;color:var(--text);font-size:12.5px;font-weight:900;background:#fff;opacity:.45;pointer-events:none;transition:all .15s;}
+.rd-loja{display:flex;align-items:center;gap:9px;padding:12px;border:2px solid var(--border);border-radius:11px;text-decoration:none;color:var(--text);font-size:12.5px;font-weight:900;background:var(--bg2);opacity:.45;pointer-events:none;transition:all .15s;}
 .rd-loja.rd-on{opacity:1;pointer-events:auto;border-color:var(--roxo);background:var(--roxo2);}
 .rd-loja:active{transform:scale(.97);}
 .rd-ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:#fff;font-weight:900;}
@@ -208,32 +248,32 @@ body{font-family:var(--fn);background:var(--bg);color:var(--text);min-height:100
 .meta-bar-fill{height:100%;background:linear-gradient(90deg,#4ade80,#fbbf24);border-radius:99px;transition:width 1s ease;}
 .meta-pct-row{display:flex;justify-content:space-between;font-size:11px;opacity:.8;}
 .meta-prod-list{display:flex;flex-direction:column;gap:8px;}
-.meta-prod-item{background:#fff;border-radius:10px;padding:11px 13px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.meta-prod-item{background:var(--bg2);border-radius:10px;padding:11px 13px;box-shadow:var(--shadow);border:1px solid var(--border);}
 .meta-prod-nome{font-size:12px;font-weight:800;margin-bottom:5px;}
 .meta-prod-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
-.meta-det{background:#F8FAFC;border-radius:7px;padding:5px;text-align:center;}
+.meta-det{background:var(--bg3);border-radius:7px;padding:5px;text-align:center;}
 .meta-det-val{font-size:11px;font-weight:800;}
 .meta-det-lbl{font-size:9px;color:var(--text3);}
 
 /* ===== ALERTAS ===== */
-.alerta-item{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:8px;border-left:4px solid var(--amber);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
+.alerta-item{background:var(--bg2);border-radius:12px;padding:13px 15px;margin-bottom:8px;border-left:4px solid var(--amber);box-shadow:var(--shadow);display:flex;align-items:center;gap:12px;}
 .alerta-item.zerado{border-color:var(--red);}
 
 /* ===== MARKETING ===== */
 .mkt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.box{background:#fff;border-radius:12px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border);}
+.box{background:var(--bg2);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--border);}
 
 /* ===== FORNECEDORES ===== */
-.forn-card{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
+.forn-card{background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:12px;}
 .forn-icon{width:44px;height:44px;border-radius:11px;background:var(--roxo2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .tag{font-size:10px;font-weight:800;padding:2px 8px;border-radius:6px;display:inline-block;margin:2px;}
 
 /* ===== TABELAS ===== */
 table{width:100%;border-collapse:collapse;font-size:12.5px;}
-thead th{background:#F8FAFC;color:var(--text2);padding:10px 12px;text-align:left;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-bottom:2px solid var(--border);}
+thead th{background:var(--bg3);color:var(--text2);padding:10px 12px;text-align:left;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-bottom:2px solid var(--border);}
 thead th.r{text-align:right;}
 tbody tr{border-bottom:1px solid var(--border);}
-tbody tr:hover{background:#F8FAFC;}
+tbody tr:hover{background:var(--bg3);}
 tbody td{padding:10px 12px;vertical-align:middle;}
 tbody td.r{text-align:right;font-weight:700;}
 
@@ -241,18 +281,18 @@ tbody td.r{text-align:right;font-weight:700;}
 .overlay{position:fixed;inset:0;background:rgba(15,23,42,.4);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;}
 .overlay.open{display:flex;}
 @keyframes mIn{from{opacity:0;transform:scale(.92) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
-.modal{background:#fff;border-radius:16px;padding:22px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:mIn .35s cubic-bezier(.34,1.56,.64,1) both;max-height:90vh;overflow-y:auto;}
+.modal{background:var(--bg2);border-radius:16px;padding:22px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.15);animation:mIn .35s cubic-bezier(.34,1.56,.64,1) both;max-height:90vh;overflow-y:auto;}
 .modal h2{font-size:16px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 .fg{margin-bottom:11px;}
 .fg label{display:block;font-size:11px;font-weight:800;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
-.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none;transition:border-color .2s;background:#fff;}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;font-family:var(--fn);color:var(--text);outline:none;transition:border-color .2s;background:var(--bg2);}
 .fg input:focus,.fg select:focus{border-color:var(--roxo);}
 .fg.row{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 .mbtns{display:flex;gap:9px;margin-top:14px;}
 .mbtn{flex:1;padding:11px;border-radius:9px;border:none;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;}
 .mbtn.p{background:var(--roxo);color:#fff;}
 .mbtn.p:hover{background:#5B21B6;}
-.mbtn.s{background:#F1F5F9;color:var(--text2);}
+.mbtn.s{background:var(--bg3);color:var(--text2);}
 
 /* ===== EMPTY ===== */
 .empty{text-align:center;padding:2.5rem;color:var(--text3);}
@@ -424,8 +464,9 @@ tbody td.r{text-align:right;font-weight:700;}
           <div class="search-drop" id="srch-drop"></div>
         </div>
         <button class="tbtn tbtn-outline" id="btn-sec" onclick="acaoSecundaria()" style="display:none">+ Fornecedor</button>
-        <button id="btn-troco" onclick="toggleTroco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💵 Troco</button>
-        <button id="btn-backup" onclick="fazerBackup()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">⬇️ Backup</button>
+        <button id="btn-troco" onclick="toggleTroco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💵 Troco</button>
+        <button id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
+        <button id="btn-backup" onclick="fazerBackup()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">⬇️ Backup</button>
         <button class="tbtn tbtn-roxo" id="btn-pri" onclick="acaoPrimaria()">+ Produto</button>
       </div>
     </div>
@@ -442,20 +483,20 @@ tbody td.r{text-align:right;font-weight:700;}
           <div class="rcard"><div class="rcard-icon" style="background:#FEE2E2">🚫</div><div><div class="rcard-val" id="r-zr">0</div><div class="rcard-lbl">Sem Estoque</div></div></div>
         </div>
         <!-- FILTRO PERÍODO -->
-        <div style="background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px">
+        <div style="background:var(--bg2);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
             <span style="font-size:12px;font-weight:800;color:var(--text2)">📅 Entradas por período:</span>
             <button id="fp-todos" onclick="setPeriodoProd('todos',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--roxo);background:var(--roxo);color:#fff;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">⭐ Recentes</button>
-            <button id="fp-1" onclick="setPeriodoProd('1',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">1 dia</button>
-            <button id="fp-7" onclick="setPeriodoProd('7',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
-            <button id="fp-30" onclick="setPeriodoProd('30',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
+            <button id="fp-1" onclick="setPeriodoProd('1',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">1 dia</button>
+            <button id="fp-7" onclick="setPeriodoProd('7',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
+            <button id="fp-30" onclick="setPeriodoProd('30',this)" style="padding:5px 12px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
             <button id="fp-ver" onclick="toggleVerTodos()" style="padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:transparent;color:var(--text3);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Ver todos</button>
             <span id="prod-count" style="margin-left:auto;font-size:11px;color:var(--text3);font-weight:600"></span>
           </div>
           <!-- ORDENAÇÃO -->
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px">
             <span style="font-size:12px;font-weight:800;color:var(--text2)">↕️ Ordenar por:</span>
-            <select id="fp-ordem" onchange="setOrdem(this.value)" style="padding:5px 10px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn)">
+            <select id="fp-ordem" onchange="setOrdem(this.value)" style="padding:5px 10px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;font-weight:800;cursor:pointer;font-family:var(--fn)">
               <option value="recentes">🕐 Mais recentes</option>
               <option value="antigos">📆 Mais antigos</option>
               <option value="alfa">🔤 Ordem alfabética (A→Z)</option>
@@ -470,10 +511,12 @@ tbody td.r{text-align:right;font-weight:700;}
             <button class="fb" onclick="setFiltro('cosmetico',this)">💄 Cosméticos</button>
             <button class="fb" onclick="setFiltro('chocolate',this)">🍫 Chocolates</button>
             <button class="fb" onclick="setFiltro('utilidades',this)">🏠 Utensílios</button>
+            <button class="fb" onclick="setFiltro('brinquedo',this)">🧸 Brinquedos</button>
+            <button class="fb" onclick="setFiltro('bebida',this)">🥤 Bebidas</button>
           </div>
         </div>
         <!-- CALCULADORA DE TROCO -->
-        <div id="troco-box" style="background:#fff;border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;display:none">
+        <div id="troco-box" style="background:var(--bg2);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:12px;display:none">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
             <span style="font-size:16px">💵</span>
             <span style="font-size:13px;font-weight:800;color:var(--text)">Calculadora de Troco</span>
@@ -495,17 +538,17 @@ tbody td.r{text-align:right;font-weight:700;}
           </div>
         </div>
 
-        <div class="grid" id="prod-grid"></div>
+        <div class="grid" id="prod-grid"><div class="skel"><div style="height:12px;width:55%;margin-bottom:10px"></div><div style="height:22px;width:40%;margin-bottom:8px"></div><div style="height:10px;width:70%"></div></div><div class="skel"><div style="height:12px;width:55%;margin-bottom:10px"></div><div style="height:22px;width:40%;margin-bottom:8px"></div><div style="height:10px;width:70%"></div></div><div class="skel"><div style="height:12px;width:55%;margin-bottom:10px"></div><div style="height:22px;width:40%;margin-bottom:8px"></div><div style="height:10px;width:70%"></div></div><div class="skel"><div style="height:12px;width:55%;margin-bottom:10px"></div><div style="height:22px;width:40%;margin-bottom:8px"></div><div style="height:10px;width:70%"></div></div></div>
       </div>
 
       <!-- MOVIMENTAÇÕES -->
       <div id="pg-movs" style="display:none">
         <!-- FILTRO PERÍODO MOVS -->
-        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;background:var(--bg2);border-radius:10px;padding:10px 14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <span style="font-size:12px;font-weight:800;color:var(--text2)">📅 Período:</span>
-          <button id="mp-1" onclick="setPeriodoMovs('1',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Hoje</button>
-          <button id="mp-7" onclick="setPeriodoMovs('7',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
-          <button id="mp-30" onclick="setPeriodoMovs('30',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
+          <button id="mp-1" onclick="setPeriodoMovs('1',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Hoje</button>
+          <button id="mp-7" onclick="setPeriodoMovs('7',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">7 dias</button>
+          <button id="mp-30" onclick="setPeriodoMovs('30',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">30 dias</button>
           <button id="mp-todos" onclick="setPeriodoMovs('todos',this)" style="padding:6px 14px;border-radius:7px;border:1.5px solid var(--roxo);background:var(--roxo);color:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s">Todos</button>
           <span id="movs-count" style="margin-left:auto;font-size:11px;color:var(--text3)"></span>
         </div>
@@ -515,24 +558,24 @@ tbody td.r{text-align:right;font-weight:700;}
           <div class="mov-hcard"><div class="mov-hcard-val" id="luc-t" style="color:var(--roxo)">R$ 0,00</div><div class="mov-hcard-lbl">Lucro Total</div></div>
         </div>
         <!-- COMPARATIVO MÊS ANTERIOR -->
-        <div id="comparativo-box" style="background:#fff;border-radius:10px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+        <div id="comparativo-box" style="background:var(--bg2);border-radius:10px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
           <div style="font-size:13px;font-weight:800;color:var(--text);margin-bottom:10px">📊 Comparativo — Mês Atual vs Anterior</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px">
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px">
               <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Faturamento</div>
               <div id="cmp-fat-atual" style="font-size:14px;font-weight:900;color:var(--verde)">R$ 0,00</div>
               <div style="font-size:10px;color:var(--text3);margin:2px 0">vs mês ant.</div>
               <div id="cmp-fat-ant" style="font-size:12px;font-weight:700;color:var(--text3)">R$ 0,00</div>
               <div id="cmp-fat-var" style="font-size:11px;font-weight:800;margin-top:3px"></div>
             </div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px">
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px">
               <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Lucro</div>
               <div id="cmp-luc-atual" style="font-size:14px;font-weight:900;color:var(--roxo)">R$ 0,00</div>
               <div style="font-size:10px;color:var(--text3);margin:2px 0">vs mês ant.</div>
               <div id="cmp-luc-ant" style="font-size:12px;font-weight:700;color:var(--text3)">R$ 0,00</div>
               <div id="cmp-luc-var" style="font-size:11px;font-weight:800;margin-top:3px"></div>
             </div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px">
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px">
               <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;margin-bottom:4px">Vendas</div>
               <div id="cmp-qtd-atual" style="font-size:14px;font-weight:900;color:var(--amber)">0</div>
               <div style="font-size:10px;color:var(--text3);margin:2px 0">vs mês ant.</div>
@@ -543,13 +586,13 @@ tbody td.r{text-align:right;font-weight:700;}
         </div>
 
         <!-- ANALISE DE VENDAS -->
-        <div style="background:#fff;border-radius:10px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+        <div style="background:var(--bg2);border-radius:10px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px">📈 Análise de Vendas do Período</div>
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px"><div id="an-nv" style="font-size:14px;font-weight:900">0</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Vendas</div></div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px"><div id="an-tk" style="font-size:14px;font-weight:900;color:var(--verde)">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Ticket Médio</div></div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px"><div id="an-mg" style="font-size:14px;font-weight:900;color:var(--roxo)">—</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Margem Média</div></div>
-            <div style="text-align:center;background:#F8FAFC;border-radius:8px;padding:10px"><div id="an-top" style="font-size:11px;font-weight:900;color:var(--amber);line-height:1.2;padding-top:3px">—</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Mais Vendido</div></div>
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-nv" style="font-size:14px;font-weight:900">0</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Vendas</div></div>
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-tk" style="font-size:14px;font-weight:900;color:var(--verde)">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Ticket Médio</div></div>
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-mg" style="font-size:14px;font-weight:900;color:var(--roxo)">—</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Margem Média</div></div>
+            <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-top" style="font-size:11px;font-weight:900;color:var(--amber);line-height:1.2;padding-top:3px">—</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Mais Vendido</div></div>
           </div>
         </div>
 
@@ -559,7 +602,7 @@ tbody td.r{text-align:right;font-weight:700;}
       <!-- FORNECEDORES + CLIENTES -->
       <div id="pg-fornecedores" style="display:none">
         <!-- ABAS INTERNAS -->
-        <div style="display:flex;gap:0;background:#fff;border-radius:10px;padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+        <div style="display:flex;gap:0;background:var(--bg2);border-radius:10px;padding:4px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
           <button id="ftab-forn" onclick="setFornTab('forn',this)" style="flex:1;padding:8px;border-radius:7px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);background:var(--roxo);color:#fff;transition:all .2s">🤝 Fornecedores</button>
           <button id="ftab-cli" onclick="setFornTab('cli',this)" style="flex:1;padding:8px;border-radius:7px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);background:transparent;color:var(--text3);transition:all .2s">👥 Clientes</button>
         </div>
@@ -570,7 +613,7 @@ tbody td.r{text-align:right;font-weight:700;}
       <!-- RELATÓRIO WHATSAPP -->
       <div id="pg-relatorio" style="display:none">
         <div style="max-width:560px;margin:0 auto">
-          <div style="background:#fff;border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+          <div style="background:var(--bg2);border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <div style="width:40px;height:40px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">📲</div>
               <div>
@@ -579,9 +622,9 @@ tbody td.r{text-align:right;font-weight:700;}
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-              <button onclick="gerarRelatorio(7)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Últimos 7 dias</button>
-              <button onclick="gerarRelatorio(30)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Últimos 30 dias</button>
-              <button onclick="gerarRelatorio(0)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:#fff;font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Este mês</button>
+              <button onclick="gerarRelatorio(7)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Últimos 7 dias</button>
+              <button onclick="gerarRelatorio(30)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Últimos 30 dias</button>
+              <button onclick="gerarRelatorio(0)" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);transition:all .2s;color:var(--text2)">Este mês</button>
             </div>
             <!-- Preview do relatório -->
             <div id="rel-preview" style="display:none">
@@ -589,7 +632,7 @@ tbody td.r{text-align:right;font-weight:700;}
                 <pre id="rel-texto" style="font-size:12px;line-height:1.7;white-space:pre-wrap;font-family:var(--fn);color:var(--text)"></pre>
               </div>
               <div style="display:flex;gap:8px">
-                <button onclick="copiarRelatorio()" style="flex:1;padding:10px;border-radius:8px;border:none;background:#F1F5F9;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);color:var(--text2)">📋 Copiar</button>
+                <button onclick="copiarRelatorio()" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--bg3);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);color:var(--text2)">📋 Copiar</button>
                 <button onclick="enviarWhatsApp()" style="flex:2;padding:10px;border-radius:8px;border:none;background:#25D366;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--fn);color:#fff">📲 Enviar pelo WhatsApp</button>
               </div>
               <div style="margin-top:8px">
@@ -626,12 +669,12 @@ tbody td.r{text-align:right;font-weight:700;}
         </div>
 
         <!-- PONTO DE EQUILIBRIO -->
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <div style="font-size:13px;font-weight:900">🏪 Ponto de Equilíbrio da Loja <span onclick="const e=document.getElementById('pe-ajuda');e.style.display=e.style.display==='none'?'block':'none'" style="cursor:pointer;background:#EDE9FE;color:var(--roxo);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:900">?</span></div>
             <button onclick="abrirModal('custofixo')" style="border:none;background:var(--roxo2);color:var(--roxo);font-family:var(--fn);font-size:11px;font-weight:900;padding:6px 12px;border-radius:8px;cursor:pointer">+ Custo Fixo</button>
           </div>
-          <div id="pe-ajuda" style="display:none;background:#F8FAFC;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
+          <div id="pe-ajuda" style="display:none;background:var(--bg3);border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:var(--text2);line-height:1.6">
             <div style="margin-bottom:8px"><b style="color:var(--text)">💰 Margem Real</b> — de cada R$ 100 que entram no caixa, quanto sobra depois de pagar o produto. Exemplo: comprou por R$ 50 e vendeu por R$ 100 → sobram R$ 50, ou seja, margem de 50%. O app calcula com as vendas de verdade do mês, não com estimativa.</div>
             <div style="margin-bottom:8px"><b style="color:var(--text)">🏪 Ponto de Equilíbrio</b> — quanto a loja precisa vender no mês só para pagar os custos fixos (aluguel, energia, internet...). Vendeu menos que isso = prejuízo. Vendeu mais = lucro. A conta: custos fixos ÷ margem. Ex: R$ 2.000 de fixo com 50% de margem → precisa vender R$ 4.000 para empatar.</div>
             <div style="margin-bottom:8px"><b style="color:var(--text)">🎯 Precisa Vender</b> — é o ponto de equilíbrio em reais: a linha de corte do mês. A barra abaixo mostra o quanto já caminhou até lá.</div>
@@ -642,7 +685,7 @@ tbody td.r{text-align:right;font-weight:700;}
             <div style="background:#EDE9FE;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:var(--roxo)" id="pe-margem">—</div><div style="font-size:9px;font-weight:800;color:#6D28D9;text-transform:uppercase">Margem Real</div></div>
             <div style="background:#FEF3C7;border-radius:9px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:900;color:#92400E" id="pe-valor">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:#B45309;text-transform:uppercase">Precisa Vender</div></div>
           </div>
-          <div class="meta-bar-bg" style="background:#F1F5F9"><div class="meta-bar-fill" id="pe-bar" style="width:0%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80)"></div></div>
+          <div class="meta-bar-bg" style="background:var(--bg3)"><div class="meta-bar-fill" id="pe-bar" style="width:0%;background:linear-gradient(90deg,#f87171,#fbbf24,#4ade80)"></div></div>
           <div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-top:6px">
             <span id="pe-status" style="color:var(--text2)">Cadastre os custos fixos da loja</span>
             <span id="pe-liquido" style="color:var(--text2)"></span>
@@ -657,12 +700,12 @@ tbody td.r{text-align:right;font-weight:700;}
       <!-- ===== MARKETING ===== -->
       <div id="pg-marketing" style="display:none">
         <div class="mkt-grid">
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-mg"></canvas></div>
-          <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-ft"></canvas></div>
+          <div style="background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-mg"></canvas></div>
+          <div style="background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border)"><canvas id="chart-ft"></canvas></div>
         </div>
-        <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px"><canvas id="chart-sz"></canvas></div>
+        <div style="background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px"><canvas id="chart-sz"></canvas></div>
 
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="font-size:13px;font-weight:900;margin-bottom:10px">🏆 Ranking de Produtos</div>
           <div style="overflow-x:auto">
             <table style="width:100%;border-collapse:collapse;font-size:12px">
@@ -672,7 +715,7 @@ tbody td.r{text-align:right;font-weight:700;}
           </div>
         </div>
 
-        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div style="font-size:13px;font-weight:900">😴 Produtos Parados</div>
             <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)">há <input type="number" id="dias-inp" value="15" min="1" onchange="if(window._rp)window._rp()" style="width:50px;padding:4px 6px;border:1px solid var(--border);border-radius:7px;font-family:var(--fn);font-weight:800;text-align:center"> dias</div>
@@ -684,7 +727,7 @@ tbody td.r{text-align:right;font-weight:700;}
       <!-- ===== RADAR DE PRECOS ===== -->
       <div id="pg-radar" style="display:none">
 
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="font-size:13px;font-weight:900;margin-bottom:10px">🔍 O que você quer comprar?</div>
           <input type="text" id="rd-q" placeholder="Ex: air fryer mondial 4l" onkeyup="radarAtualizar()" style="width:100%;padding:13px 14px;border:2px solid var(--border);border-radius:11px;font-family:var(--fn);font-size:15px;font-weight:800;outline:none">
           <div style="font-size:11px;color:var(--text3);font-weight:700;margin-top:6px">Dica: marca + modelo + tamanho = busca mais certeira</div>
@@ -701,7 +744,7 @@ tbody td.r{text-align:right;font-weight:700;}
           <a id="rd-shopee" target="_blank" rel="noopener" style="display:block;text-align:center;text-decoration:none;margin-top:12px;padding:14px;border-radius:11px;background:#EE4D2D;color:#fff;font-size:13px;font-weight:900;opacity:.45;pointer-events:none">🔥 MAIS VENDIDOS NA SHOPEE (validar demanda)</a>
         </div>
 
-        <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="font-size:13px;font-weight:900;margin-bottom:6px">🔥 Radar de Demanda — o que está girando</div>
           <div style="font-size:11px;color:var(--text3);font-weight:700;margin-bottom:12px">Campeões de venda da Shopee por categoria da loja. Milhares de vendidos = demanda comprovada.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">
@@ -714,7 +757,7 @@ tbody td.r{text-align:right;font-weight:700;}
           </div>
         </div>
 
-        <div style="background:#fff;border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
+        <div style="background:var(--bg2);border-radius:12px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--border)">
           <div style="font-size:13px;font-weight:900;margin-bottom:12px">🧮 Achou o menor preço? Veja se vale a revenda</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
             <div><label style="display:block;font-size:10px;font-weight:900;color:var(--text3);text-transform:uppercase;margin-bottom:5px">Menor preço (R$)</label><input type="number" id="rd-custo" placeholder="0,00" step="0.01" oninput="radarCalc()" style="width:100%;padding:12px;border:2px solid var(--border);border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:800;outline:none"></div>
@@ -741,7 +784,7 @@ tbody td.r{text-align:right;font-weight:700;}
     <h2>📦 Cadastrar Produto</h2>
     <div class="fg"><label>Nome</label><input type="text" id="p-nome" placeholder="Ex: Batom Rosa"></div>
     <div class="fg"><label>Categoria</label>
-      <select id="p-cat"><option value="cosmetico">💄 Cosméticos</option><option value="chocolate">🍫 Chocolates</option><option value="utilidades">🏠 Utensílios do Lar</option></select>
+      <select id="p-cat"><option value="cosmetico">💄 Cosméticos</option><option value="chocolate">🍫 Chocolates</option><option value="utilidades">🏠 Utensílios do Lar</option><option value="brinquedo">🧸 Brinquedos</option><option value="bebida">🥤 Bebidas</option></select>
     </div>
     <div class="fg"><label>Fornecedor</label><select id="p-forn"><option value="">— Sem fornecedor —</option></select></div>
     <div class="fg row">
@@ -755,11 +798,11 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="fg">
       <label>Forma de Pagamento</label>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <div onclick="selecionarPgto('pix')" id="pgto-pix" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+        <div onclick="selecionarPgto('pix')" id="pgto-pix" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:var(--bg2)">
           <div style="font-size:20px">💠</div>
           <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">PIX</div>
         </div>
-        <div onclick="selecionarPgto('cartao')" id="pgto-cartao" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+        <div onclick="selecionarPgto('cartao')" id="pgto-cartao" style="flex:1;padding:10px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:var(--bg2)">
           <div style="font-size:20px">💳</div>
           <div style="font-size:12px;font-weight:800;color:var(--text2);margin-top:3px">Cartão</div>
         </div>
@@ -786,6 +829,8 @@ tbody td.r{text-align:right;font-weight:700;}
         <option value="cosmetico">💄 Cosméticos</option>
         <option value="chocolate">🍫 Chocolates</option>
         <option value="utilidades">🏠 Utensílios do Lar</option>
+        <option value="brinquedo">🧸 Brinquedos</option>
+        <option value="bebida">🥤 Bebidas</option>
       </select>
     </div>
     <div class="fg"><label>Fornecedor</label><select id="e-forn"><option value="">— Sem fornecedor —</option></select></div>
@@ -814,11 +859,11 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="fg" id="mov-pgto-wrap" style="display:none">
       <label>Forma de Pagamento</label>
       <div style="display:flex;gap:8px;margin-top:4px">
-        <div onclick="selecionarMovPgto('pix')" id="mpgto-pix" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+        <div onclick="selecionarMovPgto('pix')" id="mpgto-pix" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:var(--bg2)">
           <div style="font-size:18px">💠</div>
           <div style="font-size:11px;font-weight:800;color:var(--text2);margin-top:2px">PIX</div>
         </div>
-        <div onclick="selecionarMovPgto('cartao')" id="mpgto-cartao" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:#fff">
+        <div onclick="selecionarMovPgto('cartao')" id="mpgto-cartao" style="flex:1;padding:9px;border-radius:9px;border:2px solid var(--border);cursor:pointer;text-align:center;transition:all .2s;background:var(--bg2)">
           <div style="font-size:18px">💳</div>
           <div style="font-size:11px;font-weight:800;color:var(--text2);margin-top:2px">Cartão</div>
         </div>
@@ -841,7 +886,7 @@ tbody td.r{text-align:right;font-weight:700;}
     <div class="fg"><label>Nome da Empresa</label><input type="text" id="f-nome" placeholder="Ex: Dist. Beleza"></div>
     <div class="fg"><label>Contato / WhatsApp</label><input type="text" id="f-tel" placeholder="(62) 99999-9999"></div>
     <div class="fg"><label>Categoria</label>
-      <select id="f-cat"><option value="cosmetico">💄 Cosméticos</option><option value="chocolate">🍫 Chocolates</option><option value="utilidades">🏠 Utensílios</option><option value="todos">Todos</option></select>
+      <select id="f-cat"><option value="cosmetico">💄 Cosméticos</option><option value="chocolate">🍫 Chocolates</option><option value="utilidades">🏠 Utensílios</option><option value="brinquedo">🧸 Brinquedos</option><option value="bebida">🥤 Bebidas</option><option value="todos">Todos</option></select>
     </div>
     <div class="fg row">
       <div><label>Lead Time (dias)</label><input type="number" id="f-lead" placeholder="3"></div>
@@ -979,7 +1024,7 @@ const PAGE_META={
 function goPage(id){
   paginaAtual=id;
   document.querySelectorAll('[id^="pg-"]').forEach(p=>p.style.display='none');
-  const pg=document.getElementById('pg-'+id);if(pg)pg.style.display='block';
+  const pg=document.getElementById('pg-'+id);if(pg){pg.style.display='block';pg.classList.remove('pg-anim');void pg.offsetWidth;pg.classList.add('pg-anim');}
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
   const mi=document.getElementById('mi-'+id);if(mi)mi.classList.add('active');
   const m=PAGE_META[id]||{};
@@ -1024,6 +1069,21 @@ function closeSidebar(){
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('mob-overlay').classList.remove('show');
 }
+
+
+// ===== TEMA CLARO/ESCURO =====
+function aplicarTema(t){
+  document.body.classList.toggle('dark', t==='dark');
+  const b=document.getElementById('btn-tema');
+  if(b)b.textContent = t==='dark' ? '☀️' : '🌙';
+  if(window.Chart){Chart.defaults.color = t==='dark' ? '#A8ADC0' : '#64748B';}
+}
+function alternarTema(){
+  const novo = document.body.classList.contains('dark') ? 'claro' : 'dark';
+  try{localStorage.setItem('tema-loja', novo);}catch(e){}
+  aplicarTema(novo);
+}
+try{aplicarTema(localStorage.getItem('tema-loja')||'claro');}catch(e){aplicarTema('claro');}
 
 // FILTRO
 window._filtro='todos';
@@ -1098,13 +1158,13 @@ function buscar(q){
   const drop=document.getElementById('srch-drop');
   if(!q||q.length<2){drop.classList.remove('open');return;}
   const prods=window._prods||{};
-  const CATS={cosmetico:{e:'💄'},chocolate:{e:'🍫'},utilidades:{e:'🏠'}};
+  const CATS={cosmetico:{e:'💄'},chocolate:{e:'🍫'},utilidades:{e:'🏠'},brinquedo:{e:'🧸'},bebida:{e:'🥤'}};
   const r=Object.entries(prods).filter(([id,p])=>p.nome.toLowerCase().includes(q.toLowerCase())).slice(0,7);
   if(!r.length){drop.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-size:12px">Nenhum produto encontrado</div>`;drop.classList.add('open');return;}
   drop.innerHTML=r.map(([id,p])=>{
     const c=CATS[p.categoria]||{e:'📦'};
     const ec=p.estoque<=0?'color:var(--red)':p.estoque<=p.minimo?'color:var(--amber)':'color:var(--verde)';
-    return `<div class="si" onclick="fecharBusca();goPage('estoque')"><div class="si-ico" style="background:#F1F5F9">${c.e}</div><div><div class="si-nome">${p.nome}</div><div class="si-sub">Venda: R$${parseFloat(p.preco_venda||0).toFixed(2).replace('.',',')} · Custo: R$${parseFloat(p.preco_custo||0).toFixed(2).replace('.',',')}</div></div><div class="si-qtd" style="${ec}">${p.estoque||0}un</div></div>`;
+    return `<div class="si" onclick="fecharBusca();goPage('estoque')"><div class="si-ico" style="background:var(--bg3)">${c.e}</div><div><div class="si-nome">${p.nome}</div><div class="si-sub">Venda: R$${parseFloat(p.preco_venda||0).toFixed(2).replace('.',',')} · Custo: R$${parseFloat(p.preco_custo||0).toFixed(2).replace('.',',')}</div></div><div class="si-qtd" style="${ec}">${p.estoque||0}un</div></div>`;
   }).join('');
   drop.classList.add('open');
 }
@@ -1440,7 +1500,7 @@ function coletarDadosLoja(dias){
   const entradas = movsF.filter(m=>m.tipo==='entrada');
 
   // Por categoria
-  const cats = {cosmetico:{fat:0,cst:0,qtd:0,nome:'Cosméticos'},chocolate:{fat:0,cst:0,qtd:0,nome:'Chocolates'},utilidades:{fat:0,cst:0,qtd:0,nome:'Utensílios'}};
+  const cats = {cosmetico:{fat:0,cst:0,qtd:0,nome:'Cosméticos'},chocolate:{fat:0,cst:0,qtd:0,nome:'Chocolates'},utilidades:{fat:0,cst:0,qtd:0,nome:'Utensílios'},brinquedo:{fat:0,cst:0,qtd:0,nome:'Brinquedos'},bebida:{fat:0,cst:0,qtd:0,nome:'Bebidas'}};
   vendas.forEach(m=>{
     const cat=m.cat||'cosmetico';
     if(cats[cat]){
@@ -1753,7 +1813,7 @@ window._em=async function(id){
   }catch(e){console.error(e);toast('Erro ao excluir','tr');}
 };
 const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-const CATS={cosmetico:{n:'Cosméticos',e:'💄',cc:'cc'},chocolate:{n:'Chocolates',e:'🍫',cc:'ch'},utilidades:{n:'Utensílios',e:'🏠',cc:'cu'}};
+const CATS={cosmetico:{n:'Cosméticos',e:'💄',cc:'cc'},chocolate:{n:'Chocolates',e:'🍫',cc:'ch'},utilidades:{n:'Utensílios',e:'🏠',cc:'cu'},brinquedo:{n:'Brinquedos',e:'🧸',cc:'cb'},bebida:{n:'Bebidas',e:'🥤',cc:'cd'}};
 
 // COMPARATIVO MÊS ANTERIOR
 function renderComparativo(){
@@ -1881,7 +1941,7 @@ function renderResumo(){
   animNum(document.getElementById('r-zr'),zero,'');
   const n=l.filter(p=>p.estoque<=p.minimo).length;
   const bb=document.getElementById('sb-badge');
-  if(bb){bb.textContent=n;bb.style.display=n>0?'block':'none';}
+  if(bb){const antes=bb.textContent;bb.textContent=n;bb.style.display=n>0?'block':'none';if(n>0&&String(n)!==antes){bb.style.animation='none';void bb.offsetWidth;bb.style.animation='badgePulse 1s ease-out 3';}}
 }
 
 // RENDER MOVIMENTAÇÕES
@@ -1988,9 +2048,9 @@ function renderMeta(){
   const pePct=pe>0?Math.min((real/pe)*100,100).toFixed(1):0;
   const lucroLiquido=lucroBruto-cfTotal;
   const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  set('pe-fixo',fmt(cfTotal));
+  animNum(document.getElementById('pe-fixo'),cfTotal,'R$ ',true);
   set('pe-margem',real>0?(margem*100).toFixed(1)+'%':'50% (est.)');
-  set('pe-valor',fmt(pe));
+  animNum(document.getElementById('pe-valor'),pe,'R$ ',true);
   const peb=document.getElementById('pe-bar');if(peb)peb.style.width=pePct+'%';
   const pes=document.getElementById('pe-status');
   if(pes){
@@ -2006,7 +2066,7 @@ function renderMeta(){
   const cfl=document.getElementById('cf-lista');
   if(cfl){
     const ents=Object.entries(custosFixos);
-    cfl.innerHTML=ents.length?ents.map(([id,c])=>`<div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:8px;padding:8px 11px;margin-bottom:6px"><div style="flex:1;font-size:12px;font-weight:800">${c.nome}</div><div style="font-size:12px;font-weight:900;color:#991B1B">${fmt(c.valor)}</div><button onclick="excluirCustoFixo('${id}')" style="border:none;background:none;cursor:pointer;font-size:13px;opacity:.5">🗑</button></div>`).join(''):'';
+    cfl.innerHTML=ents.length?ents.map(([id,c])=>`<div style="display:flex;align-items:center;gap:8px;background:var(--bg3);border-radius:8px;padding:8px 11px;margin-bottom:6px"><div style="flex:1;font-size:12px;font-weight:800">${c.nome}</div><div style="font-size:12px;font-weight:900;color:#991B1B">${fmt(c.valor)}</div><button onclick="excluirCustoFixo('${id}')" style="border:none;background:none;cursor:pointer;font-size:13px;opacity:.5">🗑</button></div>`).join(''):'';
   }
   else if(falta>0){window._conf=false;}
   const pp={};
@@ -2089,15 +2149,15 @@ function renderMarketing(){
   renderParados2();
   // Gráficos
   Chart.defaults.font.family='Nunito';
-  const cats={cosmetico:{fat:0,cst:0},chocolate:{fat:0,cst:0},utilidades:{fat:0,cst:0}};
+  const cats={cosmetico:{fat:0,cst:0},chocolate:{fat:0,cst:0},utilidades:{fat:0,cst:0},brinquedo:{fat:0,cst:0},bebida:{fat:0,cst:0}};
   v.forEach(m=>{const cat=m.cat||m.categoria;if(cats[cat]){cats[cat].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);cats[cat].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);}});
-  const lbs=['Cosméticos','Chocolates','Utensílios'];
+  const lbs=['Cosméticos','Chocolates','Utensílios','Brinquedos','Bebidas'];
   const mgs=Object.values(cats).map(c=>c.fat>0?((c.fat-c.cst)/c.fat*100).toFixed(1):0);
   const fts=Object.values(cats).map(c=>c.fat);
   const c1=document.getElementById('chart-mg');
-  if(c1){if(cMg)cMg.destroy();cMg=new Chart(c1,{type:'bar',data:{labels:lbs,datasets:[{data:mgs,backgroundColor:['#FF6B9D','#F59E0B','#7C3AED'],borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Margem por Categoria (%)',font:{size:11,weight:'800'}}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}});}
+  if(c1){if(cMg)cMg.destroy();cMg=new Chart(c1,{type:'bar',data:{labels:lbs,datasets:[{data:mgs,backgroundColor:['#FF6B9D','#F59E0B','#7C3AED','#2563EB','#059669'],borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Margem por Categoria (%)',font:{size:11,weight:'800'}}},scales:{y:{ticks:{callback:v=>v+'%'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}});}
   const c2=document.getElementById('chart-ft');
-  if(c2){if(cFt)cFt.destroy();cFt=new Chart(c2,{type:'doughnut',data:{labels:lbs,datasets:[{data:fts,backgroundColor:['#FF6B9D','#F59E0B','#7C3AED'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:'Faturamento por Categoria',font:{size:11,weight:'800'}}}}});}
+  if(c2){if(cFt)cFt.destroy();cFt=new Chart(c2,{type:'doughnut',data:{labels:lbs,datasets:[{data:fts,backgroundColor:['#FF6B9D','#F59E0B','#7C3AED','#2563EB','#059669'],borderWidth:0,hoverOffset:6}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:'Faturamento por Categoria',font:{size:11,weight:'800'}}}}});}
   const sems={};v.forEach(m=>{const d=new Date(m.ts||0);const w=`S${Math.ceil(d.getDate()/7)}-${(d.getMonth()+1).toString().padStart(2,'0')}`;sems[w]=(sems[w]||0)+parseFloat(m.vunit||0)*parseInt(m.qtd||0);});
   const sl=Object.entries(sems).sort((a,b)=>a[0].localeCompare(b[0])).slice(-12);
   const c3=document.getElementById('chart-sz');
@@ -2115,7 +2175,7 @@ function renderParados2(){
   dl.innerHTML=r.map(([id,p])=>{
     const c=CATS[p.categoria]||CATS.cosmetico;
     const dp=ult[id]?Math.floor((Date.now()-ult[id])/86400000):99;
-    return `<div style="background:#fff;border-radius:10px;padding:11px 14px;margin-bottom:8px;border-left:4px solid var(--amber);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px"><div style="font-size:20px">😴</div><div style="flex:1"><div style="font-size:13px;font-weight:800">${p.nome}</div><div style="font-size:11px;color:var(--text3)">${c.e} ${c.n} · ${p.estoque}un</div></div><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:800">${dp}d parado</span><span style="font-size:11px;color:var(--rosa);font-weight:800">Promova!</span></div>`;
+    return `<div style="background:var(--bg2);border-radius:10px;padding:11px 14px;margin-bottom:8px;border-left:4px solid var(--amber);box-shadow:var(--shadow);display:flex;align-items:center;gap:10px"><div style="font-size:20px">😴</div><div style="flex:1"><div style="font-size:13px;font-weight:800">${p.nome}</div><div style="font-size:11px;color:var(--text3)">${c.e} ${c.n} · ${p.estoque}un</div></div><span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:800">${dp}d parado</span><span style="font-size:11px;color:var(--rosa);font-weight:800">Promova!</span></div>`;
   }).join('');
 }
 window._rp=renderParados2;
@@ -2366,7 +2426,7 @@ function renderCli(){
     const aniv=cl.aniversario?new Date(cl.aniversario+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'';
     const hoje=new Date();const hm=`${String(hoje.getDate()).padStart(2,'0')}/${String(hoje.getMonth()+1).padStart(2,'0')}`;
     const anivHoje=aniv===hm;
-    return `<div style="background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:12px">
+    return `<div style="background:var(--bg2);border-radius:12px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:12px">
       <div style="width:42px;height:42px;border-radius:50%;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${anivHoje?'🎂':'👤'}</div>
       <div style="flex:1">
         <div style="font-size:14px;font-weight:800;color:var(--text)">${cl.nome}${anivHoje?' 🎉':''}</div>
