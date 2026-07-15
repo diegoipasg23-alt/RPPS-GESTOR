@@ -691,20 +691,22 @@ function renderTudo(dados) {
   Chart.defaults.font.family='DM Sans';Chart.defaults.color='#4A5D78';
 }
 
-// ===== NOVOS MESES (planilhas 04-Abril e 05-Maio) — merge automático, não sobrescreve dados existentes =====
+// ===== NOVOS MESES (planilhas 04-Abril e 05-Maio, atualizadas em 15/07/2026) =====
+// Merge automático com controle de revisão: só grava se o mês não existir no Firebase
+// ou se o "rev" daqui for maior que o "rev" salvo (não sobrescreve edições posteriores).
 const MESES_NOVOS = {
-  "abril_2026": {"competencia":"Abril/2026","prazo":"31/05/2026","total":90446.99,"orgaos":{
-    "FMAS":{"servidor":{"valor":547.95,"status":"debito","data_pgto":""}},
-    "FMS":{"servidor":{"valor":26101.70,"status":"debito","data_pgto":""}},
+  "abril_2026": {"competencia":"Abril/2026","prazo":"31/05/2026","total":93562.71,"rev":2,"orgaos":{
+    "FMAS":{"servidor":{"valor":572.66,"status":"azul","data_pgto":"13/07/2026"}},
+    "FMS":{"servidor":{"valor":27278.68,"status":"azul","data_pgto":"13/07/2026"}},
     "ADM":{"servidor":{"valor":21350.48,"status":"verde","data_pgto":"08/05/2026"}},
-    "FME":{"servidor":{"valor":11715.17,"status":"debito","data_pgto":""}},
-    "FUNDEB":{"servidor":{"valor":30731.69,"status":"debito","data_pgto":""}}
+    "FME":{"servidor":{"valor":12243.44,"status":"azul","data_pgto":"13/07/2026"}},
+    "FUNDEB":{"servidor":{"valor":32117.45,"status":"azul","data_pgto":"13/07/2026"}}
   }},
-  "maio_2026": {"competencia":"Maio/2026","prazo":"30/06/2026","total":574812.95,"orgaos":{
-    "FMAS":{"lei":{"valor":547.94,"status":"debito","data_pgto":""},"patronal":{"valor":861.04,"status":"debito","data_pgto":""},"servidor":{"valor":2152.62,"status":"debito","data_pgto":""}},
-    "FMS":{"lei":{"valor":102380.03,"status":"debito","data_pgto":""},"patronal":{"valor":40952.01,"status":"debito","data_pgto":""},"servidor":{"valor":26060.37,"status":"debito","data_pgto":""}},
-    "ADM":{"lei":{"valor":81793.38,"status":"debito","data_pgto":""},"patronal":{"valor":32717.35,"status":"debito","data_pgto":""},"servidor":{"valor":20820.13,"status":"debito","data_pgto":""}},
-    "FUNDEB":{"lei":{"valor":161088.40,"status":"debito","data_pgto":""},"patronal":{"valor":64435.36,"status":"debito","data_pgto":""},"servidor":{"valor":41004.32,"status":"debito","data_pgto":""}}
+  "maio_2026": {"competencia":"Maio/2026","prazo":"30/06/2026","total":578051.34,"rev":2,"orgaos":{
+    "FMAS":{"lei":{"valor":2152.62,"status":"debito","data_pgto":""},"patronal":{"valor":861.04,"status":"debito","data_pgto":""},"servidor":{"valor":568.84,"status":"azul","data_pgto":"13/07/2026"}},
+    "FMS":{"lei":{"valor":102380.03,"status":"debito","data_pgto":""},"patronal":{"valor":40952.01,"status":"debito","data_pgto":""},"servidor":{"valor":27054.47,"status":"azul","data_pgto":"13/07/2026"}},
+    "ADM":{"lei":{"valor":81793.38,"status":"debito","data_pgto":""},"patronal":{"valor":32717.35,"status":"debito","data_pgto":""},"servidor":{"valor":21479.35,"status":"azul","data_pgto":"13/07/2026"}},
+    "FUNDEB":{"lei":{"valor":161088.40,"status":"debito","data_pgto":""},"patronal":{"valor":64435.36,"status":"debito","data_pgto":""},"servidor":{"valor":42568.49,"status":"azul","data_pgto":"13/07/2026"}}
   }}
 };
 
@@ -713,7 +715,8 @@ onValue(REF, snap => {
   if(dados) {
     const faltantes = {};
     for(const [k,v] of Object.entries(MESES_NOVOS)) {
-      if(!dados.meses || !dados.meses[k]) faltantes['meses/'+k] = v;
+      const atual = dados.meses ? dados.meses[k] : null;
+      if(!atual || (v.rev||0) > (atual.rev||0)) faltantes['meses/'+k] = v;
     }
     if(Object.keys(faltantes).length) { update(REF, faltantes); return; } // onValue dispara de novo com os dados completos
     renderTudo(dados);
