@@ -303,8 +303,8 @@ const idxMesComp = c => { const i = ORDEM_NOMES.indexOf((c||'').split('/')[0]); 
 const sortMesesEntries = obj => Object.entries(obj||{}).sort((a,b)=>idxMesKey(a[0])-idxMesKey(b[0]));
 const CHIPS = {FMAS:'c-fmas',FMS:'c-fms',ADM:'c-adm',FME:'c-fme',FUNDEB:'c-fundeb'};
 const TIPOS = ['lei','patronal','servidor'];
-const fmt = v => 'R$ ' + parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtN = v => parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt = v => 'R$ ' + Math.round(parseFloat(v)||0).toLocaleString('pt-BR');
+const fmtN = v => Math.round(parseFloat(v)||0).toLocaleString('pt-BR');
 let chartsMap = {};
 
 // Data de hoje
@@ -402,7 +402,7 @@ function execTotais(dados){
 
 function buildExecPanel(dados){
   const x=execTotais(dados);
-  const brlMi=v=>'R$ '+(v/1e6).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})+' mi';
+  const brlMi=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
   return `
     <div class="stitle"><span class="slbl">painel executivo</span>Visão Geral · Exercício 2026</div>
     <div class="exec">
@@ -776,7 +776,7 @@ function animateCount(el,target,isR){
   const dur=1200,start=performance.now();
   function upd(now){
     const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3),cur=target*e;
-    el.textContent=isR?('R$ '+cur.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})):(Math.floor(cur).toLocaleString('pt-BR'));
+    el.textContent=isR?('R$ '+Math.round(cur).toLocaleString('pt-BR')):(Math.floor(cur).toLocaleString('pt-BR'));
     if(p<1)requestAnimationFrame(upd);
   }
   requestAnimationFrame(upd);
