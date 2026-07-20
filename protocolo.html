@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocolo de Documentos — IPASG 2026</title>
+<meta name="author" content="Diego Camargo da Silva">
+<meta name="copyright" content="© Diego Camargo da Silva — Todos os direitos reservados. Proibida a cópia ou redistribuição.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F3A;--navy2:#132A4E;--gold:#C9A84C;--gold2:#E8C878;--gold3:#F5E4B0;--white:#F4F6FB;--text:#1A2B45;--text2:#4A5D78;--text3:#8A9AB5;--green:#1A7A4A;--green2:#E8F7EE;--blue:#1A5CA8;--blue2:#E6F1FB;--red:#9B2020;--red2:#FDEAEA;--amber:#B0720A;--amber2:#FFF4E0;--gray:#5A6A82;--gray2:#EEF1F6;--border:rgba(11,31,58,0.1);--fd:'Source Serif 4',Georgia,serif;--fb:'Inter',Arial,sans-serif;--fm:'Roboto Mono',monospace;--radius:12px;--radius-sm:8px;--shadow-sm:0 1px 2px rgba(11,31,58,0.06);--shadow:0 4px 16px rgba(11,31,58,0.07),0 1px 3px rgba(11,31,58,0.05);--shadow-lg:0 14px 38px rgba(11,31,58,0.12);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--fb);background:var(--white);background-image:radial-gradient(900px 480px at 100% -8%,rgba(201,168,76,0.06),transparent 60%),radial-gradient(760px 420px at -5% 0%,rgba(11,31,58,0.05),transparent 55%);background-attachment:fixed;color:var(--text);-webkit-font-smoothing:antialiased;}
+
+header{background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);color:#fff;padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:var(--shadow);}
+.htitle h1{font-family:var(--fd);font-size:23px;font-weight:700;letter-spacing:-0.01em;line-height:1.2;}
+.htitle p{font-size:12px;color:rgba(255,255,255,0.72);margin-top:4px;}
+.hright{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.hright .ano{font-family:var(--fd);font-size:32px;color:var(--gold);font-weight:700;line-height:1;}
+.pbtn{padding:8px 16px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:600;letter-spacing:.02em;border-radius:var(--radius-sm);cursor:pointer;font-family:var(--fb);transition:all .18s ease;}
+.pbtn:hover,.pbtn:focus-visible{background:var(--gold);color:var(--navy);outline:none;}
+.pbtn.solid{background:var(--gold);color:var(--navy);}
+.pbtn.solid:hover{background:var(--gold2);}
+
+.main{max-width:1180px;margin:0 auto;padding:1.6rem 2rem 3rem;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:1.4rem;}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-sm);}
+.clbl{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);}
+.cval{font-family:var(--fd);font-size:30px;font-weight:700;color:var(--navy);line-height:1.1;margin-top:6px;}
+.card.a .cval{color:var(--amber);}
+.card.g .cval{color:var(--green);}
+.card.r .cval{color:var(--red);}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;align-items:center;}
+.toolbar input[type=search]{flex:1;min-width:220px;padding:10px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--fb);font-size:13px;background:#fff;}
+.toolbar select{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--fb);font-size:13px;background:#fff;color:var(--text);}
+.toolbar input:focus,.toolbar select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+
+.box{background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--navy);color:#fff;text-align:left;padding:11px 14px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
+tbody tr:hover{background:rgba(201,168,76,0.05);}
+td.num{font-family:var(--fm);font-weight:700;color:var(--navy);white-space:nowrap;}
+td .assunto{color:var(--text2);font-size:12px;margin-top:3px;max-width:340px;}
+td .tipo{font-weight:600;}
+.chip{display:inline-block;padding:4px 11px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.st-enviado{background:var(--amber2);color:var(--amber);}
+.st-recebido{background:var(--blue2);color:var(--blue);}
+.st-respondido{background:var(--green2);color:var(--green);}
+.st-arquivado{background:var(--gray2);color:var(--gray);}
+.st-vencido{background:var(--red2);color:var(--red);}
+.dias{font-size:11px;color:var(--text3);margin-top:4px;}
+.acts{display:flex;gap:6px;white-space:nowrap;}
+.abtn{border:1px solid var(--border);background:#fff;border-radius:7px;padding:5px 8px;cursor:pointer;font-size:13px;transition:all .15s;}
+.abtn:hover{border-color:var(--gold);background:var(--gold3);}
+.abtn.del:hover{border-color:var(--red);background:var(--red2);}
+.empty{text-align:center;padding:4rem 2rem;color:var(--text2);}
+.empty .ico{font-size:46px;margin-bottom:12px;}
+.empty h2{font-family:var(--fd);color:var(--navy);margin-bottom:8px;font-size:20px;}
+
+/* ===== modal ===== */
+.overlay{position:fixed;inset:0;background:rgba(11,31,58,0.55);display:none;align-items:flex-start;justify-content:center;padding:3vh 16px;z-index:50;overflow:auto;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:640px;padding:26px 28px;margin-bottom:3vh;}
+.modal h2{font-family:var(--fd);font-size:20px;color:var(--navy);margin-bottom:4px;}
+.modal .sub{font-size:12px;color:var(--text2);margin-bottom:18px;}
+.modal .numprev{font-family:var(--fm);font-weight:700;color:var(--gold);background:var(--navy);display:inline-block;padding:5px 13px;border-radius:6px;font-size:14px;letter-spacing:.05em;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg.full{grid-column:1/-1;}
+.fg label{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);}
+.fg input,.fg select,.fg textarea{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--fb);font-size:13px;color:var(--text);background:#fff;}
+.fg textarea{resize:vertical;min-height:64px;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:2px solid var(--gold);outline-offset:1px;}
+.mini{align-self:flex-start;background:none;border:none;color:var(--blue);font-size:11.5px;cursor:pointer;font-family:var(--fb);padding:2px 0 0;text-decoration:underline;}
+.mini:hover{color:var(--navy);}
+.mfoot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+.btn2{padding:10px 18px;border-radius:var(--radius-sm);border:1px solid var(--border);background:#fff;cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:600;color:var(--text2);}
+.btn2:hover{border-color:var(--text3);}
+.btn1{padding:10px 22px;border-radius:var(--radius-sm);border:none;background:var(--navy);color:var(--gold2);cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:600;letter-spacing:.02em;}
+.btn1:hover{background:var(--navy2);}
+
+/* ===== comprovante (impressão) ===== */
+#print-root{display:none;}
+.via{border:2.5px solid var(--navy);border-radius:6px;padding:20px 26px;position:relative;page-break-inside:avoid;font-family:var(--fb);color:#111;}
+.via + .cut{display:flex;align-items:center;gap:10px;color:#888;font-size:11px;margin:14px 0;}
+.cut::before,.cut::after{content:"";flex:1;border-top:1.5px dashed #aaa;}
+.via .vhead{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--gold);padding-bottom:12px;margin-bottom:14px;gap:12px;}
+.via .org h3{font-family:var(--fd);font-size:16px;color:var(--navy);}
+.via .org p{font-size:10.5px;color:#444;margin-top:2px;}
+.carimbo{border:2px solid var(--gold);outline:2px solid var(--navy);outline-offset:3px;border-radius:4px;padding:8px 14px;text-align:center;background:#FBF7EC;}
+.carimbo .cl{font-size:8.5px;letter-spacing:.14em;font-weight:700;color:var(--navy);text-transform:uppercase;}
+.carimbo .cn{font-family:var(--fm);font-size:17px;font-weight:700;color:var(--navy);letter-spacing:.04em;margin-top:2px;}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px 22px;font-size:12px;}
+.vgrid .fl{grid-column:1/-1;}
+.vgrid b{display:block;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:#666;font-weight:700;margin-bottom:1px;}
+.receb{margin-top:20px;border-top:1.5px solid #ccc;padding-top:12px;display:grid;grid-template-columns:2fr 1fr;gap:22px;font-size:11px;}
+.sig{border-top:1.2px solid #333;margin-top:34px;padding-top:4px;text-align:center;color:#444;}
+.via .vtag{position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:.1em;color:#999;text-transform:uppercase;}
+.via .vfoot{margin-top:14px;font-size:9px;color:#888;text-align:center;border-top:1px solid #eee;padding-top:8px;}
+
+footer{max-width:1180px;margin:0 auto;padding:1.4rem 2rem 2.2rem;font-size:11px;color:var(--text3);text-align:center;line-height:1.7;}
+footer b{color:var(--text2);}
+
+@media(max-width:720px){header{padding:1.1rem 1.2rem;}.main{padding:1.2rem 1rem 2.4rem;}.fgrid{grid-template-columns:1fr;}.box{overflow-x:auto;}table{min-width:760px;}}
+@media print{
+  body{background:#fff;}
+  header,.main,footer{display:none!important;}
+  #print-root{display:block;padding:10mm 8mm;}
+  .via{border-color:#0B1F3A;}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="htitle">
+    <h1>Protocolo de Documentos</h1>
+    <p>IPASG — Instituto de Previdência e Assistência dos Servidores de Goiandira · CNPJ 24.811.911/0001-67</p>
+  </div>
+  <div class="hright">
+    <button class="pbtn" onclick="location.href='relatorio.html'">📊 Repasses</button>
+    <button class="pbtn" onclick="exportCSV()">⇩ Excel/CSV</button>
+    <button class="pbtn solid" onclick="abrirNovo()">＋ Novo Protocolo</button>
+    <div class="ano">2026</div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stats">
+    <div class="card"><div class="clbl">Protocolos no ano</div><div class="cval" id="s-total">0</div></div>
+    <div class="card a"><div class="clbl">Aguardando resposta</div><div class="cval" id="s-aguard">0</div></div>
+    <div class="card g"><div class="clbl">Respondidos</div><div class="cval" id="s-resp">0</div></div>
+    <div class="card r"><div class="clbl">Prazo vencido</div><div class="cval" id="s-venc">0</div></div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="f-busca" placeholder="Buscar por número, assunto, destinatário..." oninput="render()">
+    <select id="f-status" onchange="render()">
+      <option value="">Todos os status</option>
+      <option value="enviado">Aguardando resposta</option>
+      <option value="recebido">Recebimento confirmado</option>
+      <option value="respondido">Respondido</option>
+      <option value="vencido">Prazo vencido</option>
+      <option value="arquivado">Arquivado</option>
+    </select>
+    <select id="f-tipo" onchange="render()">
+      <option value="">Todos os documentos</option>
+      <option>Ofício</option><option>Notificação de Débito</option><option>Cobrança de Repasses</option>
+      <option>Requerimento</option><option>Prestação de Contas</option><option>Relatório</option>
+      <option>CTC</option><option>Parcelamento</option><option>Outro</option>
+    </select>
+  </div>
+
+  <div class="box">
+    <table id="tbl">
+      <thead><tr><th>Nº Protocolo</th><th>Envio</th><th>Destinatário</th><th>Documento</th><th>Forma</th><th>Prazo</th><th>Status</th><th>Ações</th></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none">
+      <div class="ico">📋</div>
+      <h2>Nenhum protocolo registrado</h2>
+      <p>Clique em <b>＋ Novo Protocolo</b> para registrar o primeiro documento enviado à Prefeitura.</p>
+    </div>
+  </div>
+</div>
+
+<!-- modal novo/editar -->
+<div class="overlay" id="ov-form">
+  <div class="modal">
+    <h2 id="m-title">Novo Protocolo</h2>
+    <div class="sub">Número gerado automaticamente: <span class="numprev" id="m-num">IPASG-2026-001</span></div>
+    <div class="fgrid">
+      <div class="fg"><label for="i-data">Data de envio</label><input type="date" id="i-data"></div>
+      <div class="fg"><label for="i-forma">Forma de envio</label>
+        <select id="i-forma"><option>Protocolo presencial</option><option>E-mail</option><option>Ofício físico</option><option>Correios / AR</option><option>Malote</option><option>WhatsApp institucional</option></select></div>
+      <div class="fg"><label for="i-dest">Destinatário</label>
+        <select id="i-dest"><option>Prefeitura Municipal — Gabinete</option><option>Secretaria de Administração</option><option>Secretaria de Finanças</option><option>Secretaria de Saúde (FMS)</option><option>Secretaria de Educação (FME)</option><option>Assistência Social (FMAS)</option><option>Câmara Municipal</option><option>Controladoria do Município</option><option>Outro</option></select></div>
+      <div class="fg"><label for="i-tipo">Tipo de documento</label>
+        <select id="i-tipo"><option>Ofício</option><option>Notificação de Débito</option><option>Cobrança de Repasses</option><option>Requerimento</option><option>Prestação de Contas</option><option>Relatório</option><option>CTC</option><option>Parcelamento</option><option>Outro</option></select></div>
+      <div class="fg full"><label for="i-assunto">Assunto</label><input type="text" id="i-assunto" placeholder="Ex.: Cobrança dos repasses patronais em débito — competências jan a mai/2026">
+        <button type="button" class="mini" id="btn-debitos" onclick="usarDebitos()" style="display:none">⤓ Preencher com os débitos atuais do Relatório de Repasses</button></div>
+      <div class="fg"><label for="i-prazo">Prazo para resposta (opcional)</label><input type="date" id="i-prazo"></div>
+      <div class="fg"><label for="i-status">Status</label>
+        <select id="i-status"><option value="enviado">Aguardando resposta</option><option value="recebido">Recebimento confirmado</option><option value="respondido">Respondido</option><option value="arquivado">Arquivado</option></select></div>
+      <div class="fg"><label for="i-receb">Recebido por (nome/matrícula)</label><input type="text" id="i-receb" placeholder="Preencher após o protocolo"></div>
+      <div class="fg"><label for="i-dtreceb">Data do recebimento</label><input type="date" id="i-dtreceb"></div>
+      <div class="fg full"><label for="i-obs">Observações</label><textarea id="i-obs" placeholder="Anexos, número de páginas, resposta recebida..."></textarea></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn2" onclick="fecharModal()">Cancelar</button>
+      <button class="btn1" id="btn-salvar" onclick="salvar()">Salvar protocolo</button>
+    </div>
+  </div>
+</div>
+
+<!-- comprovante impresso -->
+<div id="print-root"></div>
+
+<footer>
+  <b>IPASG</b> — Instituto de Previdência e Assistência dos Servidores de Goiandira · Município de Goiandira/GO<br>
+  Sistema de Protocolo de Documentos · © Criado e desenvolvido por <b>Diego Camargo da Silva</b> — Todos os direitos reservados. Proibida a cópia ou redistribuição.
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+import { getDatabase, ref, set, remove, onValue, child } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",
+  authDomain: "rpps-gestor.firebaseapp.com",
+  databaseURL: "https://rpps-gestor-default-rtdb.firebaseio.com",
+  projectId: "rpps-gestor",
+  storageBucket: "rpps-gestor.firebasestorage.app",
+  messagingSenderId: "306067757224",
+  appId: "1:306067757224:web:5f8acdc7c5199911774a9d"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const REF = ref(db, 'protocolos/2026');
+
+const ANO = 2026;
+let DADOS = {};        // {p001:{...}}
+let editKey = null;
+
+const STLBL = {enviado:'Aguardando resposta',recebido:'Recebimento confirmado',respondido:'Respondido',arquivado:'Arquivado'};
+const hoje = () => new Date().toISOString().slice(0,10);
+const dBR  = iso => iso ? iso.split('-').reverse().join('/') : '—';
+const esc  = s => String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const diasDesde = iso => Math.floor((new Date(hoje()) - new Date(iso)) / 86400000);
+const vencido = p => p.prazo && p.prazo < hoje() && (p.status==='enviado' || p.status==='recebido');
+
+function proxSeq(){
+  const seqs = Object.values(DADOS).map(p=>+p.seq||0);
+  return (seqs.length ? Math.max(...seqs) : 0) + 1;
+}
+const numDe = seq => `IPASG-${ANO}-${String(seq).padStart(3,'0')}`;
+
+// ===== Firebase live =====
+onValue(REF, snap => { DADOS = snap.val() || {}; render(); });
+
+// ===== Integração com o Relatório de Repasses (relatorio.html) =====
+const REL_REF = ref(db, 'relatorio/dados');
+let REL = null;
+onValue(REL_REF, snap => {
+  REL = snap.val();
+  const b = document.getElementById('btn-debitos');
+  if(b) b.style.display = REL?.meses ? '' : 'none';
+});
+
+const ORDEM_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const idxComp = c => ORDEM_NOMES.findIndex(n => (c||'').toLowerCase().startsWith(n.toLowerCase()));
+
+window.usarDebitos = function(){
+  if(!REL?.meses) return;
+  const meses = Object.values(REL.meses).sort((a,b)=>idxComp(a.competencia)-idxComp(b.competencia));
+  let total = 0; const comDeb = [];
+  for(const m of meses){
+    let d = 0;
+    for(const o of Object.values(m.orgaos||{})) for(const g of Object.values(o)){
+      if(g.status==='debito') d += (+g.valor||0);
+    }
+    if(d > 0){ comDeb.push(m.competencia); total += d; }
+  }
+  if(!comDeb.length){ document.getElementById('i-assunto').value = 'Repasses previdenciários — sem débitos pendentes na data'; return; }
+  const periodo = comDeb.length>1 ? `${comDeb[0]} a ${comDeb[comDeb.length-1]}` : comDeb[0];
+  const brl = 'R$ ' + Math.round(total).toLocaleString('pt-BR');
+  document.getElementById('i-assunto').value =
+    `Cobrança de repasses previdenciários em débito — competências ${periodo} — total de ${brl} (valores nominais, sujeitos a multa de 2,5%, juros de 1% a.m. e INPC — Lei 9.717/98, art. 2º)`;
+  document.getElementById('i-tipo').value = 'Cobrança de Repasses';
+};
+
+// ===== render =====
+window.render = function(){
+  const busca = (document.getElementById('f-busca').value||'').toLowerCase();
+  const fst   = document.getElementById('f-status').value;
+  const ftp   = document.getElementById('f-tipo').value;
+
+  const lista = Object.entries(DADOS).sort((a,b)=>(+b[1].seq)-(+a[1].seq));
+  let total=0, aguard=0, resp=0, venc=0;
+  for(const [,p] of lista){ total++;
+    if(vencido(p)) venc++;
+    else if(p.status==='enviado'||p.status==='recebido') aguard++;
+    if(p.status==='respondido') resp++;
+  }
+  document.getElementById('s-total').textContent=total;
+  document.getElementById('s-aguard').textContent=aguard;
+  document.getElementById('s-resp').textContent=resp;
+  document.getElementById('s-venc').textContent=venc;
+
+  const tb = document.getElementById('tbody');
+  let html='';
+  for(const [k,p] of lista){
+    const isVenc = vencido(p);
+    if(fst && !(fst==='vencido' ? isVenc : (p.status===fst && !(fst!=='arquivado'&&isVenc)))) continue;
+    if(ftp && p.tipo!==ftp) continue;
+    const alvo = `${p.num} ${p.assunto} ${p.destinatario} ${p.tipo}`.toLowerCase();
+    if(busca && !alvo.includes(busca)) continue;
+
+    let chip, sub='';
+    if(isVenc){ chip=`<span class="chip st-vencido">Prazo vencido</span>`; sub=`vencido há ${diasDesde(p.prazo)} dia(s)`; }
+    else { chip=`<span class="chip st-${p.status}">${STLBL[p.status]}</span>`;
+      if(p.status==='enviado') sub=`há ${diasDesde(p.data_envio)} dia(s)`;
+      if(p.status==='recebido'&&p.data_recebimento) sub=`recebido em ${dBR(p.data_recebimento)}`; }
+
+    html+=`<tr>
+      <td class="num">${esc(p.num)}</td>
+      <td>${dBR(p.data_envio)}</td>
+      <td>${esc(p.destinatario)}</td>
+      <td><div class="tipo">${esc(p.tipo)}</div><div class="assunto">${esc(p.assunto)}</div></td>
+      <td>${esc(p.forma)}</td>
+      <td>${dBR(p.prazo)}</td>
+      <td>${chip}${sub?`<div class="dias">${sub}</div>`:''}</td>
+      <td><div class="acts">
+        <button class="abtn" title="Imprimir comprovante" onclick="imprimir('${k}')">🖨</button>
+        <button class="abtn" title="Editar" onclick="abrirEdicao('${k}')">✎</button>
+        <button class="abtn del" title="Excluir" onclick="excluir('${k}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }
+  tb.innerHTML=html;
+  document.getElementById('tbl').style.display = html ? '' : 'none';
+  document.getElementById('empty').style.display = html ? 'none' : '';
+};
+
+// ===== form =====
+window.abrirNovo = function(){
+  editKey=null;
+  document.getElementById('m-title').textContent='Novo Protocolo';
+  document.getElementById('btn-salvar').textContent='Salvar protocolo';
+  document.getElementById('m-num').textContent=numDe(proxSeq());
+  ['i-assunto','i-receb','i-obs'].forEach(id=>document.getElementById(id).value='');
+  ['i-prazo','i-dtreceb'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('i-data').value=hoje();
+  document.getElementById('i-status').value='enviado';
+  document.getElementById('i-dest').selectedIndex=0;
+  document.getElementById('i-tipo').selectedIndex=0;
+  document.getElementById('i-forma').selectedIndex=0;
+  document.getElementById('ov-form').classList.add('open');
+};
+
+window.abrirEdicao = function(k){
+  const p=DADOS[k]; if(!p) return;
+  editKey=k;
+  document.getElementById('m-title').textContent='Editar Protocolo';
+  document.getElementById('btn-salvar').textContent='Salvar alterações';
+  document.getElementById('m-num').textContent=p.num;
+  document.getElementById('i-data').value=p.data_envio||'';
+  document.getElementById('i-forma').value=p.forma||'Protocolo presencial';
+  document.getElementById('i-dest').value=p.destinatario||'Outro';
+  document.getElementById('i-tipo').value=p.tipo||'Outro';
+  document.getElementById('i-assunto').value=p.assunto||'';
+  document.getElementById('i-prazo').value=p.prazo||'';
+  document.getElementById('i-status').value=p.status||'enviado';
+  document.getElementById('i-receb').value=p.recebido_por||'';
+  document.getElementById('i-dtreceb').value=p.data_recebimento||'';
+  document.getElementById('i-obs').value=p.obs||'';
+  document.getElementById('ov-form').classList.add('open');
+};
+
+window.fecharModal = ()=>document.getElementById('ov-form').classList.remove('open');
+document.getElementById('ov-form').addEventListener('click',e=>{if(e.target.id==='ov-form')window.fecharModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')window.fecharModal();});
+
+window.salvar = function(){
+  const assunto=document.getElementById('i-assunto').value.trim();
+  if(!assunto){ document.getElementById('i-assunto').focus(); return; }
+  const seq = editKey ? DADOS[editKey].seq : proxSeq();
+  const k   = editKey || 'p'+String(seq).padStart(3,'0');
+  const p = {
+    seq, num:numDe(seq),
+    data_envio: document.getElementById('i-data').value || hoje(),
+    forma: document.getElementById('i-forma').value,
+    destinatario: document.getElementById('i-dest').value,
+    tipo: document.getElementById('i-tipo').value,
+    assunto,
+    prazo: document.getElementById('i-prazo').value || '',
+    status: document.getElementById('i-status').value,
+    recebido_por: document.getElementById('i-receb').value.trim(),
+    data_recebimento: document.getElementById('i-dtreceb').value || '',
+    obs: document.getElementById('i-obs').value.trim(),
+    criado: DADOS[k]?.criado || Date.now()
+  };
+  set(child(REF,k), p).then(()=>window.fecharModal());
+};
+
+window.excluir = function(k){
+  const p=DADOS[k]; if(!p) return;
+  if(confirm(`Excluir o protocolo ${p.num}?\nEssa ação não pode ser desfeita.`)) remove(child(REF,k));
+};
+
+// ===== comprovante =====
+window.imprimir = function(k){
+  const p=DADOS[k]; if(!p) return;
+  const via = tag => `
+    <div class="via">
+      <div class="vtag">${tag}</div>
+      <div class="vhead">
+        <div class="org">
+          <h3>IPASG — Comprovante de Protocolo</h3>
+          <p>Instituto de Previdência e Assistência dos Servidores de Goiandira · CNPJ 24.811.911/0001-67 · Goiandira/GO</p>
+        </div>
+        <div class="carimbo"><div class="cl">Protocolo Nº</div><div class="cn">${esc(p.num)}</div></div>
+      </div>
+      <div class="vgrid">
+        <div><b>Data de envio</b>${dBR(p.data_envio)}</div>
+        <div><b>Forma de envio</b>${esc(p.forma)}</div>
+        <div><b>Destinatário</b>${esc(p.destinatario)}</div>
+        <div><b>Tipo de documento</b>${esc(p.tipo)}</div>
+        <div class="fl"><b>Assunto</b>${esc(p.assunto)}</div>
+        ${p.prazo?`<div><b>Prazo para resposta</b>${dBR(p.prazo)}</div>`:''}
+        ${p.obs?`<div class="fl"><b>Observações</b>${esc(p.obs)}</div>`:''}
+      </div>
+      <div class="receb">
+        <div><b style="display:block;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:#666">Recebimento — Prefeitura / Órgão destinatário</b>
+          <div class="sig">Nome legível · Matrícula · Assinatura ou carimbo</div></div>
+        <div><b style="display:block;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:#666">Data e hora</b>
+          <div class="sig">____/____/________ · ____:____</div></div>
+      </div>
+      <div class="vfoot">Emitido pelo Sistema de Protocolo do IPASG · © Diego Camargo da Silva · Documento sem valor fiscal — comprova a entrega do expediente acima identificado</div>
+    </div>`;
+  document.getElementById('print-root').innerHTML =
+    via('1ª via — IPASG') + `<div class="cut">✂ &nbsp;recortar</div>` + via('2ª via — Destinatário');
+  window.print();
+};
+
+// ===== CSV =====
+window.exportCSV = function(){
+  let csv='Nº Protocolo;Data Envio;Destinatário;Tipo;Assunto;Forma;Prazo;Status;Recebido por;Data Recebimento;Observações\n';
+  for(const p of Object.values(DADOS).sort((a,b)=>a.seq-b.seq)){
+    const st = vencido(p) ? 'Prazo vencido' : STLBL[p.status];
+    csv+=[p.num,dBR(p.data_envio),p.destinatario,p.tipo,p.assunto,p.forma,dBR(p.prazo),st,p.recebido_por,dBR(p.data_recebimento),(p.obs||'').replace(/[\n;]/g,' ')].join(';')+'\n';
+  }
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='protocolos-ipasg-2026.csv';a.click();URL.revokeObjectURL(a.href);
+};
+</script>
+</body>
+</html>

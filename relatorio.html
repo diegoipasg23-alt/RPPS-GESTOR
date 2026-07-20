@@ -162,6 +162,10 @@ tfoot td.r{text-align:right;font-family:var(--fm);}
 @keyframes alertSlide{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 @keyframes countUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.pst{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;white-space:nowrap;}
+.pst-a{background:#FFF4E0;color:#B0720A}.pst-b{background:var(--blue2);color:var(--blue)}.pst-g{background:var(--green2);color:var(--green)}.pst-r{background:var(--red2);color:var(--red)}.pst-x{background:#EEF1F6;color:#5A6A82}
+.plink{display:inline-block;padding:7px 15px;background:var(--navy);color:var(--gold2);border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;transition:background .18s;}
+.plink:hover{background:var(--navy2);}
 @keyframes barGrow{from{width:0%}to{width:var(--bar-w)}}
 @keyframes rowFadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 .card{animation:fadeInUp 0.5s ease both;}
@@ -233,6 +237,7 @@ body.apres .tabs-bar{position:static;}
     <div class="ano">2026</div>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap">
       <button class="pbtn" onclick="toggleApresentacao()" id="btn-apres">▶ Apresentação</button>
+      <button class="pbtn" onclick="location.href='protocolo.html'">📋 Protocolos</button>
       <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
       <button class="pbtn" onclick="window.print()">⎙ PDF</button>
     </div>
@@ -533,6 +538,10 @@ function buildGeral(dados) {
     <div class="stitle"><span class="slbl">alertas</span>Alertas Jurídicos</div>
     <div class="alertas-section">${alertas}</div>
 
+    <!-- PROTOCOLOS (integração com protocolo.html) -->
+    <div class="stitle"><span class="slbl">protocolo</span>Cobranças e Ofícios Protocolados</div>
+    <div class="box" id="protocolos-integ"><div style="padding:1.2rem 1.4rem;color:var(--text2);font-size:13px">Carregando protocolos...</div></div>
+
     <!-- INDICADORES -->
     <div class="stitle"><span class="slbl">indicadores</span>Indicadores Gerais</div>
     <div class="cards">
@@ -687,6 +696,7 @@ function renderTudo(dados) {
 
   { const lg=document.getElementById('loading-geral'); if(lg) lg.style.display='none'; }
   buildExecVisual(dados);
+  fillProtocolos();
   animateTabContent('geral');
   Chart.defaults.font.family='DM Sans';Chart.defaults.color='#4A5D78';
 }
@@ -726,6 +736,48 @@ onValue(REF, snap => {
     set(REF, initial);
   }
 });
+
+// ===== Integração com o Sistema de Protocolo (protocolo.html) =====
+const PROT_REF = ref(db, 'protocolos/2026');
+window._protocolos = undefined;
+onValue(PROT_REF, snap => { window._protocolos = snap.val() || {}; fillProtocolos(); });
+
+function fillProtocolos(){
+  const el = document.getElementById('protocolos-integ');
+  if(!el) return;
+  if(window._protocolos === undefined){ el.innerHTML = '<div style="padding:1.2rem 1.4rem;color:var(--text2);font-size:13px">Carregando protocolos...</div>'; return; }
+  const lista = Object.values(window._protocolos).sort((a,b)=>(+b.seq)-(+a.seq));
+  const hj = new Date().toISOString().slice(0,10);
+  const dBR2 = iso => iso ? iso.split('-').reverse().join('/') : '—';
+  const venc = p => p.prazo && p.prazo < hj && (p.status==='enviado'||p.status==='recebido');
+  const STL = {enviado:['Aguardando resposta','a'],recebido:['Recebimento confirmado','b'],respondido:['Respondido','g'],arquivado:['Arquivado','x']};
+
+  if(!lista.length){
+    el.innerHTML = `<div style="padding:1.6rem 1.4rem;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div style="font-size:13px;color:var(--text2)">Nenhum documento protocolado ainda. Registre as cobranças dos repasses em débito para formalizar a notificação ao Executivo.</div>
+      <a class="plink" href="protocolo.html">📋 Abrir Sistema de Protocolo →</a></div>`;
+    return;
+  }
+  let ag=0, vc=0;
+  for(const p of lista){ if(venc(p)) vc++; else if(p.status==='enviado'||p.status==='recebido') ag++; }
+  let rows='';
+  for(const p of lista.slice(0,6)){
+    const isV = venc(p);
+    const [lbl,cls] = isV ? ['Prazo vencido','r'] : STL[p.status]||['—','x'];
+    rows += `<tr><td style="font-family:var(--fm);font-weight:700;color:var(--navy);white-space:nowrap">${p.num}</td>
+      <td>${dBR2(p.data_envio)}</td><td>${p.tipo||''}</td><td>${p.destinatario||''}</td>
+      <td style="max-width:300px">${(p.assunto||'').replace(/</g,'&lt;')}</td>
+      <td><span class="pst pst-${cls}">${lbl}</span></td></tr>`;
+  }
+  el.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px">
+      <div style="font-size:12.5px;color:var(--text2)"><b style="color:var(--navy)">${lista.length}</b> protocolado(s) · <b style="color:#B0720A">${ag}</b> aguardando resposta · <b style="color:var(--red)">${vc}</b> com prazo vencido</div>
+      <a class="plink" href="protocolo.html">📋 Abrir Sistema de Protocolo →</a>
+    </div>
+    <table><thead><tr><th>Nº</th><th>Envio</th><th>Documento</th><th>Destinatário</th><th>Assunto</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    ${lista.length>6?`<div style="padding:9px 16px;font-size:11.5px;color:var(--text3);border-top:1px solid var(--border)">Exibindo os 6 mais recentes de ${lista.length} — veja todos no Sistema de Protocolo.</div>`:''}`;
+}
 
 window.showTab = function(id,el){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
