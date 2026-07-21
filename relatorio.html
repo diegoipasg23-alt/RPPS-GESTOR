@@ -238,6 +238,7 @@ body.apres .tabs-bar{position:static;}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap">
       <button class="pbtn" onclick="toggleApresentacao()" id="btn-apres">▶ Apresentação</button>
       <button class="pbtn" onclick="location.href='protocolo.html'">📋 Protocolos</button>
+      <button class="pbtn" onclick="gerarPDFRel()">📄 PDF</button>
       <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
       <button class="pbtn" onclick="window.print()">⎙ PDF</button>
     </div>
@@ -281,6 +282,196 @@ body.apres .tabs-bar{position:static;}
   <div class="footer-r" id="ftr-ref">2026 · Emitido <span id="ftr-data"></span></div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ===== Geração de PDF (mês ou consolidado, conforme a aba ativa) =====
+window.gerarPDFRel = function(){
+  const d = window._dadosFirebase;
+  if(!d || !d.meses){ alert('Dados ainda não carregados. Aguarde e tente novamente.'); return; }
+  if(!window.jspdf){ alert('Gerador de PDF ainda carregando — tente novamente em instantes.'); return; }
+  const aba = window._abaAtiva || 'geral';
+  if(aba !== 'geral' && d.meses[aba]) pdfMes(d.meses[aba]);
+  else pdfGeral(d);
+};
+
+(function(){
+  const NAVY=[11,31,58], GOLD=[201,168,76], GRAY=[110,122,142], DARK=[22,30,45], ZEBRA=[244,246,251], LIGHT=[246,242,230];
+  const STC = {verde:[26,122,74], azul:[26,92,168], debito:[155,32,32]};
+  const STT = {verde:'Pago no prazo', azul:'Pago c/ acréscimos', debito:'Em débito'};
+  const TPL = {lei:'Lei', patronal:'Patronal', servidor:'Servidor'};
+  const ORD = ['janeiro','fevereiro','março','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const idxM = c => ORD.findIndex(n => (c||'').toLowerCase().startsWith(n));
+  const ORGAOS_PDF = ['FMAS','FMS','ADM','FME','FUNDEB'];
+  const TIPOS_PDF  = ['lei','patronal','servidor'];
+  const brl = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  const tx  = s => String(s||'').replace(/\u2014|\u2013/g,'-');
+
+  function novoDoc(titulo, sub){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'mm',format:'a4'});
+    doc.setFillColor(...NAVY); doc.rect(0,0,210,30,'F');
+    doc.setFillColor(...GOLD); doc.rect(0,30,210,1.4,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+    doc.text('IPASG', 18, 12);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9);
+    doc.text('Instituto de Previdência e Assistência dos Servidores de Goiandira', 18, 18);
+    doc.setFontSize(7.5); doc.setTextColor(210,216,228);
+    doc.text('CNPJ 24.811.911/0001-67  |  Município de Goiandira - GO  |  Lei 9.717/98, art. 2º', 18, 24);
+    doc.setTextColor(...NAVY); doc.setFont('helvetica','bold'); doc.setFontSize(13);
+    doc.text(tx(titulo), 105, 42, {align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5); doc.setTextColor(...GRAY);
+    doc.text(tx(sub), 105, 48, {align:'center'});
+    return doc;
+  }
+  function rodape(doc){
+    const agora = new Date();
+    const emitido = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR').slice(0,5);
+    doc.setFillColor(...GOLD); doc.rect(0,283,210,0.8,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...GRAY);
+    doc.text('Responsável: Diego Camargo da Silva - Gestor do IPASG  |  Emitido em ' + emitido, 105, 288, {align:'center'});
+    doc.text('Valores em reais, sem centavos. Débitos em valores nominais, sujeitos a multa de 2,5%, juros de 1% a.m. e INPC.', 105, 292, {align:'center'});
+  }
+  function cards(doc, y, itens){ // itens: [{lbl,val,color?}]
+    const w = (210-36-(itens.length-1)*5)/itens.length;
+    itens.forEach((c,i)=>{
+      const x = 18 + i*(w+5);
+      doc.setFillColor(...ZEBRA); doc.setDrawColor(...GOLD); doc.setLineWidth(0.3);
+      doc.roundedRect(x,y,w,17,1.6,1.6,'FD');
+      doc.setFont('helvetica','bold'); doc.setFontSize(6.6); doc.setTextColor(...GRAY);
+      doc.text(c.lbl.toUpperCase(), x+w/2, y+5.4, {align:'center'});
+      doc.setFontSize(11.5); doc.setTextColor(...(c.color||NAVY));
+      doc.text(tx(c.val), x+w/2, y+12.6, {align:'center'});
+    });
+    return y+23;
+  }
+  function thead(doc, y, cols){
+    doc.setFillColor(...NAVY); doc.rect(18,y,174,7,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.4); doc.setTextColor(255,255,255);
+    cols.forEach(c=>doc.text(c.t, c.x, y+4.8, {align:c.a||'left'}));
+    return y+7;
+  }
+  function totaisMes(m){
+    let pago=0, deb=0, nv=0, na=0, nd=0;
+    for(const o of Object.values(m.orgaos||{})) for(const g of Object.values(o)){
+      const v=+g.valor||0;
+      if(g.status==='debito'){deb+=v;nd++;} else {pago+=v; g.status==='verde'?nv++:na++;}
+    }
+    return {pago,deb,nv,na,nd,tot:pago+deb};
+  }
+
+  // ---------- PDF de um mês ----------
+  window.pdfMes = function(m){
+    const t = totaisMes(m);
+    const doc = novoDoc('Relatório de Repasses - ' + m.competencia, 'Prazo legal para o repasse: ' + (m.prazo||'-'));
+    let y = cards(doc, 54, [
+      {lbl:'Total da competência', val:brl(t.tot)},
+      {lbl:'Repassado', val:brl(t.pago), color:STC.verde},
+      {lbl:'Em débito', val:brl(t.deb), color:STC.debito},
+      {lbl:'Adimplência', val:(t.tot?Math.round(t.pago/t.tot*100):0)+'%'}
+    ]);
+    const cols = [
+      {t:'ÓRGÃO', x:21}, {t:'CONTRIBUIÇÃO', x:52}, {t:'VALOR', x:112, a:'right'},
+      {t:'DATA PGTO', x:126}, {t:'SITUAÇÃO', x:158}
+    ];
+    y = thead(doc, y, cols);
+    let z=0;
+    for(const org of ORGAOS_PDF){
+      const o = m.orgaos?.[org]; if(!o) continue;
+      for(const tp of TIPOS_PDF){
+        const g = o[tp]; if(!g) continue;
+        if(z%2===0){ doc.setFillColor(...ZEBRA); doc.rect(18,y,174,6.4,'F'); }
+        doc.setFont('helvetica','normal'); doc.setFontSize(8.2); doc.setTextColor(...DARK);
+        doc.text(org, 21, y+4.4);
+        doc.text(TPL[tp], 52, y+4.4);
+        doc.text(brl(+g.valor||0), 112, y+4.4, {align:'right'});
+        doc.text(g.data_pgto||'-', 126, y+4.4);
+        doc.setFont('helvetica','bold'); doc.setTextColor(...(STC[g.status]||DARK));
+        doc.text(STT[g.status]||g.status||'-', 158, y+4.4);
+        y+=6.4; z++;
+      }
+    }
+    doc.setFillColor(...LIGHT); doc.rect(18,y,174,7.4,'F');
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.5); doc.line(18,y,192,y);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.8); doc.setTextColor(...NAVY);
+    doc.text('TOTAL', 21, y+5);
+    doc.text(brl(t.tot), 112, y+5, {align:'right'});
+    y+=13;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.6); doc.setTextColor(...GRAY);
+    doc.text(`Guias: ${t.nv} paga(s) no prazo  |  ${t.na} paga(s) com acréscimos (multa, juros e INPC)  |  ${t.nd} em débito`, 21, y);
+    y+=5;
+    doc.text('FMAS: Fundo Mun. de Assistência Social  |  FMS: Fundo Mun. de Saúde  |  ADM: Administração (Prefeitura)  |  FME: Fundo Mun. de Educação  |  FUNDEB', 21, y);
+    rodape(doc);
+    doc.save('Repasses-IPASG-' + tx(m.competencia).replace('/','-') + '.pdf');
+  };
+
+  // ---------- PDF consolidado ----------
+  window.pdfGeral = function(d){
+    const meses = Object.values(d.meses).sort((a,b)=>idxM(a.competencia)-idxM(b.competencia));
+    let TG=0,TP=0,TD=0,NV=0,NA=0,ND=0;
+    const porOrg = {}; ORGAOS_PDF.forEach(o=>porOrg[o]={dev:0,pago:0,deb:0});
+    const linhas = meses.map(m=>{
+      const t = totaisMes(m);
+      TG+=t.tot; TP+=t.pago; TD+=t.deb; NV+=t.nv; NA+=t.na; ND+=t.nd;
+      for(const org of ORGAOS_PDF){ const o=m.orgaos?.[org]; if(!o) continue;
+        for(const g of Object.values(o)){ const v=+g.valor||0; porOrg[org].dev+=v;
+          g.status==='debito' ? porOrg[org].deb+=v : porOrg[org].pago+=v; } }
+      return {c:m.competencia, ...t};
+    });
+    const doc = novoDoc('Relatório de Repasses - Consolidado do Exercício 2026', 'Competências: ' + (linhas[0]?.c||'') + ' a ' + (linhas[linhas.length-1]?.c||''));
+    let y = cards(doc, 54, [
+      {lbl:'Total do exercício', val:brl(TG)},
+      {lbl:'Repassado', val:brl(TP), color:STC.verde},
+      {lbl:'Em débito', val:brl(TD), color:STC.debito},
+      {lbl:'Adimplência', val:(TG?Math.round(TP/TG*100):0)+'%'}
+    ]);
+    // demonstrativo por competência
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...NAVY);
+    doc.text('Demonstrativo por Competência', 18, y); y+=3;
+    let cols = [{t:'COMPETÊNCIA',x:21},{t:'TOTAL',x:95,a:'right'},{t:'REPASSADO',x:130,a:'right'},{t:'EM DÉBITO',x:165,a:'right'},{t:'ADIMPL.',x:189,a:'right'}];
+    y = thead(doc, y, cols);
+    linhas.forEach((l,i)=>{
+      if(i%2===0){ doc.setFillColor(...ZEBRA); doc.rect(18,y,174,6.4,'F'); }
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.2); doc.setTextColor(...DARK);
+      doc.text(l.c, 21, y+4.4);
+      doc.text(brl(l.tot), 95, y+4.4, {align:'right'});
+      doc.setTextColor(...STC.verde); doc.text(brl(l.pago), 130, y+4.4, {align:'right'});
+      doc.setTextColor(...STC.debito); doc.text(brl(l.deb), 165, y+4.4, {align:'right'});
+      doc.setTextColor(...DARK); doc.text((l.tot?Math.round(l.pago/l.tot*100):0)+'%', 189, y+4.4, {align:'right'});
+      y+=6.4;
+    });
+    doc.setFillColor(...LIGHT); doc.rect(18,y,174,7.4,'F');
+    doc.setDrawColor(...GOLD); doc.setLineWidth(0.5); doc.line(18,y,192,y);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8.6); doc.setTextColor(...NAVY);
+    doc.text('EXERCÍCIO', 21, y+5);
+    doc.text(brl(TG), 95, y+5, {align:'right'});
+    doc.setTextColor(...STC.verde); doc.text(brl(TP), 130, y+5, {align:'right'});
+    doc.setTextColor(...STC.debito); doc.text(brl(TD), 165, y+5, {align:'right'});
+    y+=15;
+    // consolidado por órgão
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...NAVY);
+    doc.text('Consolidado por Órgão', 18, y); y+=3;
+    cols = [{t:'ÓRGÃO',x:21},{t:'DEVIDO',x:105,a:'right'},{t:'REPASSADO',x:145,a:'right'},{t:'EM DÉBITO',x:189,a:'right'}];
+    y = thead(doc, y, cols);
+    let i2=0;
+    for(const org of ORGAOS_PDF){
+      const o = porOrg[org]; if(!o.dev) continue;
+      if(i2%2===0){ doc.setFillColor(...ZEBRA); doc.rect(18,y,174,6.4,'F'); }
+      doc.setFont('helvetica','normal'); doc.setFontSize(8.2); doc.setTextColor(...DARK);
+      doc.text(org, 21, y+4.4);
+      doc.text(brl(o.dev), 105, y+4.4, {align:'right'});
+      doc.setTextColor(...STC.verde); doc.text(brl(o.pago), 145, y+4.4, {align:'right'});
+      doc.setTextColor(...STC.debito); doc.text(brl(o.deb), 189, y+4.4, {align:'right'});
+      y+=6.4; i2++;
+    }
+    y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.6); doc.setTextColor(...GRAY);
+    doc.text(`Guias no exercício: ${NV} paga(s) no prazo  |  ${NA} paga(s) com acréscimos  |  ${ND} em débito`, 21, y); y+=4.5;
+    doc.text('FMAS: Fundo Mun. de Assistência Social  |  FMS: Fundo Mun. de Saúde  |  ADM: Administração (Prefeitura)  |  FME: Fundo Mun. de Educação  |  FUNDEB', 21, y);
+    rodape(doc);
+    doc.save('Repasses-IPASG-Consolidado-2026.pdf');
+  };
+})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
 import { getDatabase, ref, set, update, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
@@ -779,7 +970,9 @@ function fillProtocolos(){
     ${lista.length>6?`<div style="padding:9px 16px;font-size:11.5px;color:var(--text3);border-top:1px solid var(--border)">Exibindo os 6 mais recentes de ${lista.length} — veja todos no Sistema de Protocolo.</div>`:''}`;
 }
 
+window._abaAtiva = 'geral';
 window.showTab = function(id,el){
+  window._abaAtiva = id;
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   const panel = document.getElementById('tab-'+id);
