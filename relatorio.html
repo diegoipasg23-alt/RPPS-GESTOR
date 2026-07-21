@@ -244,7 +244,6 @@ body.apres .tabs-bar{position:static;}
         </select><button class="pbtn" style="border-radius:0 8px 8px 0;" onclick="gerarPDFRel()">📄 PDF</button>
       </span>
       <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
-      <button class="pbtn" onclick="window.print()">⎙ PDF</button>
     </div>
   </div>
 </div>
@@ -256,6 +255,7 @@ body.apres .tabs-bar{position:static;}
   <div class="shi"><b>Aposentados:</b><span id="sub-apos">97</span> &nbsp;·&nbsp; <b>Pensionistas:</b><span id="sub-pens">28</span></div>
   <div class="shi"><b>Responsável:</b><span id="sub-gestor">Diego Camargo da Silva</span></div>
   <div class="shi"><b>Emitido em:</b><span id="sub-data"></span></div>
+  <div class="shi" id="ultima-inclusao" style="display:none;background:var(--gold3,#F5E4B0);border-radius:99px;padding:3px 12px;"><b>🕐 Última inclusão de dados:</b><span id="ultima-inclusao-txt"></span></div>
 </div>
 
 <div class="legenda">
@@ -861,6 +861,19 @@ function buildAlertas(dados) {
   return alertasHtml + grid + single;
 }
 
+function mostrarUltimaInclusao(dados){
+  const el = document.getElementById('ultima-inclusao');
+  const txt = document.getElementById('ultima-inclusao-txt');
+  if(!el || !txt) return;
+  const ui = dados.meta?.ultima_inclusao;
+  if(!ui?.ts){ el.style.display='none'; return; }
+  const dt = new Date(ui.ts);
+  const quando = dt.toLocaleDateString('pt-BR') + ' às ' + dt.toLocaleTimeString('pt-BR').slice(0,5);
+  const itens = Array.isArray(ui.itens) && ui.itens.length ? ' — ' + ui.itens.join(', ') : '';
+  txt.textContent = quando + itens;
+  el.style.display = '';
+}
+
 function renderTudo(dados) {
   // Atualizar config no header
   const cfg = dados.config||{};
@@ -933,11 +946,16 @@ onValue(REF, snap => {
   const dados = snap.val();
   if(dados) {
     const faltantes = {};
+    const incluidos = [];
     for(const [k,v] of Object.entries(MESES_NOVOS)) {
       const atual = dados.meses ? dados.meses[k] : null;
-      if(!atual || (v.rev||0) > (atual.rev||0)) faltantes['meses/'+k] = v;
+      if(!atual || (v.rev||0) > (atual.rev||0)) { faltantes['meses/'+k] = v; incluidos.push(v.competencia); }
     }
-    if(Object.keys(faltantes).length) { update(REF, faltantes); return; } // onValue dispara de novo com os dados completos
+    if(Object.keys(faltantes).length) {
+      faltantes['meta/ultima_inclusao'] = { ts: Date.now(), itens: incluidos };
+      update(REF, faltantes); return; // onValue dispara de novo com os dados completos
+    }
+    mostrarUltimaInclusao(dados);
     renderTudo(dados);
   } else {
     // Primeira vez: salvar dados iniciais
