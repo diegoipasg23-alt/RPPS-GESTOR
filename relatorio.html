@@ -238,7 +238,11 @@ body.apres .tabs-bar{position:static;}
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap">
       <button class="pbtn" onclick="toggleApresentacao()" id="btn-apres">▶ Apresentação</button>
       <button class="pbtn" onclick="location.href='protocolo.html'">📋 Protocolos</button>
-      <button class="pbtn" onclick="gerarPDFRel()">📄 PDF</button>
+      <span style="display:inline-flex;align-items:center;gap:0;">
+        <select id="pdf-filtro" aria-label="Conteúdo do PDF" style="padding:8px 10px;background:transparent;border:1px solid var(--gold);border-right:none;border-radius:8px 0 0 8px;color:var(--gold);font-size:12px;font-weight:600;font-family:var(--fb);cursor:pointer;max-width:210px;">
+          <option value="geral" style="color:#0B1F3A">📊 Geral — Exercício 2026</option>
+        </select><button class="pbtn" style="border-radius:0 8px 8px 0;" onclick="gerarPDFRel()">📄 PDF</button>
+      </span>
       <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
       <button class="pbtn" onclick="window.print()">⎙ PDF</button>
     </div>
@@ -283,58 +287,29 @@ body.apres .tabs-bar{position:static;}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<style>
-.pdf-ov{position:fixed;inset:0;background:rgba(11,31,58,0.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:60;}
-.pdf-ov.open{display:flex;}
-.pdf-md{background:#fff;border-radius:12px;box-shadow:0 14px 38px rgba(11,31,58,0.18);width:100%;max-width:420px;padding:24px 26px;}
-.pdf-md h3{font-family:var(--fd);font-size:18px;color:var(--navy);margin-bottom:4px;}
-.pdf-md p{font-size:12px;color:var(--text2);margin-bottom:16px;}
-.pdf-md select{width:100%;padding:11px 12px;border:1px solid rgba(11,31,58,0.15);border-radius:8px;font-family:var(--fb);font-size:13.5px;color:var(--text);background:#fff;}
-.pdf-md select:focus{outline:2px solid var(--gold);outline-offset:1px;}
-.pdf-md .ft{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
-.pdf-md .b2{padding:9px 16px;border-radius:8px;border:1px solid rgba(11,31,58,0.15);background:#fff;cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:600;color:var(--text2);}
-.pdf-md .b1{padding:9px 20px;border-radius:8px;border:none;background:var(--navy);color:var(--gold2);cursor:pointer;font-family:var(--fb);font-size:13px;font-weight:600;}
-.pdf-md .b1:hover{background:#132A4E;}
-</style>
-<div class="pdf-ov" id="pdf-ov">
-  <div class="pdf-md">
-    <h3>Gerar relatório em PDF</h3>
-    <p>Escolha o conteúdo do documento:</p>
-    <select id="pdf-sel"></select>
-    <div class="ft">
-      <button class="b2" onclick="document.getElementById('pdf-ov').classList.remove('open')">Cancelar</button>
-      <button class="b1" onclick="confirmarPDF()">📄 Gerar PDF</button>
-    </div>
-  </div>
-</div>
 <script>
-// ===== Geração de PDF (mês ou consolidado, conforme a aba ativa) =====
-window.gerarPDFRel = function(){
+// ===== Geração de PDF conforme o filtro do cabeçalho (Geral ou mês) =====
+window._popularFiltroPDF = function(){
   const d = window._dadosFirebase;
-  if(!d || !d.meses){ alert('Dados ainda não carregados. Aguarde e tente novamente.'); return; }
-  if(!window.jspdf){ alert('Gerador de PDF ainda carregando — tente novamente em instantes.'); return; }
-  // monta as opções: consolidado + cada competência
+  const sel = document.getElementById('pdf-filtro');
+  if(!d || !d.meses || !sel) return;
+  const atual = sel.value;
   const ORD0 = ['janeiro','fevereiro','março','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
   const meses = Object.entries(d.meses).sort((a,b)=>
     ORD0.findIndex(n=>(a[1].competencia||'').toLowerCase().startsWith(n)) -
     ORD0.findIndex(n=>(b[1].competencia||'').toLowerCase().startsWith(n)));
-  const sel = document.getElementById('pdf-sel');
-  let opts = `<option value="geral">📊 Consolidado do Exercício 2026 (todos os meses)</option>`;
-  for(const [k,m] of meses) opts += `<option value="${k}">📅 ${m.competencia} — detalhamento da competência</option>`;
+  let opts = `<option value="geral" style="color:#0B1F3A">📊 Geral — Exercício 2026</option>`;
+  for(const [k,m] of meses) opts += `<option value="${k}" style="color:#0B1F3A">📅 ${m.competencia}</option>`;
   sel.innerHTML = opts;
-  // pré-seleciona conforme a aba aberta
-  const aba = window._abaAtiva || 'geral';
-  sel.value = (aba!=='geral' && d.meses[aba]) ? aba : 'geral';
-  document.getElementById('pdf-ov').classList.add('open');
+  sel.value = (atual && (atual==='geral' || d.meses[atual])) ? atual : 'geral';
 };
-window.confirmarPDF = function(){
-  const v = document.getElementById('pdf-sel').value;
-  document.getElementById('pdf-ov').classList.remove('open');
+window.gerarPDFRel = function(){
   const d = window._dadosFirebase;
-  if(v==='geral') pdfGeral(d); else if(d.meses[v]) pdfMes(d.meses[v]);
+  if(!d || !d.meses){ alert('Dados ainda não carregados. Aguarde e tente novamente.'); return; }
+  if(!window.jspdf){ alert('Gerador de PDF ainda carregando — tente novamente em instantes.'); return; }
+  const v = document.getElementById('pdf-filtro')?.value || 'geral';
+  if(v!=='geral' && d.meses[v]) pdfMes(d.meses[v]); else pdfGeral(d);
 };
-document.getElementById('pdf-ov').addEventListener('click',e=>{if(e.target.id==='pdf-ov')e.target.classList.remove('open');});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('pdf-ov').classList.remove('open');});
 
 
 (function(){
@@ -1086,6 +1061,7 @@ const origOnValue = onValue;
 window._dadosFirebase = null;
 onValue(REF, snap=>{
   window._dadosFirebase = snap.val();
+  if(window._popularFiltroPDF) window._popularFiltroPDF();
 });
 </script>
 </body>
