@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Acessos — IPASG 2026</title>
+<meta name="author" content="Diego Camargo da Silva">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@600;700&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0B1F3A;--navy2:#132A4E;--gold:#C9A84C;--gold2:#E8C878;--white:#F4F6FB;--text:#1A2B45;--text2:#4A5D78;--text3:#8A9AB5;--border:rgba(11,31,58,0.1);--fd:'Source Serif 4',Georgia,serif;--fb:'Inter',Arial,sans-serif;--fm:'Roboto Mono',monospace;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--fb);background:var(--white);color:var(--text);-webkit-font-smoothing:antialiased;}
+header{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;padding:1.3rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+header h1{font-family:var(--fd);font-size:21px;}
+header p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;}
+.pbtn{padding:8px 15px;background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:600;border-radius:8px;cursor:pointer;font-family:var(--fb);}
+.pbtn:hover{background:var(--gold);color:var(--navy);}
+.main{max-width:960px;margin:0 auto;padding:1.5rem 1.6rem 3rem;}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:1.2rem;}
+.card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 2px rgba(11,31,58,0.06);}
+.clbl{font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);}
+.cval{font-family:var(--fd);font-size:26px;font-weight:700;color:var(--navy);margin-top:5px;}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;}
+.toolbar input,.toolbar select{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:var(--fb);font-size:13px;background:#fff;color:var(--text);}
+.toolbar input{flex:1;min-width:180px;}
+.box{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 4px 16px rgba(11,31,58,0.07);overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:var(--navy);color:#fff;text-align:left;padding:10px 14px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;}
+tbody td{padding:10px 14px;border-bottom:1px solid var(--border);}
+tbody tr:hover{background:rgba(201,168,76,0.05);}
+.nome{font-weight:600;color:var(--navy);}
+.dt{font-family:var(--fm);font-size:12px;white-space:nowrap;}
+.tag{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:600;background:#EEF1F6;color:#4A5D78;}
+.tag.rel{background:#E6F1FB;color:#1A5CA8;}
+.tag.pro{background:#E8F7EE;color:#1A7A4A;}
+.empty{text-align:center;padding:3.5rem 2rem;color:var(--text2);font-size:13.5px;}
+footer{max-width:960px;margin:0 auto;padding:1.2rem 1.6rem 2rem;font-size:11px;color:var(--text3);text-align:center;}
+@media(max-width:640px){.box{overflow-x:auto;}table{min-width:620px;}}
+</style>
+</head>
+<body>
+
+<!-- ===== BLOQUEIO POR SENHA ===== -->
+<div id="lock" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(150deg,#0B1F3A 0%,#132A4E 60%,#0B1F3A 100%);display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="width:100%;max-width:380px;text-align:center;">
+    <div style="width:74px;height:74px;margin:0 auto 18px;border:2px solid #C9A84C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;">🔒</div>
+    <div style="font-family:Georgia,'Source Serif 4',serif;font-size:26px;font-weight:700;color:#fff;letter-spacing:.01em;">IPASG</div>
+    <div style="font-size:12px;color:rgba(255,255,255,0.65);margin:6px 0 26px;line-height:1.5;">Instituto de Previdência e Assistência dos<br>Servidores de Goiandira · Acesso restrito</div>
+    <input type="text" id="lock-nome" placeholder="Seu nome (identificação)" autocomplete="name"
+      style="width:100%;padding:13px 16px;border:1px solid rgba(201,168,76,0.5);border-radius:10px;background:rgba(255,255,255,0.06);color:#fff;font-size:14px;text-align:center;outline:none;box-sizing:border-box;margin-bottom:10px;">
+    <input type="password" id="lock-pass" placeholder="Senha de acesso" autocomplete="current-password"
+      style="width:100%;padding:13px 16px;border:1px solid rgba(201,168,76,0.5);border-radius:10px;background:rgba(255,255,255,0.06);color:#fff;font-size:15px;text-align:center;letter-spacing:.15em;outline:none;box-sizing:border-box;">
+    <button onclick="tentarSenha()" style="width:100%;margin-top:12px;padding:13px;border:none;border-radius:10px;background:#C9A84C;color:#0B1F3A;font-size:14px;font-weight:700;letter-spacing:.03em;cursor:pointer;">Entrar</button>
+    <div id="lock-erro" style="display:none;margin-top:12px;font-size:12.5px;color:#F1A9A9;">Senha incorreta. Tente novamente.</div>
+    <div style="margin-top:26px;font-size:10.5px;color:rgba(255,255,255,0.4);">© Diego Camargo da Silva — Todos os direitos reservados</div>
+  </div>
+</div>
+<script>
+(function(){
+  var HASH='b34d38fd406f736a8bda6b520640d57b288f8d04c0a7fd2fa927ea274ea95643';
+  function sha(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(function(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')});}
+  function liberar(){var l=document.getElementById('lock');if(l)l.style.display='none';document.documentElement.style.overflow='';window._acessoLiberado=true;if(window._registrarAcesso)window._registrarAcesso();}
+  document.documentElement.style.overflow='hidden';
+  try{
+    var n=localStorage.getItem('ipasg_nome'); if(n){var i=document.getElementById('lock-nome'); if(i)i.value=n;}
+    if(localStorage.getItem('ipasg_auth')===HASH){ liberar(); }
+  }catch(e){}
+  window.tentarSenha=function(){
+    var inp=document.getElementById('lock-pass');
+    var nomeEl=document.getElementById('lock-nome');
+    var nome=(nomeEl&&nomeEl.value?nomeEl.value:'').trim();
+    if(!nome){ if(nomeEl){nomeEl.focus();nomeEl.style.borderColor='#F1A9A9';setTimeout(function(){nomeEl.style.borderColor='rgba(201,168,76,0.5)';},900);} return; }
+    sha(inp.value).then(function(h){
+      if(h===HASH){ try{localStorage.setItem('ipasg_auth',HASH);localStorage.setItem('ipasg_nome',nome);}catch(e){} liberar(); }
+      else{ document.getElementById('lock-erro').style.display='';inp.value='';inp.focus();
+        inp.style.borderColor='#F1A9A9'; setTimeout(function(){inp.style.borderColor='rgba(201,168,76,0.5)';},900); }
+    });
+  };
+  document.getElementById('lock-pass').addEventListener('keydown',function(e){if(e.key==='Enter')window.tentarSenha();});
+})();
+</script>
+
+<header>
+  <div>
+    <h1>🕵️ Registro de Acessos</h1>
+    <p>IPASG — quem acessou os aplicativos, quando e por qual dispositivo</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="pbtn" onclick="location.href='relatorio.html'">📊 Repasses</button>
+    <button class="pbtn" onclick="location.href='protocolo.html'">📋 Protocolos</button>
+    <button class="pbtn" onclick="exportCSV()">⇩ Excel/CSV</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stats">
+    <div class="card"><div class="clbl">Acessos registrados</div><div class="cval" id="s-total">0</div></div>
+    <div class="card"><div class="clbl">Pessoas distintas</div><div class="cval" id="s-pessoas">0</div></div>
+    <div class="card"><div class="clbl">Acessos hoje</div><div class="cval" id="s-hoje">0</div></div>
+  </div>
+  <div class="toolbar">
+    <input type="search" id="f-busca" placeholder="Buscar por nome..." oninput="render()">
+    <select id="f-pag" onchange="render()">
+      <option value="">Todas as páginas</option>
+      <option value="relatorio">Relatório de Repasses</option>
+      <option value="protocolo">Protocolo</option>
+      <option value="acessos">Registro de Acessos</option>
+    </select>
+  </div>
+  <div class="box">
+    <table id="tbl"><thead><tr><th>Pessoa</th><th>Data e hora</th><th>Página</th><th>Dispositivo</th></tr></thead><tbody id="tbody"></tbody></table>
+    <div class="empty" id="empty" style="display:none">Nenhum acesso registrado ainda. Os registros começam a partir desta versão dos aplicativos.</div>
+  </div>
+</div>
+
+<footer>© Criado e desenvolvido por <b>Diego Camargo da Silva</b> — Todos os direitos reservados.</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyB6lg7x5k1WxXL_nU8DwZb7-X-LQ8v_5Ws",
+  authDomain: "rpps-gestor.firebaseapp.com",
+  databaseURL: "https://rpps-gestor-default-rtdb.firebaseio.com",
+  projectId: "rpps-gestor",
+  storageBucket: "rpps-gestor.firebasestorage.app",
+  messagingSenderId: "306067757224",
+  appId: "1:306067757224:web:5f8acdc7c5199911774a9d"
+};
+const db = getDatabase(initializeApp(firebaseConfig));
+
+// ===== Registro de acessos =====
+window._registrarAcesso = (function(){
+  let feito = false;
+  return function(){
+    if(feito) return; feito = true;
+    try{
+      const nome = localStorage.getItem('ipasg_nome') || '(não identificado)';
+      const u = navigator.userAgent;
+      const disp = /Android/i.test(u)?'Android':/iPhone|iPad/i.test(u)?'iPhone/iPad':/Windows/i.test(u)?'Windows':/Mac/i.test(u)?'Mac':'Outro';
+      const key = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+      set(ref(db,'acessos/'+key), {ts:Date.now(), nome, pagina:'acessos', disp});
+    }catch(e){}
+  };
+})();
+if(window._acessoLiberado) window._registrarAcesso();
+
+let LISTA = [];
+onValue(ref(db,'acessos'), snap => {
+  LISTA = Object.values(snap.val()||{}).sort((a,b)=>b.ts-a.ts);
+  render();
+});
+
+const PAGL = {relatorio:['Relatório de Repasses','rel'], protocolo:['Protocolo','pro'], acessos:['Registro de Acessos','']};
+window.render = function(){
+  const busca = (document.getElementById('f-busca').value||'').toLowerCase();
+  const fpag = document.getElementById('f-pag').value;
+  const hoje = new Date().toDateString();
+  document.getElementById('s-total').textContent = LISTA.length;
+  document.getElementById('s-pessoas').textContent = new Set(LISTA.map(a=>(a.nome||'').toLowerCase())).size;
+  document.getElementById('s-hoje').textContent = LISTA.filter(a=>new Date(a.ts).toDateString()===hoje).length;
+  let html='';
+  for(const a of LISTA){
+    if(fpag && a.pagina!==fpag) continue;
+    if(busca && !(a.nome||'').toLowerCase().includes(busca)) continue;
+    const d = new Date(a.ts);
+    const [pl,pc] = PAGL[a.pagina]||[a.pagina||'—',''];
+    html += `<tr><td class="nome">${String(a.nome||'').replace(/</g,'&lt;')}</td>
+      <td class="dt">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR').slice(0,5)}</td>
+      <td><span class="tag ${pc}">${pl}</span></td><td>${a.disp||'—'}</td></tr>`;
+  }
+  document.getElementById('tbody').innerHTML = html;
+  document.getElementById('tbl').style.display = html?'':'none';
+  document.getElementById('empty').style.display = html?'none':'';
+};
+
+window.exportCSV = function(){
+  let csv='Pessoa;Data;Hora;Página;Dispositivo\n';
+  for(const a of [...LISTA].sort((x,y)=>x.ts-y.ts)){
+    const d=new Date(a.ts);
+    csv+=[a.nome,d.toLocaleDateString('pt-BR'),d.toLocaleTimeString('pt-BR').slice(0,5),(PAGL[a.pagina]||[a.pagina])[0],a.disp||''].join(';')+'\n';
+  }
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const el=document.createElement('a');el.href=URL.createObjectURL(blob);el.download='acessos-ipasg.csv';el.click();URL.revokeObjectURL(el.href);
+};
+</script>
+</body>
+</html>
