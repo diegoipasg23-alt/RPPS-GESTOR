@@ -478,7 +478,8 @@ tbody td.r{text-align:right;font-weight:700;}
       <div id="pg-estoque">
         <div class="resumo">
           <div class="rcard"><div class="rcard-icon" style="background:#EDE9FE">📦</div><div><div class="rcard-val" id="r-tot">0</div><div class="rcard-lbl">Produtos</div></div></div>
-          <div class="rcard"><div class="rcard-icon" style="background:#D1FAE5">💰</div><div><div class="rcard-val" id="r-val" style="font-size:16px">R$ 0</div><div class="rcard-lbl">Valor Estoque</div></div></div>
+          <div class="rcard"><div class="rcard-icon" style="background:#DBEAFE">💵</div><div><div class="rcard-val" id="r-inv" style="font-size:15px">R$ 0</div><div class="rcard-lbl">Investido (custo)</div></div></div>
+          <div class="rcard"><div class="rcard-icon" style="background:#D1FAE5">💰</div><div><div class="rcard-val" id="r-val" style="font-size:15px">R$ 0</div><div class="rcard-lbl">Vende por (potencial)</div></div></div>
           <div class="rcard"><div class="rcard-icon" style="background:#FEF3C7">⚠️</div><div><div class="rcard-val" id="r-bx">0</div><div class="rcard-lbl">Estoque Baixo</div></div></div>
           <div class="rcard"><div class="rcard-icon" style="background:#FEE2E2">🚫</div><div><div class="rcard-val" id="r-zr">0</div><div class="rcard-lbl">Sem Estoque</div></div></div>
         </div>
@@ -1947,10 +1948,12 @@ window._renderProd=renderProd;
 function renderResumo(){
   const l=Object.values(prods);
   const valor=l.reduce((s,p)=>s+parseFloat(p.preco_venda||0)*(p.estoque||0),0);
+  const investido=l.reduce((s,p)=>s+parseFloat(p.preco_custo||0)*(p.estoque||0),0);
   const baixo=l.filter(p=>p.estoque>0&&p.estoque<=p.minimo).length;
   const zero=l.filter(p=>!p.estoque||p.estoque<=0).length;
   animNum(document.getElementById('r-tot'),l.length,'');
   animNum(document.getElementById('r-val'),valor,'R$ ',true);
+  animNum(document.getElementById('r-inv'),investido,'R$ ',true);
   animNum(document.getElementById('r-bx'),baixo,'');
   animNum(document.getElementById('r-zr'),zero,'');
   const n=l.filter(p=>p.estoque<=p.minimo).length;
