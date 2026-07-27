@@ -596,6 +596,13 @@ tbody td.r{text-align:right;font-weight:700;}
           </div>
         </div>
 
+        <!-- ABAS TIPO: TUDO / VENDAS / ENTRADAS -->
+        <div style="display:flex;gap:6px;margin-bottom:12px;background:var(--bg3);border-radius:10px;padding:4px">
+          <button id="mt-todos" onclick="setTipoMovs('todos',this)" style="flex:1;padding:9px;border:none;border-radius:8px;background:var(--roxo);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">🔄 Tudo</button>
+          <button id="mt-saida" onclick="setTipoMovs('saida',this)" style="flex:1;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">▼ Vendas</button>
+          <button id="mt-entrada" onclick="setTipoMovs('entrada',this)" style="flex:1;padding:9px;border:none;border-radius:8px;background:transparent;color:var(--text2);font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">▲ Entradas</button>
+        </div>
+
         <div class="mov-list" id="movs-lista"></div>
       </div>
 
@@ -1087,6 +1094,13 @@ try{aplicarTema(localStorage.getItem('tema-loja')||'claro');}catch(e){aplicarTem
 
 // FILTRO
 window._filtro='todos';
+window._tipoMovs='todos';
+function setTipoMovs(t,btn){
+  window._tipoMovs=t;
+  document.querySelectorAll('[id^="mt-"]').forEach(b=>{b.style.background='transparent';b.style.color='var(--text2)';});
+  if(btn){btn.style.background='var(--roxo)';btn.style.color='#fff';}
+  if(window._renderMovs)window._renderMovs();
+}
 window._periodoProd='todos';
 window._periodoMovs='todos';
 window._verTodos=false;
@@ -1977,8 +1991,13 @@ function renderMovs(){
   // Contador
   const cnt=document.getElementById('movs-count');
   if(cnt)cnt.textContent=`${todasMovs.length} movimentação(ões) no período`;
-  const l=todasMovs.slice(0,60);
-  if(!l.length){lista.innerHTML=`<div class="empty"><div class="ico">🔄</div><p>Nenhuma movimentação no período.</p></div>`;return;}
+  // Filtro de TIPO (abas Tudo / Vendas / Entradas) — só afeta a LISTA, não os totais
+  const tipoF=window._tipoMovs||'todos';
+  let listaFiltrada=todasMovs;
+  if(tipoF==='saida')listaFiltrada=todasMovs.filter(([k,m])=>m.tipo==='saida');
+  else if(tipoF==='entrada')listaFiltrada=todasMovs.filter(([k,m])=>m.tipo!=='saida');
+  const l=listaFiltrada.slice(0,60);
+  if(!l.length){lista.innerHTML=`<div class="empty"><div class="ico">🔄</div><p>Nenhuma ${tipoF==='saida'?'venda':tipoF==='entrada'?'entrada':'movimentação'} no período.</p></div>`;return;}
   lista.innerHTML=l.map(([id,m])=>{
     const dt=new Date(m.ts||Date.now());
     const hora=dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
