@@ -327,10 +327,25 @@ tbody td.r{text-align:right;font-weight:700;}
   .mov-page{grid-template-columns:1fr;}
   .mov-header-cards{grid-template-columns:1fr 1fr;}
   .mkt-grid{grid-template-columns:1fr;}
+  .an-vendas-grid{grid-template-columns:1fr 1fr !important;}
   .content{padding:1rem .75rem;}
   .topbar{padding:.7rem 1rem;}
 }
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* ===== PDV RESPONSIVO ===== */
+@media(max-width:820px){
+  #pdv-body{flex-direction:column !important;}
+  #pdv-body > div:first-child{flex:1.4 !important;padding:12px !important;}
+  #pdv-body > div:last-child{min-width:0 !important;flex:1 !important;max-height:42vh;}
+  #pdv-grade{grid-template-columns:repeat(auto-fill,minmax(110px,1fr)) !important;}
+  #pdv-busca{font-size:16px !important;padding:14px 16px !important;}
+  #pdv-total{font-size:26px !important;}
+}
+@media(max-width:820px) and (orientation:landscape){
+  #pdv-body{flex-direction:row !important;}
+  #pdv-body > div:last-child{max-height:none;}
+}
 </style>
 </head>
 <body>
@@ -599,7 +614,7 @@ tbody td.r{text-align:right;font-weight:700;}
         <!-- ANALISE DE VENDAS -->
         <div style="background:var(--bg2);border-radius:10px;padding:14px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
           <div style="font-size:13px;font-weight:800;margin-bottom:10px">📈 Análise de Vendas do Período</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
+          <div class="an-vendas-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px">
             <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-nv" style="font-size:14px;font-weight:900">0</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Vendas</div></div>
             <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-tk" style="font-size:14px;font-weight:900;color:var(--verde)">R$ 0,00</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Ticket Médio</div></div>
             <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:10px"><div id="an-mg" style="font-size:14px;font-weight:900;color:var(--roxo)">—</div><div style="font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase">Margem Média</div></div>
