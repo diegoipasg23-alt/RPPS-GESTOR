@@ -984,7 +984,10 @@ tbody td.r{text-align:right;font-weight:700;}
       <div style="font-size:26px">🛒</div>
       <div><div style="font-size:19px;font-weight:900;color:#fff">CAIXA</div><div style="font-size:11px;color:rgba(255,255,255,.7);font-weight:700">Promoções Goiandira</div></div>
     </div>
-    <button onclick="fecharPDV()" id="pdv-sair" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.15);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Sair</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="abrirTrocoFull()" style="padding:11px 18px;border:none;border-radius:11px;background:rgba(255,255,255,.22);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">💵 Troco</button>
+      <button onclick="fecharPDV()" id="pdv-sair" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.15);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Sair</button>
+    </div>
   </div>
 
   <!-- Corpo: 2 colunas (produtos | carrinho) -->
@@ -1019,6 +1022,62 @@ tbody td.r{text-align:right;font-weight:700;}
         style="width:100%;padding:20px;border:none;border-radius:14px;background:#059669;color:#fff;font-family:var(--fn);font-size:20px;font-weight:900;cursor:pointer;opacity:.4">
         FINALIZAR VENDA
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CALCULAR TROCO (TELA CHEIA) ===================== -->
+<div id="troco-full" style="display:none;position:fixed;inset:0;z-index:9600;background:#0F172A;flex-direction:column;font-family:var(--fn)">
+
+  <!-- Cabeçalho -->
+  <div style="background:linear-gradient(135deg,#047857,#10B981);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:26px">💵</div>
+      <div><div style="font-size:19px;font-weight:900;color:#fff">CALCULAR TROCO</div><div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700">Promoções Goiandira</div></div>
+    </div>
+    <button onclick="fecharTrocoFull()" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.18);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Fechar</button>
+  </div>
+
+  <!-- Corpo -->
+  <div style="flex:1;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:18px">
+    <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Valor da compra -->
+      <div style="background:#1E293B;border-radius:16px;padding:18px 20px">
+        <label style="font-size:13px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.03em">🛍️ Valor da compra</label>
+        <input type="number" id="tf-compra" inputmode="decimal" step="0.01" placeholder="R$ 0,00" oninput="trocoFullCalc()"
+          style="width:100%;margin-top:8px;padding:16px 18px;border:none;border-radius:12px;background:#fff;color:#0F172A;font-family:var(--mono);font-size:clamp(26px,7vw,34px);font-weight:800;outline:none;text-align:right">
+      </div>
+
+      <!-- Valor recebido -->
+      <div style="background:#1E293B;border-radius:16px;padding:18px 20px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <label style="font-size:13px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.03em">💰 Valor recebido</label>
+          <button onclick="trocoFullZerarRecebido()" style="padding:5px 12px;border:none;border-radius:8px;background:rgba(239,68,68,.2);color:#F87171;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">Zerar</button>
+        </div>
+        <input type="number" id="tf-recebido" inputmode="decimal" step="0.01" placeholder="R$ 0,00" oninput="trocoFullCalc()"
+          style="width:100%;margin-top:8px;padding:16px 18px;border:none;border-radius:12px;background:#fff;color:#0F172A;font-family:var(--mono);font-size:clamp(26px,7vw,34px);font-weight:800;outline:none;text-align:right">
+        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;margin:14px 0 8px">Toque nas cédulas que o cliente entregou</div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <button onclick="trocoFullCedula(2)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+2</button>
+          <button onclick="trocoFullCedula(5)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+5</button>
+          <button onclick="trocoFullCedula(10)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+10</button>
+          <button onclick="trocoFullCedula(20)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+20</button>
+          <button onclick="trocoFullCedula(50)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+50</button>
+          <button onclick="trocoFullCedula(100)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+100</button>
+          <button onclick="trocoFullCedula(200)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+200</button>
+          <button onclick="trocoFullExato()" style="padding:16px 6px;border:none;border-radius:12px;background:#DBEAFE;color:#1E40AF;font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">Valor exato</button>
+        </div>
+      </div>
+
+      <!-- Resultado -->
+      <div id="tf-card" style="background:linear-gradient(135deg,#065F46,#059669);border-radius:18px;padding:24px;text-align:center;transition:background .2s">
+        <div id="tf-label" style="font-size:14px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.05em">Troco a devolver</div>
+        <div id="tf-result" style="font-family:var(--mono);font-size:clamp(44px,13vw,72px);font-weight:800;color:#fff;line-height:1.05;margin-top:6px">R$ 0,00</div>
+      </div>
+
+      <button onclick="trocoFullLimpar()" style="width:100%;padding:16px;border:2px solid rgba(255,255,255,.2);border-radius:14px;background:transparent;color:rgba(255,255,255,.85);font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">🧹 Limpar tudo</button>
+
     </div>
   </div>
 </div>
@@ -2100,6 +2159,63 @@ window.pdvCalcTroco=function(){
   cf.disabled=!ok;cf.style.opacity=ok?'1':'.4';
 };
 window.pdvCancelarPg=function(){document.getElementById('pdv-pgto').style.display='none';};
+
+// ===== CALCULAR TROCO (tela cheia — área da funcionária) =====
+window.abrirTrocoFull=function(){
+  document.getElementById('troco-full').style.display='flex';
+  trocoFullLimpar();
+  setTimeout(()=>document.getElementById('tf-compra').focus(),150);
+};
+window.fecharTrocoFull=function(){
+  document.getElementById('troco-full').style.display='none';
+};
+window.trocoFullCedula=function(v){
+  const i=document.getElementById('tf-recebido');
+  i.value=((parseFloat(i.value)||0)+v).toFixed(2);
+  trocoFullCalc();
+};
+window.trocoFullExato=function(){
+  const c=parseFloat(document.getElementById('tf-compra').value)||0;
+  document.getElementById('tf-recebido').value=c>0?c.toFixed(2):'';
+  trocoFullCalc();
+};
+window.trocoFullZerarRecebido=function(){
+  document.getElementById('tf-recebido').value='';
+  trocoFullCalc();
+};
+window.trocoFullLimpar=function(){
+  document.getElementById('tf-compra').value='';
+  document.getElementById('tf-recebido').value='';
+  trocoFullCalc();
+};
+window.trocoFullCalc=function(){
+  const compra=parseFloat(document.getElementById('tf-compra').value)||0;
+  const recebido=parseFloat(document.getElementById('tf-recebido').value)||0;
+  const card=document.getElementById('tf-card');
+  const label=document.getElementById('tf-label');
+  const res=document.getElementById('tf-result');
+  const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(compra<=0||recebido<=0){
+    label.textContent='Troco a devolver';
+    res.textContent='R$ 0,00';
+    card.style.background='linear-gradient(135deg,#065F46,#059669)';
+    return;
+  }
+  const troco=recebido-compra;
+  if(troco>0.005){
+    label.textContent='Troco a devolver';
+    res.textContent=fmt(troco);
+    card.style.background='linear-gradient(135deg,#065F46,#059669)';
+  }else if(troco<-0.005){
+    label.textContent='Ainda falta receber';
+    res.textContent=fmt(Math.abs(troco));
+    card.style.background='linear-gradient(135deg,#991B1B,#DC2626)';
+  }else{
+    label.textContent='Pagou o valor exato';
+    res.textContent='✓ Sem troco';
+    card.style.background='linear-gradient(135deg,#1E40AF,#3B82F6)';
+  }
+};
 
 window.pdvConfirmar=async function(){
   if(!pdvPgSel||!pdvCart.length)return;
