@@ -492,6 +492,7 @@ tbody td.r{text-align:right;font-weight:700;}
         <button id="btn-troco" onclick="toggleTroco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💵 Troco</button>
         <button id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
         <button id="btn-backup" onclick="fazerBackup()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">⬇️ Backup</button>
+        <button id="btn-preco" onclick="abrirSugestaoPreco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--roxo);background:var(--roxo2);color:var(--roxo);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💡 Sugerir Preço</button>
         <button class="tbtn tbtn-roxo" id="btn-pri" onclick="acaoPrimaria()">+ Produto</button>
       </div>
     </div>
@@ -812,6 +813,39 @@ tbody td.r{text-align:right;font-weight:700;}
 </div><!-- /app -->
 
 <!-- MODAIS -->
+<div class="overlay" id="ov-preco">
+  <div class="modal">
+    <h2>💡 Sugestão de Preço</h2>
+    <p style="font-size:12px;color:var(--text3);margin:-4px 0 14px;line-height:1.45">Regra da loja: <b>venda = custo × 2</b> (mínimo), ajustada pra terminar em <b>,90</b> — porque R$ 32,90 vende mais que R$ 33,00.</p>
+    <div class="fg"><label>Nome do produto</label><input type="text" id="sp-nome" placeholder="Ex: Espelho com cordão" oninput="calcSugestaoPreco()" autocomplete="off"></div>
+    <div class="fg"><label>Preço de compra / custo (R$)</label><input type="number" id="sp-custo" step="0.01" inputmode="decimal" placeholder="0,00" oninput="calcSugestaoPreco()"></div>
+
+    <div id="sp-result" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:2px">
+      <div style="text-align:center;margin-bottom:12px">
+        <div id="sp-nome-eco" style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:2px"></div>
+        <div style="font-size:11px;font-weight:900;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Preço sugerido de venda</div>
+        <div id="sp-preco" style="font-family:var(--mono);font-size:40px;font-weight:800;color:var(--roxo);line-height:1.1">R$ 0,00</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div style="background:var(--bg);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase">Lucro / peça</div>
+          <div id="sp-lucro" style="font-family:var(--mono);font-size:17px;font-weight:800;color:#059669">R$ 0,00</div>
+        </div>
+        <div style="background:var(--bg);border-radius:9px;padding:10px;text-align:center">
+          <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase">Markup</div>
+          <div id="sp-markup" style="font-family:var(--mono);font-size:17px;font-weight:800;color:var(--roxo)">0%</div>
+        </div>
+      </div>
+      <div id="sp-nota" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.45"></div>
+    </div>
+
+    <div class="mbtns">
+      <button class="mbtn s" onclick="fecharModal('preco')">Fechar</button>
+      <button class="mbtn p" onclick="usarSugestaoNoProduto()">➕ Cadastrar com esse preço</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="ov-prod">
   <div class="modal">
     <h2>📦 Cadastrar Produto</h2>
@@ -1264,6 +1298,8 @@ function goPage(id){
   const bbackup=document.getElementById('btn-backup');
   if(btroco)btroco.style.display=id==='estoque'?'inline-flex':'none';
   if(bbackup)bbackup.style.display=id==='estoque'?'inline-flex':'none';
+  const bpreco=document.getElementById('btn-preco');
+  if(bpreco)bpreco.style.display=id==='estoque'?'inline-flex':'none';
   if(id==='marketing'&&window._renderMkt)window._renderMkt();
   if(id==='fornecedores'&&window._renderForn)window._renderForn();
   if(id==='movs'&&window._renderMovs)window._renderMovs();
@@ -1380,6 +1416,54 @@ function setFiltro(cat,el){
 // MODAIS
 function abrirModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.add('open');if(id==='meta')setTimeout(()=>{if(window._cmm)window._cmm();},80);}
 function fecharModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.remove('open');}
+
+// ===== SUGESTÃO DE PREÇO (área da proprietária) — premissa: custo × 2, terminando em ,90 =====
+window._spSugestao=0;
+function abrirSugestaoPreco(){
+  document.getElementById('sp-nome').value='';
+  document.getElementById('sp-custo').value='';
+  document.getElementById('sp-result').style.display='none';
+  window._spSugestao=0;
+  abrirModal('preco');
+  setTimeout(()=>document.getElementById('sp-nome').focus(),120);
+}
+function calcSugestaoPreco(){
+  const nome=(document.getElementById('sp-nome').value||'').trim();
+  const custo=parseFloat(document.getElementById('sp-custo').value)||0;
+  const box=document.getElementById('sp-result');
+  const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if(custo<=0){box.style.display='none';window._spSugestao=0;return;}
+  // Premissa: dobrar o custo (markup 100%, o piso), depois ajustar pra terminar em ,90
+  const base=custo*2;
+  const r=Math.round(base);
+  let sug=r-0.10;                                   // o ,90 logo abaixo do valor cheio (ex.: 33,00 -> 32,90)
+  if(sug<base-0.15 || sug<=custo) sug=r+0.90;       // se o desconto ficar grande demais ou abaixo do custo, sobe pro ,90 de cima
+  sug=Math.round(sug*100)/100;
+  window._spSugestao=sug;
+  const lucro=sug-custo;
+  const markup=custo>0?(lucro/custo*100):0;
+  document.getElementById('sp-nome-eco').textContent=nome||'';
+  document.getElementById('sp-preco').textContent=fmt(sug);
+  document.getElementById('sp-lucro').textContent=fmt(lucro);
+  document.getElementById('sp-markup').textContent=Math.round(markup)+'%';
+  let nota='Custo '+fmt(custo)+' × 2 = '+fmt(base)+', ajustado para terminar em ,90.';
+  if(markup<100) nota+=' ⚠️ Ficou um pouco abaixo do dobro por causa do arredondamento — se quiser manter o piso de 100%, use '+fmt(r+0.90)+'.';
+  document.getElementById('sp-nota').textContent=nota;
+  box.style.display='block';
+}
+function usarSugestaoNoProduto(){
+  const nome=(document.getElementById('sp-nome').value||'').trim();
+  const custo=parseFloat(document.getElementById('sp-custo').value)||0;
+  const sug=window._spSugestao||0;
+  if(custo<=0){alert('Digite o preço de compra primeiro.');return;}
+  fecharModal('preco');
+  abrirModal('prod');
+  setTimeout(()=>{
+    const n=document.getElementById('p-nome'); if(n)n.value=nome;
+    const c=document.getElementById('p-custo'); if(c)c.value=custo.toFixed(2);
+    const v=document.getElementById('p-venda'); if(v)v.value=sug.toFixed(2);
+  },80);
+}
 document.addEventListener('click',e=>{
   if(e.target.classList.contains('overlay'))e.target.classList.remove('open');
   if(!e.target.closest('.search-wrap'))fecharBusca();
