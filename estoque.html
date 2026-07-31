@@ -502,6 +502,7 @@ tbody td.r{text-align:right;font-weight:700;}
 
       <!-- ESTOQUE -->
       <div id="pg-estoque">
+        <div id="consultor-topo"></div>
         <div class="resumo">
           <div class="rcard"><div class="rcard-icon" style="background:#EDE9FE">📦</div><div><div class="rcard-val" id="r-tot">0</div><div class="rcard-lbl">Produtos</div></div></div>
           <div class="rcard"><div class="rcard-icon" style="background:#DBEAFE">💵</div><div><div class="rcard-val" id="r-inv" style="font-size:15px">R$ 0</div><div class="rcard-lbl">Investido (custo)</div></div></div>
@@ -2497,7 +2498,7 @@ function renderComparativo(){
 
 // LISTENERS TEMPO REAL
 onValue(rP,s=>{try{prods=s.val()||{};window._prods=prods;renderProd();renderResumo();renderAlertas();atualizarSelects();}catch(e){console.error("Erro rP:",e);}});
-onValue(rM,s=>{try{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();if(window._renderMkt)window._renderMkt();}catch(e){console.error("Erro rM:",e);}});
+onValue(rM,s=>{try{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();renderAlertas();if(window._renderMkt)window._renderMkt();}catch(e){console.error("Erro rM:",e);}});
 onValue(rF,s=>{try{forns=s.val()||{};window._forns=forns;renderForn();atualizarSelects();}catch(e){console.error("Erro rF:",e);}});
 onValue(rMt,s=>{try{metaData=s.val()||{};renderMeta();}catch(e){console.error("Erro rMt:",e);}});
 
@@ -2748,19 +2749,111 @@ function renderMeta(){
 window._renderMovs=renderMovs;
 
 // RENDER ALERTAS
+// ===== MOTOR DE ALERTAS / CONSULTOR DA LOJA (automático, sem IA) =====
+function _precoIdeal90(custo){var base=custo*2;var r=Math.round(base);var s=r-0.10;if(s<base-0.15||s<=custo)s=r+0.90;return Math.round(s*100)/100;}
+function _btnRepor(id){return '<button class="abtn abtn-e" style="width:auto;padding:8px 12px;font-size:12px;white-space:nowrap" onclick="abrirMov(\''+id+'\',\'entrada\')">+ Repor</button>';}
+function _btnPagina(pg,txt){return '<button class="abtn" style="width:auto;padding:8px 12px;font-size:12px;white-space:nowrap;background:var(--roxo2);color:var(--roxo)" onclick="goPage(\''+pg+'\')">'+txt+'</button>';}
+
+function gerarAlertas(){
+  var P=prods||{}, M=movs||{}, agora=Date.now();
+  var fmt=function(v){return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});};
+  var catN=function(c){return (CATS[c]&&CATS[c].n)||'—';};
+  var mv=Object.values(M);
+  var vendas=mv.filter(function(m){return m.tipo==='saida';});
+  var d7=agora-7*86400000, d30=agora-30*86400000;
+  var q7={}, q30={}, ult={};
+  vendas.forEach(function(m){var pid=m.pid,q=parseInt(m.qtd||0);if((m.ts||0)>=d7)q7[pid]=(q7[pid]||0)+q;if((m.ts||0)>=d30)q30[pid]=(q30[pid]||0)+q;});
+  mv.forEach(function(m){var pid=m.pid;if(!ult[pid]||(m.ts||0)>ult[pid])ult[pid]=(m.ts||0);});
+  var ents=Object.entries(P), A=[];
+
+  // 1. sem preço de venda
+  var semP=ents.filter(function(e){var p=e[1];return parseFloat(p.preco_venda||0)<=0 && parseInt(p.estoque||0)>0;});
+  if(semP.length){var ns=semP.slice(0,3).map(function(e){return e[1].nome;}).join(', ');
+    A.push({pri:100,ico:'🚫',cor:'#DC2626',tit:semP.length+' produto(s) sem preço de venda',txt:'Risco de vender no prejuízo: '+ns+(semP.length>3?'…':'')+'. Cadastre o preço na aba Estoque.'});}
+
+  // 2. esgotou vendendo
+  ents.forEach(function(e){var id=e[0],p=e[1];if(parseInt(p.estoque||0)<=0 && (q30[id]||0)>0){
+    A.push({pri:90,ico:'📦',cor:'#DC2626',tit:p.nome+' esgotou',txt:'Vinha vendendo ('+q30[id]+' un em 30 dias) e zerou. Repor logo pra não perder venda.',acao:_btnRepor(id)});}});
+
+  // 3. vai acabar (giro alto x estoque)
+  var acabar=[];
+  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),v7=q7[id]||0;if(est>0&&v7>0){var cob=est/(v7/7);if(cob<=7)acabar.push({id:id,p:p,est:est,v7:v7,cob:cob});}});
+  acabar.sort(function(a,b){return a.cob-b.cob;});
+  var jaAcabar={};
+  acabar.slice(0,4).forEach(function(x){jaAcabar[x.id]=1;
+    A.push({pri:80,ico:'⏳',cor:'#D97706',tit:x.p.nome+' vai acabar',txt:'Vendeu '+x.v7+' un em 7 dias, restam '+x.est+' (~'+Math.max(1,Math.round(x.cob))+' dias). Bom repor.',acao:_btnRepor(x.id)});});
+
+  // 4. meta do mês (ritmo)
+  var mes=new Date().toISOString().slice(0,7);
+  var meta=parseFloat((metaData[mes]&&metaData[mes].valor)||0);
+  var dHoje=new Date().getDate();
+  var diasMes=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
+  var inicioMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
+  var fatMes=vendas.filter(function(m){return (m.ts||0)>=inicioMes;}).reduce(function(s,m){return s+parseFloat(m.vunit||0)*parseInt(m.qtd||0);},0);
+  if(meta>0){var pct=fatMes/meta*100,proj=dHoje>0?(fatMes/dHoje*diasMes):0,pctProj=proj/meta*100,ok=pctProj>=100;
+    A.push({pri:70,ico:ok?'🎯':'📉',cor:ok?'#059669':'#D97706',tit:'Meta do mês: '+Math.round(pct)+'% ('+fmt(fatMes)+' de '+fmt(meta)+')',txt:'Faltam '+(diasMes-dHoje)+' dias. No ritmo atual fecha em ~'+Math.round(pctProj)+'% ('+fmt(proj)+').',acao:_btnPagina('meta','Ver meta')});
+  }else if(vendas.length){
+    A.push({pri:35,ico:'🎯',cor:'#7C3AED',tit:'Defina a meta do mês',txt:'Sem meta eu não consigo avisar se o ritmo de vendas está bom. Leva 10 segundos.',acao:_btnPagina('meta','Definir')});}
+
+  // 5. estoque baixo (que não caiu no "vai acabar")
+  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),mn=parseInt(p.minimo||5);if(est>0&&est<=mn&&!jaAcabar[id]){
+    A.push({pri:60,ico:'⚠️',cor:'#D97706',tit:p.nome+' com estoque baixo',txt:'Restam '+est+' un (mínimo definido: '+mn+').',acao:_btnRepor(id)});}});
+
+  // 6. abaixo da regra de preço (markup < 100%)
+  var abaixo=ents.filter(function(e){var p=e[1],pc=parseFloat(p.preco_custo||0),pv=parseFloat(p.preco_venda||0);return pc>0&&pv>0&&((pv-pc)/pc*100)<95;});
+  abaixo.slice(0,3).forEach(function(e){var p=e[1],pc=parseFloat(p.preco_custo),pv=parseFloat(p.preco_venda),mk=Math.round((pv-pc)/pc*100),ideal=_precoIdeal90(pc);
+    A.push({pri:50,ico:'💸',cor:'#DB2777',tit:p.nome+' abaixo da regra',txt:'Markup de '+mk+'% (a regra da loja é 100%). Preço ideal ~'+fmt(ideal)+'.'});});
+
+  // 7. encalhe (parado > 30 dias com estoque)
+  var enc=[];
+  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),last=ult[id]||p.criado||0;if(est>0&&last>0&&last<d30)enc.push({p:p,dias:Math.round((agora-last)/86400000),est:est});});
+  enc.sort(function(a,b){return b.dias-a.dias;});
+  enc.slice(0,3).forEach(function(x){
+    A.push({pri:40,ico:'🐌',cor:'#7C3AED',tit:x.p.nome+' está parado',txt:'Sem giro há '+x.dias+' dias com '+x.est+' em estoque. Ideias: promoção, combo ou mudar de lugar na vitrine.'});});
+
+  // 8. oportunidade (categoria mais lucrativa nos 30 dias)
+  var cA={};
+  vendas.filter(function(m){return (m.ts||0)>=d30;}).forEach(function(m){var c=m.cat;if(!c)return;if(!cA[c])cA[c]={fat:0,cst:0};cA[c].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);cA[c].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
+  var best=null;Object.keys(cA).forEach(function(c){var a=cA[c];if(a.fat<=0)return;var mg=(a.fat-a.cst)/a.fat*100;if(!best||mg>best.mg)best={c:c,mg:mg,fat:a.fat};});
+  if(best){A.push({pri:30,ico:'⭐',cor:'#059669',tit:catN(best.c)+' é sua categoria mais lucrativa',txt:'Margem de '+Math.round(best.mg)+'% nos últimos 30 dias ('+fmt(best.fat)+' de faturamento). Vale reforçar a compra e o marketing.'});}
+
+  A.sort(function(a,b){return b.pri-a.pri;});
+  return A;
+}
+
+function _cardAlerta(a){
+  return '<div style="display:flex;gap:12px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-left:4px solid '+a.cor+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)">'
+    +'<div style="font-size:22px;line-height:1">'+a.ico+'</div>'
+    +'<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800;color:var(--text)">'+a.tit+'</div>'
+    +'<div style="font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4">'+a.txt+'</div></div>'
+    +(a.acao?'<div>'+a.acao+'</div>':'')+'</div>';
+}
+
 function renderAlertas(){
-  const d=document.getElementById('alertas-lista');if(!d)return;
-  const l=Object.entries(prods).filter(([k,p])=>p.estoque<=p.minimo);
-  if(!l.length){d.innerHTML=`<div class="empty"><div class="ico">✅</div><p>Estoque em dia!</p></div>`;return;}
-  d.innerHTML=l.map(([id,p])=>{
-    const c=CATS[p.categoria]||CATS.cosmetico;
-    return `<div class="alerta-item ${p.estoque<=0?'zerado':''}">
-      <div style="font-size:24px">${p.estoque<=0?'🚫':'⚠️'}</div>
-      <div style="flex:1"><div style="font-size:14px;font-weight:800">${p.nome}</div><div style="font-size:12px;color:var(--text3)">${c.e} ${c.n} · Mín: ${p.minimo}</div></div>
-      <div style="text-align:right"><div style="font-size:22px;font-weight:800;color:${p.estoque<=0?'var(--red)':'var(--amber)'}">${p.estoque||0}</div><div style="font-size:10px;color:var(--text3)">un</div></div>
-      <button class="abtn abtn-e" style="width:auto;padding:8px 12px;font-size:12px" onclick="abrirMov('${id}','entrada')">+ Repor</button>
-    </div>`;
-  }).join('');
+  var A=gerarAlertas();
+  var full=document.getElementById('alertas-lista');
+  if(full){
+    if(!A.length)full.innerHTML='<div class="empty"><div class="ico">✅</div><p>Tudo em dia! Nenhum alerta agora.</p></div>';
+    else full.innerHTML='<div style="font-size:12px;color:var(--text3);font-weight:700;margin-bottom:10px">🧠 '+A.length+' coisa(s) pra olhar hoje — em ordem de prioridade</div>'+A.map(_cardAlerta).join('');
+  }
+  var topo=document.getElementById('consultor-topo');
+  if(topo){
+    if(!A.length){topo.innerHTML='';return;}
+    var top=A.slice(0,3), resto=A.length-top.length;
+    var hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
+    topo.innerHTML='<div style="background:linear-gradient(135deg,var(--roxo),#9333EA);border-radius:14px;padding:14px 16px 8px;margin-bottom:12px;box-shadow:var(--shadow)">'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:20px">🧠</span>'
+      +'<div><div style="font-size:15px;font-weight:900;color:#fff">Consultor da loja</div><div style="font-size:11px;color:rgba(255,255,255,.8);text-transform:capitalize">'+hoje+'</div></div></div>'
+      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:4px">'
+      +top.map(function(a){return '<div style="display:flex;gap:10px;align-items:center;padding:9px 10px">'
+        +'<div style="font-size:18px">'+a.ico+'</div>'
+        +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:800;color:#fff">'+a.tit+'</div>'
+        +'<div style="font-size:11px;color:rgba(255,255,255,.85);line-height:1.35">'+a.txt+'</div></div>'
+        +(a.acao?'<div>'+a.acao+'</div>':'')+'</div>';}).join('<div style="height:1px;background:rgba(255,255,255,.12)"></div>')
+      +'</div>'
+      +(resto>0?'<div onclick="goPage(\'alertas\')" style="text-align:center;color:#fff;font-size:12px;font-weight:800;padding:9px 0 4px;cursor:pointer">Ver todos os '+A.length+' alertas →</div>':'')
+      +'</div>';
+  }
 }
 
 // RENDER FORNECEDORES
