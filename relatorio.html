@@ -509,7 +509,7 @@ window.gerarPDFRel = function(){
     // consolidado por órgão
     doc.setFont('helvetica','bold'); doc.setFontSize(9.5); doc.setTextColor(...NAVY);
     doc.text('Consolidado por Órgão', 18, y); y+=3;
-    cols = [{t:'ÓRGÃO',x:21},{t:'DEVIDO',x:105,a:'right'},{t:'REPASSADO',x:145,a:'right'},{t:'EM DÉBITO',x:189,a:'right'}];
+    cols = [{t:'ÓRGÃO',x:21},{t:'APURADO',x:105,a:'right'},{t:'REPASSADO',x:145,a:'right'},{t:'EM DÉBITO',x:189,a:'right'}];
     y = thead(doc, y, cols);
     let i2=0;
     for(const org of ORGAOS_PDF){
@@ -664,7 +664,7 @@ function execTotais(dados){
   let TG=0,TP=0,TD=0,SV=0,SA=0,SR=0;const porOrgao={};ORGAOS.forEach(o=>porOrgao[o]=0);
   const labels=[],dV=[],dA=[],dR=[];
   meses.sort((a,b)=>idxMesComp(a.competencia)-idxMesComp(b.competencia));
-  for(const m of meses){const t=calcTotais(m);TG+=(+m.total||0);TP+=t.pago;TD+=t.debito;
+  for(const m of meses){const t=calcTotais(m);TG+=(t.pago+t.debito);TP+=t.pago;TD+=t.debito;
     let v=0,a=0,r=0;for(const o of ORGAOS)for(const tp of TIPOS){const g=m.orgaos?.[o]?.[tp];if(!g)continue;const val=+g.valor||0;if(g.status==='verde')v+=val;else if(g.status==='azul')a+=val;else r+=val;porOrgao[o]+=val;}
     SV+=v;SA+=a;SR+=r;labels.push(m.competencia.split('/')[0]);dV.push(v);dA.push(a);dR.push(r);}
   const pct=TG>0?(TP/TG*100):0;
@@ -691,9 +691,9 @@ function buildExecPanel(dados){
       <div class="exec-r">
         <div class="crp-banner" id="exec-crp"><div class="crp-icon" id="exec-crp-ico"></div><div><h3 id="exec-crp-t">Situação do CRP</h3><p id="exec-crp-x"></p></div></div>
         <div class="exec-stats">
-          <div class="estat t"><div class="k">Total devido (acum.)</div><div class="v">${brlMi(x.TG)}</div><div class="chip" style="background:#E6F1FB;color:#0C447C">${x.n} competências</div></div>
-          <div class="estat g2"><div class="k">Repassado</div><div class="v">${brlMi(x.TP)}</div><div class="chip sb-green">${(x.TP/x.TG*100).toFixed(1).replace('.',',')}% do total</div></div>
-          <div class="estat r2"><div class="k">Em débito</div><div class="v">${brlMi(x.TD)}</div><div class="chip sb-red">${(x.TD/x.TG*100).toFixed(1).replace('.',',')}% do total</div></div>
+          <div class="estat t"><div class="k">Total apurado (acum.)</div><div class="v">${brlMi(x.TG)}</div><div class="chip" style="background:#E6F1FB;color:#0C447C">${x.n} competências</div></div>
+          <div class="estat g2"><div class="k">Repassado</div><div class="v">${brlMi(x.TP)}</div><div class="chip sb-green">${(x.TP/x.TG*100).toFixed(1).replace('.',',')}% do total</div><div class="chip" style="background:#E6F1FB;color:#0C447C;margin-top:4px">${brlMi(x.SV)} no prazo · ${brlMi(x.SA)} c/ acréscimos</div></div>
+          <div class="estat r2"><div class="k">Em débito (a cobrar)</div><div class="v">${brlMi(x.TD)}</div><div class="chip sb-red">${(x.TD/x.TG*100).toFixed(1).replace('.',',')}% do total</div></div>
         </div>
       </div>
     </div>
