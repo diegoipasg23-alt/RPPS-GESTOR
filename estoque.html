@@ -492,7 +492,6 @@ tbody td.r{text-align:right;font-weight:700;}
         <button id="btn-troco" onclick="toggleTroco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💵 Troco</button>
         <button id="btn-tema" onclick="alternarTema()" title="Alternar tema claro/escuro">🌙</button>
         <button id="btn-backup" onclick="fazerBackup()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">⬇️ Backup</button>
-        <button id="btn-preco" onclick="abrirSugestaoPreco()" style="display:none;padding:7px 12px;border-radius:9px;border:1.5px solid var(--roxo);background:var(--roxo2);color:var(--roxo);font-size:12px;font-weight:800;cursor:pointer;font-family:var(--fn);align-items:center;gap:5px">💡 Sugerir Preço</button>
         <button class="tbtn tbtn-roxo" id="btn-pri" onclick="acaoPrimaria()">+ Produto</button>
       </div>
     </div>
@@ -502,7 +501,6 @@ tbody td.r{text-align:right;font-weight:700;}
 
       <!-- ESTOQUE -->
       <div id="pg-estoque">
-        <div id="consultor-topo"></div>
         <div class="resumo">
           <div class="rcard"><div class="rcard-icon" style="background:#EDE9FE">📦</div><div><div class="rcard-val" id="r-tot">0</div><div class="rcard-lbl">Produtos</div></div></div>
           <div class="rcard"><div class="rcard-icon" style="background:#DBEAFE">💵</div><div><div class="rcard-val" id="r-inv" style="font-size:15px">R$ 0</div><div class="rcard-lbl">Investido (custo)</div></div></div>
@@ -648,6 +646,22 @@ tbody td.r{text-align:right;font-weight:700;}
       <!-- RELATÓRIO WHATSAPP -->
       <div id="pg-relatorio" style="display:none">
         <div style="max-width:560px;margin:0 auto">
+
+          <!-- SUGESTÕES DO CONSULTOR -->
+          <div style="background:var(--bg2);border-radius:12px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:38px;height:38px;background:linear-gradient(135deg,var(--navy),var(--roxo));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">💡</div>
+                <div>
+                  <div style="font-size:14px;font-weight:900;color:var(--text)">Consultor da Loja</div>
+                  <div id="sug-sub" style="font-size:11px;color:var(--text3);font-weight:700">—</div>
+                </div>
+              </div>
+              <button onclick="sugZerarTodas()" style="border:none;background:var(--verde);color:#fff;font-family:var(--fn);font-size:11px;font-weight:900;padding:8px 12px;border-radius:8px;cursor:pointer;white-space:nowrap">✓ Li todas</button>
+            </div>
+            <div id="sug-lista"></div>
+          </div>
+
           <div style="background:var(--bg2);border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:14px">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
               <div style="width:40px;height:40px;background:#25D366;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">📲</div>
@@ -685,6 +699,13 @@ tbody td.r{text-align:right;font-weight:700;}
 
       <!-- ALERTAS -->
       <div id="pg-alertas" style="display:none">
+        <div id="alertas-header" style="display:none;background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);border:1px solid var(--border);align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-size:13px;font-weight:900" id="alertas-count">—</div>
+            <div style="font-size:11px;color:var(--text3);font-weight:700">Toque em ✓ OK para marcar como lido</div>
+          </div>
+          <button onclick="zerarAlertas()" style="border:none;background:var(--verde);color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;padding:10px 14px;border-radius:9px;cursor:pointer;white-space:nowrap">✓ Zerar todos</button>
+        </div>
         <div id="alertas-lista"></div>
       </div>
 
@@ -814,39 +835,6 @@ tbody td.r{text-align:right;font-weight:700;}
 </div><!-- /app -->
 
 <!-- MODAIS -->
-<div class="overlay" id="ov-preco">
-  <div class="modal">
-    <h2>💡 Sugestão de Preço</h2>
-    <p style="font-size:12px;color:var(--text3);margin:-4px 0 14px;line-height:1.45">Regra da loja: <b>venda = custo × 2</b> (mínimo), ajustada pra terminar em <b>,90</b> — porque R$ 32,90 vende mais que R$ 33,00.</p>
-    <div class="fg"><label>Nome do produto</label><input type="text" id="sp-nome" placeholder="Ex: Espelho com cordão" oninput="calcSugestaoPreco()" autocomplete="off"></div>
-    <div class="fg"><label>Preço de compra / custo (R$)</label><input type="number" id="sp-custo" step="0.01" inputmode="decimal" placeholder="0,00" oninput="calcSugestaoPreco()"></div>
-
-    <div id="sp-result" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:2px">
-      <div style="text-align:center;margin-bottom:12px">
-        <div id="sp-nome-eco" style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:2px"></div>
-        <div style="font-size:11px;font-weight:900;color:var(--text3);text-transform:uppercase;letter-spacing:.04em">Preço sugerido de venda</div>
-        <div id="sp-preco" style="font-family:var(--mono);font-size:40px;font-weight:800;color:var(--roxo);line-height:1.1">R$ 0,00</div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:var(--bg);border-radius:9px;padding:10px;text-align:center">
-          <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase">Lucro / peça</div>
-          <div id="sp-lucro" style="font-family:var(--mono);font-size:17px;font-weight:800;color:#059669">R$ 0,00</div>
-        </div>
-        <div style="background:var(--bg);border-radius:9px;padding:10px;text-align:center">
-          <div style="font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase">Markup</div>
-          <div id="sp-markup" style="font-family:var(--mono);font-size:17px;font-weight:800;color:var(--roxo)">0%</div>
-        </div>
-      </div>
-      <div id="sp-nota" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.45"></div>
-    </div>
-
-    <div class="mbtns">
-      <button class="mbtn s" onclick="fecharModal('preco')">Fechar</button>
-      <button class="mbtn p" onclick="usarSugestaoNoProduto()">➕ Cadastrar com esse preço</button>
-    </div>
-  </div>
-</div>
-
 <div class="overlay" id="ov-prod">
   <div class="modal">
     <h2>📦 Cadastrar Produto</h2>
@@ -1019,8 +1007,8 @@ tbody td.r{text-align:right;font-weight:700;}
       <div style="font-size:26px">🛒</div>
       <div><div style="font-size:19px;font-weight:900;color:#fff">CAIXA</div><div style="font-size:11px;color:rgba(255,255,255,.7);font-weight:700">Promoções Goiandira</div></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button onclick="abrirTrocoFull()" style="padding:11px 18px;border:none;border-radius:11px;background:rgba(255,255,255,.22);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">💵 Troco</button>
+    <div style="display:flex;gap:8px">
+      <button onclick="pdvAbrirRecibos()" style="padding:11px 18px;border:none;border-radius:11px;background:rgba(255,255,255,.22);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">📋 Recibos</button>
       <button onclick="fecharPDV()" id="pdv-sair" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.15);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Sair</button>
     </div>
   </div>
@@ -1057,62 +1045,6 @@ tbody td.r{text-align:right;font-weight:700;}
         style="width:100%;padding:20px;border:none;border-radius:14px;background:#059669;color:#fff;font-family:var(--fn);font-size:20px;font-weight:900;cursor:pointer;opacity:.4">
         FINALIZAR VENDA
       </button>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== CALCULAR TROCO (TELA CHEIA) ===================== -->
-<div id="troco-full" style="display:none;position:fixed;inset:0;z-index:9600;background:#0F172A;flex-direction:column;font-family:var(--fn)">
-
-  <!-- Cabeçalho -->
-  <div style="background:linear-gradient(135deg,#047857,#10B981);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:26px">💵</div>
-      <div><div style="font-size:19px;font-weight:900;color:#fff">CALCULAR TROCO</div><div style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700">Promoções Goiandira</div></div>
-    </div>
-    <button onclick="fecharTrocoFull()" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.18);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Fechar</button>
-  </div>
-
-  <!-- Corpo -->
-  <div style="flex:1;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:18px">
-    <div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:16px">
-
-      <!-- Valor da compra -->
-      <div style="background:#1E293B;border-radius:16px;padding:18px 20px">
-        <label style="font-size:13px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.03em">🛍️ Valor da compra</label>
-        <input type="number" id="tf-compra" inputmode="decimal" step="0.01" placeholder="R$ 0,00" oninput="trocoFullCalc()"
-          style="width:100%;margin-top:8px;padding:16px 18px;border:none;border-radius:12px;background:#fff;color:#0F172A;font-family:var(--mono);font-size:clamp(26px,7vw,34px);font-weight:800;outline:none;text-align:right">
-      </div>
-
-      <!-- Valor recebido -->
-      <div style="background:#1E293B;border-radius:16px;padding:18px 20px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <label style="font-size:13px;font-weight:900;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:.03em">💰 Valor recebido</label>
-          <button onclick="trocoFullZerarRecebido()" style="padding:5px 12px;border:none;border-radius:8px;background:rgba(239,68,68,.2);color:#F87171;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">Zerar</button>
-        </div>
-        <input type="number" id="tf-recebido" inputmode="decimal" step="0.01" placeholder="R$ 0,00" oninput="trocoFullCalc()"
-          style="width:100%;margin-top:8px;padding:16px 18px;border:none;border-radius:12px;background:#fff;color:#0F172A;font-family:var(--mono);font-size:clamp(26px,7vw,34px);font-weight:800;outline:none;text-align:right">
-        <div style="font-size:11px;font-weight:800;color:rgba(255,255,255,.45);text-transform:uppercase;margin:14px 0 8px">Toque nas cédulas que o cliente entregou</div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-          <button onclick="trocoFullCedula(2)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+2</button>
-          <button onclick="trocoFullCedula(5)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+5</button>
-          <button onclick="trocoFullCedula(10)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+10</button>
-          <button onclick="trocoFullCedula(20)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+20</button>
-          <button onclick="trocoFullCedula(50)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+50</button>
-          <button onclick="trocoFullCedula(100)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+100</button>
-          <button onclick="trocoFullCedula(200)" style="padding:16px 6px;border:none;border-radius:12px;background:#DCFCE7;color:#166534;font-family:var(--fn);font-size:16px;font-weight:900;cursor:pointer">+200</button>
-          <button onclick="trocoFullExato()" style="padding:16px 6px;border:none;border-radius:12px;background:#DBEAFE;color:#1E40AF;font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">Valor exato</button>
-        </div>
-      </div>
-
-      <!-- Resultado -->
-      <div id="tf-card" style="background:linear-gradient(135deg,#065F46,#059669);border-radius:18px;padding:24px;text-align:center;transition:background .2s">
-        <div id="tf-label" style="font-size:14px;font-weight:900;color:rgba(255,255,255,.85);text-transform:uppercase;letter-spacing:.05em">Troco a devolver</div>
-        <div id="tf-result" style="font-family:var(--mono);font-size:clamp(44px,13vw,72px);font-weight:800;color:#fff;line-height:1.05;margin-top:6px">R$ 0,00</div>
-      </div>
-
-      <button onclick="trocoFullLimpar()" style="width:100%;padding:16px;border:2px solid rgba(255,255,255,.2);border-radius:14px;background:transparent;color:rgba(255,255,255,.85);font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">🧹 Limpar tudo</button>
-
     </div>
   </div>
 </div>
@@ -1183,6 +1115,55 @@ tbody td.r{text-align:right;font-weight:700;}
     <button onclick="pdvCompartilhar()" style="flex:1;padding:15px;border:none;border-radius:12px;background:#25D366;color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">📱 WhatsApp</button>
   </div>
   <button onclick="pdvNovaVenda()" style="max-width:340px;width:100%;padding:17px;border:2px solid rgba(255,255,255,.4);border-radius:12px;background:rgba(255,255,255,.12);color:#fff;font-family:var(--fn);font-size:18px;font-weight:900;cursor:pointer">🛒 Nova Venda</button>
+</div>
+
+<!-- ===== REGISTRO DE RECIBOS ===== -->
+<div id="pdv-recibos" style="display:none;position:fixed;inset:0;z-index:9400;background:#0F172A;flex-direction:column;font-family:var(--fn)">
+  <div style="background:linear-gradient(135deg,#1E1B4B,#7C3AED);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:24px">📋</div>
+      <div><div style="font-size:18px;font-weight:900;color:#fff">Recibos / Vendas</div><div id="rec-resumo" style="font-size:11px;color:rgba(255,255,255,.75);font-weight:700">—</div></div>
+    </div>
+    <button onclick="document.getElementById('pdv-recibos').style.display='none'" style="padding:11px 20px;border:none;border-radius:11px;background:rgba(255,255,255,.15);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">✕ Voltar</button>
+  </div>
+
+  <div style="padding:12px 16px;display:flex;gap:8px;flex-shrink:0;background:#1E293B">
+    <button id="rf-hoje" onclick="pdvFiltroRec('hoje',this)" style="flex:1;padding:10px;border:none;border-radius:9px;background:#7C3AED;color:#fff;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">Hoje</button>
+    <button id="rf-7" onclick="pdvFiltroRec('7',this)" style="flex:1;padding:10px;border:none;border-radius:9px;background:transparent;color:#94A3B8;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">7 dias</button>
+    <button id="rf-todos" onclick="pdvFiltroRec('todos',this)" style="flex:1;padding:10px;border:none;border-radius:9px;background:transparent;color:#94A3B8;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">Tudo</button>
+  </div>
+
+  <div id="rec-lista" style="flex:1;overflow-y:auto;padding:12px 16px 24px"></div>
+</div>
+
+<!-- MODAL EDITAR RECIBO -->
+<div id="rec-edit" style="display:none;position:fixed;inset:0;z-index:9700;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:22px;max-width:420px;width:100%;font-family:var(--fn);max-height:90vh;overflow-y:auto">
+    <div style="font-size:17px;font-weight:900;margin-bottom:4px">✏️ Editar Recibo</div>
+    <div id="rec-ed-info" style="font-size:12px;color:#64748B;font-weight:700;margin-bottom:16px"></div>
+
+    <label style="display:block;font-size:11px;font-weight:900;color:#64748B;text-transform:uppercase;margin-bottom:5px">Nome do cliente</label>
+    <input type="text" id="rec-ed-nome" style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:700;outline:none;margin-bottom:12px">
+
+    <label style="display:block;font-size:11px;font-weight:900;color:#64748B;text-transform:uppercase;margin-bottom:5px">Forma de pagamento</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+      <button class="rec-ed-pg" data-pg="pix" onclick="recEdPg('pix',this)" style="padding:12px 4px;border:2px solid #E2E8F0;border-radius:10px;background:#fff;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">📱 Pix</button>
+      <button class="rec-ed-pg" data-pg="cartao" onclick="recEdPg('cartao',this)" style="padding:12px 4px;border:2px solid #E2E8F0;border-radius:10px;background:#fff;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">💳 Cartão</button>
+      <button class="rec-ed-pg" data-pg="dinheiro" onclick="recEdPg('dinheiro',this)" style="padding:12px 4px;border:2px solid #E2E8F0;border-radius:10px;background:#fff;font-family:var(--fn);font-size:13px;font-weight:900;cursor:pointer">💵 Dinheiro</button>
+    </div>
+
+    <div style="font-size:11px;font-weight:900;color:#64748B;text-transform:uppercase;margin-bottom:6px">Itens da venda</div>
+    <div id="rec-ed-itens" style="margin-bottom:14px"></div>
+
+    <div style="background:#FEF3C7;border-radius:10px;padding:11px 13px;font-size:11.5px;color:#92400E;font-weight:700;margin-bottom:16px;line-height:1.5">
+      💡 Ao alterar a quantidade de um item, o estoque é ajustado automaticamente. Para trocar o produto em si, exclua o recibo e refaça a venda.
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('rec-edit').style.display='none'" style="flex:1;padding:14px;border:2px solid #E2E8F0;border-radius:11px;background:#fff;color:#64748B;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">Cancelar</button>
+      <button onclick="recSalvarEdicao()" style="flex:1.4;padding:14px;border:none;border-radius:11px;background:#059669;color:#fff;font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">✓ Salvar</button>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1299,8 +1280,6 @@ function goPage(id){
   const bbackup=document.getElementById('btn-backup');
   if(btroco)btroco.style.display=id==='estoque'?'inline-flex':'none';
   if(bbackup)bbackup.style.display=id==='estoque'?'inline-flex':'none';
-  const bpreco=document.getElementById('btn-preco');
-  if(bpreco)bpreco.style.display=id==='estoque'?'inline-flex':'none';
   if(id==='marketing'&&window._renderMkt)window._renderMkt();
   if(id==='fornecedores'&&window._renderForn)window._renderForn();
   if(id==='movs'&&window._renderMovs)window._renderMovs();
@@ -1417,54 +1396,6 @@ function setFiltro(cat,el){
 // MODAIS
 function abrirModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.add('open');if(id==='meta')setTimeout(()=>{if(window._cmm)window._cmm();},80);}
 function fecharModal(id){const o=document.getElementById('ov-'+id);if(o)o.classList.remove('open');}
-
-// ===== SUGESTÃO DE PREÇO (área da proprietária) — premissa: custo × 2, terminando em ,90 =====
-window._spSugestao=0;
-function abrirSugestaoPreco(){
-  document.getElementById('sp-nome').value='';
-  document.getElementById('sp-custo').value='';
-  document.getElementById('sp-result').style.display='none';
-  window._spSugestao=0;
-  abrirModal('preco');
-  setTimeout(()=>document.getElementById('sp-nome').focus(),120);
-}
-function calcSugestaoPreco(){
-  const nome=(document.getElementById('sp-nome').value||'').trim();
-  const custo=parseFloat(document.getElementById('sp-custo').value)||0;
-  const box=document.getElementById('sp-result');
-  const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(custo<=0){box.style.display='none';window._spSugestao=0;return;}
-  // Premissa: dobrar o custo (markup 100%, o piso), depois ajustar pra terminar em ,90
-  const base=custo*2;
-  const r=Math.round(base);
-  let sug=r-0.10;                                   // o ,90 logo abaixo do valor cheio (ex.: 33,00 -> 32,90)
-  if(sug<base-0.15 || sug<=custo) sug=r+0.90;       // se o desconto ficar grande demais ou abaixo do custo, sobe pro ,90 de cima
-  sug=Math.round(sug*100)/100;
-  window._spSugestao=sug;
-  const lucro=sug-custo;
-  const markup=custo>0?(lucro/custo*100):0;
-  document.getElementById('sp-nome-eco').textContent=nome||'';
-  document.getElementById('sp-preco').textContent=fmt(sug);
-  document.getElementById('sp-lucro').textContent=fmt(lucro);
-  document.getElementById('sp-markup').textContent=Math.round(markup)+'%';
-  let nota='Custo '+fmt(custo)+' × 2 = '+fmt(base)+', ajustado para terminar em ,90.';
-  if(markup<100) nota+=' ⚠️ Ficou um pouco abaixo do dobro por causa do arredondamento — se quiser manter o piso de 100%, use '+fmt(r+0.90)+'.';
-  document.getElementById('sp-nota').textContent=nota;
-  box.style.display='block';
-}
-function usarSugestaoNoProduto(){
-  const nome=(document.getElementById('sp-nome').value||'').trim();
-  const custo=parseFloat(document.getElementById('sp-custo').value)||0;
-  const sug=window._spSugestao||0;
-  if(custo<=0){alert('Digite o preço de compra primeiro.');return;}
-  fecharModal('preco');
-  abrirModal('prod');
-  setTimeout(()=>{
-    const n=document.getElementById('p-nome'); if(n)n.value=nome;
-    const c=document.getElementById('p-custo'); if(c)c.value=custo.toFixed(2);
-    const v=document.getElementById('p-venda'); if(v)v.value=sug.toFixed(2);
-  },80);
-}
 document.addEventListener('click',e=>{
   if(e.target.classList.contains('overlay'))e.target.classList.remove('open');
   if(!e.target.closest('.search-wrap'))fecharBusca();
@@ -1803,14 +1734,18 @@ function setGFPeriodo(dias, el){
   if(el){el.style.background='rgba(124,58,237,.6)';el.style.color='#fff';}
 }
 
+// Loja inaugurou em 01/08/2026 — nada antes disso entra em análise
+const INICIO_OP = new Date(2026,7,1).getTime();
+
 function coletarDadosLoja(dias){
   const prods = window._prods||{};
   const movs = window._movs||{};
   const agora = Date.now();
-  const lim = dias===0
+  let lim = dias===0
     ? new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime()
     : dias===-1 ? 0
     : agora-(dias*86400000);
+  lim = Math.max(lim, INICIO_OP);   // nunca antes da inauguração
 
   const movsF = Object.values(movs).filter(m=>(m.ts||0)>=lim);
   const vendas = movsF.filter(m=>m.tipo==='saida');
@@ -1860,7 +1795,65 @@ function coletarDadosLoja(dias){
 
   const fmt=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
 
-  return {fat,cst,lucro,mg,nVendas,ticket,cats,pp,estqTotal,estqBaixo,estqZero,totalProds,parados,pgtos,fmt,dias,prods,movs};
+  // ---- extras para o consultor ----
+  // dias de operação e média diária
+  const diasOp = Math.max(1, Math.ceil((agora-Math.max(lim,INICIO_OP))/86400000));
+  const mediaDia = fat/diasOp;
+
+  // vendas agrupadas em recibos (venda_id) → ticket real
+  const recibos={};
+  vendas.forEach(m=>{const k=m.venda_id||('T'+m.ts);(recibos[k]=recibos[k]||[]).push(m);});
+  const nRecibos=Object.keys(recibos).length;
+  const ticketReal=nRecibos>0?fat/nRecibos:0;
+
+  // custos fixos cadastrados → ponto de equilíbrio
+  const cf = window._custosFixos||{};
+  const custoFixo=Object.values(cf).reduce((s,c)=>s+parseFloat(c.valor||0),0);
+  const margemDec = fat>0?(lucro/fat):0.5;
+  const pontoEq = margemDec>0?custoFixo/margemDec:0;
+
+  // meta do mês
+  const mesAtual=new Date().toISOString().slice(0,7);
+  const metaMes = parseFloat((window._metaData||{})[mesAtual]?.valor||0);
+
+  // esgotados que VENDERAM no período (candidatos a reposição)
+  const esgotadosQueVenderam=[];
+  Object.entries(pp).forEach(([pid,p])=>{
+    const prod=prods[pid];
+    if(prod && (parseInt(prod.estoque)||0)<=0 && p.qtd>0){
+      esgotadosQueVenderam.push({pid,nome:p.nome,qtd:p.qtd,fat:p.fat});
+    }
+  });
+  esgotadosQueVenderam.sort((a,b)=>b.qtd-a.qtd);
+
+  // produtos que vendem mas com margem fraca (<35%)
+  const margemFraca=[];
+  Object.entries(pp).forEach(([pid,p])=>{
+    if(p.fat>0 && p.qtd>=2){
+      const m=(p.fat-p.cst)/p.fat*100;
+      if(m<35) margemFraca.push({pid,nome:p.nome,mg:m,qtd:p.qtd,fat:p.fat});
+    }
+  });
+  margemFraca.sort((a,b)=>a.mg-b.mg);
+
+  // capital preso em produtos parados
+  const paradosDet=Object.entries(prods)
+    .filter(([id,p])=>(ultMov[id]||p.criado||0)<(agora-30*86400000)&&(p.estoque||0)>0)
+    .map(([id,p])=>({pid:id,nome:p.nome,est:p.estoque,capital:parseFloat(p.preco_custo||0)*(p.estoque||0),
+                     dias:Math.floor((agora-(ultMov[id]||p.criado||agora))/86400000)}))
+    .sort((a,b)=>b.capital-a.capital);
+  const capitalPreso=paradosDet.reduce((s,p)=>s+p.capital,0);
+
+  // produto campeão de lucro
+  const campeao=Object.values(pp).sort((a,b)=>(b.fat-b.cst)-(a.fat-a.cst))[0]||null;
+
+  // produtos sem preço de venda
+  const semPreco=Object.entries(prods).filter(([id,p])=>!parseFloat(p.preco_venda||0)&&(p.estoque||0)>0)
+                  .map(([id,p])=>({pid:id,nome:p.nome,est:p.estoque}));
+
+  return {fat,cst,lucro,mg,nVendas,ticket,cats,pp,estqTotal,estqBaixo,estqZero,totalProds,parados,pgtos,fmt,dias,prods,movs,
+          diasOp,mediaDia,nRecibos,ticketReal,custoFixo,pontoEq,metaMes,esgotadosQueVenderam,margemFraca,
+          paradosDet,capitalPreso,campeao,semPreco,lim};
 }
 
 async function rodarGestorFinanceiro(){
@@ -1987,29 +1980,124 @@ async function chamarIA(prompt){
   }
 }
 
+// ============ MOTOR DE SUGESTÕES DO CONSULTOR ============
+// Regra: só entra o que é ÚTIL e ACIONÁVEL. Nada de encher tela.
+function gerarSugestoes(d){
+  const s=[];
+  const mg=parseFloat(d.mg);
+
+  // 1) REPOR — esgotou e estava vendendo (o mais urgente que existe)
+  d.esgotadosQueVenderam.slice(0,5).forEach(p=>{
+    s.push({id:'repor_'+p.pid, est:0, pri:1, ico:'🔴',
+      t:`Repor: ${p.nome}`,
+      x:`Vendeu ${p.qtd} un e está zerado. Cada dia sem ele é venda perdida.`});
+  });
+
+  // 2) SEM PREÇO — não pode nem ser vendido
+  if(d.semPreco.length){
+    s.push({id:'sempreco_'+d.semPreco.length, est:d.semPreco.length, pri:1, ico:'🏷️',
+      t:`${d.semPreco.length} produto(s) sem preço de venda`,
+      x:`Ex.: ${d.semPreco.slice(0,3).map(p=>p.nome).join(', ')}. Sem etiqueta, não vende.`});
+  }
+
+  // 3) PONTO DE EQUILÍBRIO — só se houver custo fixo cadastrado
+  if(d.custoFixo>0){
+    const mesId=new Date().toISOString().slice(0,7);
+    if(d.fat<d.pontoEq){
+      s.push({id:'equilibrio_'+mesId, est:Math.round(d.fat), pri:2, ico:'⚖️',
+        t:`Faltam ${d.fmt(d.pontoEq-d.fat)} para cobrir os custos fixos`,
+        x:`Custos fixos ${d.fmt(d.custoFixo)}/mês. Com margem de ${mg}%, a loja precisa vender ${d.fmt(d.pontoEq)} para empatar.`});
+    }else{
+      s.push({id:'equilibrio_ok_'+mesId, est:1, pri:4, ico:'✅',
+        t:`Custos fixos já cobertos`,
+        x:`Tudo acima de ${d.fmt(d.pontoEq)} é lucro limpo. Sobraram ${d.fmt(d.lucro-d.custoFixo)} até agora.`});
+    }
+  }
+
+  // 4) META — só se cadastrada e se estiver fora do ritmo
+  if(d.metaMes>0){
+    const hoje=new Date(), diaMes=hoje.getDate();
+    const diasNoMes=new Date(hoje.getFullYear(),hoje.getMonth()+1,0).getDate();
+    const esperado=d.metaMes*(diaMes/diasNoMes);
+    const mesId=hoje.toISOString().slice(0,7);
+    if(d.fat<esperado*0.85){
+      s.push({id:'meta_atras_'+mesId, est:Math.round(d.fat), pri:2, ico:'🎯',
+        t:`Ritmo abaixo da meta do mês`,
+        x:`No dia ${diaMes} o esperado era ${d.fmt(esperado)} e está em ${d.fmt(d.fat)}. Faltam ${d.fmt(d.metaMes-d.fat)} em ${diasNoMes-diaMes} dia(s).`});
+    }else if(d.fat>=d.metaMes){
+      s.push({id:'meta_batida_'+mesId, est:1, pri:4, ico:'🏆',
+        t:`Meta do mês atingida!`,
+        x:`${d.fmt(d.fat)} de ${d.fmt(d.metaMes)}. Considere subir a meta do próximo mês.`});
+    }
+  }
+
+  // 5) MARGEM FRACA em produto que gira
+  d.margemFraca.slice(0,3).forEach(p=>{
+    const sugerido=p.fat/p.qtd/0.55;
+    s.push({id:'margem_'+p.pid, est:Math.round(p.mg), pri:3, ico:'📉',
+      t:`Margem baixa: ${p.nome}`,
+      x:`Vendeu ${p.qtd} un com margem de ${p.mg.toFixed(0)}%. Para 45%, o preço seria ${d.fmt(sugerido)}.`});
+  });
+
+  // 6) CAPITAL PRESO — só os 2 maiores e só se for dinheiro relevante
+  d.paradosDet.filter(p=>p.capital>=50).slice(0,2).forEach(p=>{
+    s.push({id:'parado_'+p.pid, est:p.dias, pri:3, ico:'😴',
+      t:`Parado: ${p.nome}`,
+      x:`${p.est} un há ${p.dias} dias — ${d.fmt(p.capital)} sem girar. Vitrine, combo ou promoção.`});
+  });
+
+  // 7) CAMPEÃO — reforço positivo acionável
+  if(d.campeao && (d.campeao.fat-d.campeao.cst)>0){
+    const luc=d.campeao.fat-d.campeao.cst;
+    const part=d.lucro>0?(luc/d.lucro*100):0;
+    if(part>=15){
+      s.push({id:'campeao_'+(d.campeao.nome||'').slice(0,20), est:Math.round(part), pri:4, ico:'⭐',
+        t:`Destaque: ${d.campeao.nome}`,
+        x:`Gerou ${d.fmt(luc)} — ${part.toFixed(0)}% de todo o lucro. Merece vitrine e vídeo.`});
+    }
+  }
+
+  // 8) PAGAMENTO concentrado 100% num só meio
+  const totPg=Object.values(d.pgtos).reduce((a,b)=>a+b,0);
+  if(totPg>0 && d.fat>200){
+    const ativos=Object.entries(d.pgtos).filter(([k,v])=>v>0);
+    if(ativos.length===1){
+      s.push({id:'pgto_unico_'+ativos[0][0], est:1, pri:3, ico:'💳',
+        t:`Todas as vendas em ${ativos[0][0]}`,
+        x:`Nenhuma no cartão ou dinheiro. Confira se a maquininha está ativa — pode estar barrando venda parcelada.`});
+    }
+  }
+
+  // 9) MARGEM GERAL fora da faixa
+  if(d.fat>300 && mg<40){
+    s.push({id:'margem_geral_'+Math.round(mg), est:Math.round(mg), pri:2, ico:'⚠️',
+      t:`Margem geral em ${mg}%`,
+      x:`Abaixo da faixa saudável (45–55%). Reveja preços dos itens de maior giro.`});
+  }
+
+  return s.sort((a,b)=>a.pri-b.pri);
+}
+
 function gerarAnaliseLocal(prompt){
   const d = coletarDadosLoja(window.gfPeriodo);
-  const mg = parseFloat(d.mg);
-  const alertas = [];
-  if(mg < 40) alertas.push('⚠️ Margem bruta abaixo de 40% — revise preços ou reduza custos');
-  if(mg >= 45 && mg <= 55) alertas.push('✅ Margem dentro da faixa saudável (45-55%)');
-  if(d.parados > 0) alertas.push(`⚠️ ${d.parados} produto(s) parados há mais de 30 dias — risco de capital preso`);
-  if(d.estqBaixo + d.estqZero > 0) alertas.push(`🔴 ${d.estqBaixo+d.estqZero} produto(s) com estoque crítico — risco de ruptura`);
-  const top = Object.values(d.pp).sort((a,b)=>b.fat-a.fat).slice(0,3);
-  const topNomes = top.map(p=>`${p.nome} (${d.fmt(p.fat)})`).join(', ');
+  if(d.fat<=0) return '**Sem vendas no período.**\nA análise considera dados a partir de 01/08/2026 (inauguração).';
+  const mg=parseFloat(d.mg);
+  const catTxt=Object.values(d.cats).filter(c=>c.fat>0)
+    .sort((a,b)=>b.fat-a.fat)
+    .map(c=>`• ${c.nome}: ${d.fmt(c.fat)} (${(c.fat/d.fat*100).toFixed(0)}% · margem ${((c.fat-c.cst)/c.fat*100).toFixed(0)}%)`).join('\n');
+  const top=Object.values(d.pp).sort((a,b)=>b.fat-a.fat).slice(0,5)
+    .map((p,i)=>`${i+1}. ${p.nome} — ${p.qtd} un · ${d.fmt(p.fat)}`).join('\n');
   return [
-    '**📊 Resumo Financeiro**',
-    `Faturamento: ${d.fmt(d.fat)} | Custo: ${d.fmt(d.cst)} | Lucro: ${d.fmt(d.lucro)} | Margem: ${d.mg}%`,
-    `Vendas: ${d.nVendas} | Ticket médio: ${d.fmt(d.ticket)}`,
+    '**📊 Resultado desde 01/08**',
+    `Faturamento ${d.fmt(d.fat)} · Lucro ${d.fmt(d.lucro)} · Margem ${d.mg}%`,
+    `${d.nRecibos} venda(s) · Ticket médio ${d.fmt(d.ticketReal)} · Média ${d.fmt(d.mediaDia)}/dia`,
     '',
-    '**🏆 Top Produtos**',
-    topNomes||'Sem vendas no período',
+    '**🗂️ Por categoria**', catTxt||'—',
     '',
-    '**🔔 Alertas**',
-    alertas.length ? alertas.join('\n') : '✅ Nenhum alerta crítico no momento',
+    '**🏆 Mais vendidos**', top||'—',
     '',
-    '**💡 Nota**',
-    'Para análise completa com IA, acesse pelo app claude.ai ou use o sistema integrado com a API Anthropic configurada.'
+    '**📦 Estoque**',
+    `${d.totalProds} produtos · ${d.fmt(d.estqTotal)} investido · ${d.estqZero} zerado(s), ${d.estqBaixo} baixo(s)`
   ].join('\n');
 }
 
@@ -2022,6 +2110,10 @@ function carregarMetaMes(){if(window._cmm)window._cmm();}
 function salvarCustoFixo(){if(window._scf)window._scf();else setTimeout(salvarCustoFixo,150);}
 function excluirCustoFixo(id){if(window._ecf)window._ecf(id);}
 function excluirMov(id){if(window._em)window._em(id);}
+function okAlerta(pid){if(window._okAlerta)window._okAlerta(pid);}
+function zerarAlertas(){if(window._zerarAlertas)window._zerarAlertas();}
+function sugOk(id,est){if(window._sugOkClick)window._sugOkClick(id,est);}
+function sugZerarTodas(){if(window._sugZerar)window._sugZerar();}
 
 // ===== RADAR DE PRECOS =====
 function radarSlug(s){return s.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-');}
@@ -2095,7 +2187,108 @@ const rMt=ref(db,'loja/meta');
 
 let prods={},movs={},forns={},metaData={},custosFixos={};
 const rCF=ref(db,'loja/custosfixos');
-onValue(rCF,s=>{try{custosFixos=s.val()||{};renderMeta();}catch(e){console.error("Erro rCF:",e);}});
+onValue(rCF,s=>{try{custosFixos=s.val()||{};window._custosFixos=custosFixos;renderMeta();if(window._renderSug)renderSugestoes();}catch(e){console.error("Erro rCF:",e);}});
+
+// ===== ALERTAS LIDOS (sincroniza entre aparelhos) =====
+const rAOK=ref(db,'loja/alertas_ok');
+window._alertasOk={};
+onValue(rAOK,s=>{try{window._alertasOk=s.val()||{};renderAlertas();renderResumo();}catch(e){console.error("Erro rAOK:",e);}});
+
+// ===== SUGESTÕES DO CONSULTOR (lidas) =====
+const rSOK=ref(db,'loja/sugestoes_ok');
+window._sugOk={};
+onValue(rSOK,s=>{try{window._sugOk=s.val()||{};renderSugestoes();}catch(e){console.error("Erro rSOK:",e);}});
+
+window._sugOkClick=async function(id,est){
+  try{await update(rSOK,{[id]:{est:est,ts:Date.now()}});}
+  catch(e){console.error(e);toast('Erro','tr');}
+};
+window._sugZerar=async function(){
+  const d=coletarDadosLoja(window.gfPeriodo||0);
+  const lista=gerarSugestoes(d);
+  const pend=lista.filter(x=>{const m=window._sugOk[x.id];return !m||x.est<(m.est??x.est);});
+  if(!pend.length){toast('Nenhuma sugestão pendente');return;}
+  try{
+    const pack={};pend.forEach(x=>{pack[x.id]={est:x.est,ts:Date.now()};});
+    await update(rSOK,pack);
+    toast('✓ Sugestões marcadas como lidas');
+  }catch(e){console.error(e);toast('Erro','tr');}
+};
+
+function renderSugestoes(){
+  const el=document.getElementById('sug-lista');if(!el)return;
+  const d=coletarDadosLoja(window.gfPeriodo||0);
+  const todas=gerarSugestoes(d);
+  const ok=window._sugOk||{};
+  // pendente = nunca lida, ou lida mas a situação PIOROU
+  const pend=todas.filter(x=>{const m=ok[x.id];return !m||x.est<(m.est??x.est);});
+  const sub=document.getElementById('sug-sub');
+  if(sub)sub.textContent = pend.length
+      ? `${pend.length} sugestão(ões) para você`
+      : (todas.length? 'Tudo lido ✓' : 'Sem sugestões no momento');
+  if(!pend.length){
+    el.innerHTML=`<div style="background:#F0FDF4;border-radius:10px;padding:16px;text-align:center;font-size:13px;color:#065F46;font-weight:800">✅ Nada pendente por aqui</div>`;
+    return;
+  }
+  const cor={1:'#DC2626',2:'#D97706',3:'#7C3AED',4:'#059669'};
+  el.innerHTML=pend.map(x=>`
+    <div style="background:var(--bg3);border-radius:11px;padding:12px 14px;margin-bottom:8px;border-left:4px solid ${cor[x.pri]||'#7C3AED'};display:flex;gap:11px;align-items:flex-start">
+      <div style="font-size:19px;line-height:1.2">${x.ico}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:900;color:var(--text);line-height:1.3">${x.t}</div>
+        <div style="font-size:11.5px;color:var(--text2);font-weight:700;line-height:1.45;margin-top:3px">${x.x}</div>
+      </div>
+      <button onclick="sugOk('${x.id}',${x.est})" title="Marcar como lida"
+        style="border:none;background:#D1FAE5;color:#065F46;font-family:var(--fn);font-size:11px;font-weight:900;padding:7px 11px;border-radius:8px;cursor:pointer;flex-shrink:0">OK</button>
+    </div>`).join('');
+}
+window._renderSug=renderSugestoes;
+
+window._okAlerta=async function(pid){
+  const p=prods[pid];if(!p)return;
+  try{
+    await update(rAOK,{[pid]:{est:parseInt(p.estoque)||0,ts:Date.now()}});
+    toast('✓ Alerta marcado como lido');
+  }catch(e){console.error(e);toast('Erro','tr');}
+};
+
+window._zerarAlertas=async function(){
+  const alvo=Object.entries(prods).filter(([k,p])=>p.estoque<=p.minimo);
+  if(!alvo.length){toast('Nenhum alerta para zerar');return;}
+  if(!confirm(`Marcar ${alvo.length} alerta(s) como lido(s)?\n\nEles voltam a avisar se o estoque cair ainda mais.`))return;
+  try{
+    const pack={};
+    alvo.forEach(([k,p])=>{pack[k]={est:parseInt(p.estoque)||0,ts:Date.now()};});
+    await update(rAOK,pack);
+    toast('✓ Todos os alertas zerados!');
+  }catch(e){console.error(e);toast('Erro ao zerar','tr');}
+};
+
+// limpeza automática: sugestão resolvida volta a poder aparecer no futuro
+function limparSugestoesResolvidas(){
+  const ok=window._sugOk||{};const pr=window._prods||{};
+  Object.keys(ok).forEach(async id=>{
+    if(id.startsWith('repor_')){
+      const pid=id.slice(6);
+      if(pr[pid] && (parseInt(pr[pid].estoque)||0)>0){
+        try{await remove(ref(db,'loja/sugestoes_ok/'+id));}catch(e){}
+      }
+    }
+  });
+}
+window._limparSug=limparSugestoesResolvidas;
+
+// limpeza automática: produto reposto acima do mínimo sai da lista de lidos
+function limparAlertasRepostos(){
+  const ok=window._alertasOk||{};
+  Object.keys(ok).forEach(async pid=>{
+    const p=prods[pid];
+    if(!p || (parseInt(p.estoque)||0) > (parseInt(p.minimo)||0)){
+      try{await remove(ref(db,'loja/alertas_ok/'+pid));}catch(e){}
+    }
+  });
+}
+window._limparAlertasRepostos=limparAlertasRepostos;
 
 // ===================== MOTOR DO PDV =====================
 let pdvCart=[]; // {pid, nome, preco, qtd, estoque}
@@ -2245,63 +2438,6 @@ window.pdvCalcTroco=function(){
 };
 window.pdvCancelarPg=function(){document.getElementById('pdv-pgto').style.display='none';};
 
-// ===== CALCULAR TROCO (tela cheia — área da funcionária) =====
-window.abrirTrocoFull=function(){
-  document.getElementById('troco-full').style.display='flex';
-  trocoFullLimpar();
-  setTimeout(()=>document.getElementById('tf-compra').focus(),150);
-};
-window.fecharTrocoFull=function(){
-  document.getElementById('troco-full').style.display='none';
-};
-window.trocoFullCedula=function(v){
-  const i=document.getElementById('tf-recebido');
-  i.value=((parseFloat(i.value)||0)+v).toFixed(2);
-  trocoFullCalc();
-};
-window.trocoFullExato=function(){
-  const c=parseFloat(document.getElementById('tf-compra').value)||0;
-  document.getElementById('tf-recebido').value=c>0?c.toFixed(2):'';
-  trocoFullCalc();
-};
-window.trocoFullZerarRecebido=function(){
-  document.getElementById('tf-recebido').value='';
-  trocoFullCalc();
-};
-window.trocoFullLimpar=function(){
-  document.getElementById('tf-compra').value='';
-  document.getElementById('tf-recebido').value='';
-  trocoFullCalc();
-};
-window.trocoFullCalc=function(){
-  const compra=parseFloat(document.getElementById('tf-compra').value)||0;
-  const recebido=parseFloat(document.getElementById('tf-recebido').value)||0;
-  const card=document.getElementById('tf-card');
-  const label=document.getElementById('tf-label');
-  const res=document.getElementById('tf-result');
-  const fmt=n=>'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  if(compra<=0||recebido<=0){
-    label.textContent='Troco a devolver';
-    res.textContent='R$ 0,00';
-    card.style.background='linear-gradient(135deg,#065F46,#059669)';
-    return;
-  }
-  const troco=recebido-compra;
-  if(troco>0.005){
-    label.textContent='Troco a devolver';
-    res.textContent=fmt(troco);
-    card.style.background='linear-gradient(135deg,#065F46,#059669)';
-  }else if(troco<-0.005){
-    label.textContent='Ainda falta receber';
-    res.textContent=fmt(Math.abs(troco));
-    card.style.background='linear-gradient(135deg,#991B1B,#DC2626)';
-  }else{
-    label.textContent='Pagou o valor exato';
-    res.textContent='✓ Sem troco';
-    card.style.background='linear-gradient(135deg,#1E40AF,#3B82F6)';
-  }
-};
-
 window.pdvConfirmar=async function(){
   if(!pdvPgSel||!pdvCart.length)return;
   const cf=document.getElementById('pdv-confirmar');cf.disabled=true;cf.textContent='Salvando...';
@@ -2311,14 +2447,15 @@ window.pdvConfirmar=async function(){
   const cliTel=(document.getElementById('pdv-cli-tel').value||'').trim();
   try{
     const ts=Date.now();
+    const vendaId='V'+ts;
     const itensRecibo=pdvCart.map(it=>({nome:it.nome,qtd:it.qtd,preco:it.preco,sub:it.preco*it.qtd}));
     for(const it of pdvCart){
       const p=prods[it.pid];
       const novoEst=Math.max(0,(parseInt(p.estoque)||0)-it.qtd);
       await update(ref(db,'loja/produtos/'+it.pid),{estoque:novoEst});
       await push(rM,{pid:it.pid,prod:it.nome,cat:p.categoria||'',tipo:'saida',qtd:it.qtd,
-        vunit:it.preco,cunit:parseFloat(p.preco_custo||0),pagamento:pdvPgSel,
-        cliente:cliNome||'',obs:'Venda no Caixa (PDV)',ts});
+        vunit:it.preco,cunit:parseFloat(p.preco_custo||0),pagamento:pdvPgSel,venda_id:vendaId,
+        cliente:cliNome||'',tel:cliTel||'',obs:'Venda no Caixa (PDV)',ts});
     }
     // salvar/atualizar cliente (se informado)
     if(cliNome){
@@ -2401,8 +2538,7 @@ window.pdvImprimir=function(){
   w.document.close();setTimeout(()=>{w.print();},400);
 };
 
-window.pdvCompartilhar=function(){
-  const r=window._ultimoRecibo;if(!r)return;
+window.pdvCompartilhar=function(){  const r=window._ultimoRecibo;if(!r)return;
   let txt=`*PROMOÇÕES GOIANDIRA*\nRua Oscar de Lima, Centro - Goiandira-GO\n\n`;
   txt+=`Recibo #${r.nRecibo} - ${r.dataStr}\n`;
   if(r.cliNome)txt+=`Cliente: ${r.cliNome}\n`;
@@ -2416,6 +2552,158 @@ window.pdvCompartilhar=function(){
   const base=tel.length>=10?`https://wa.me/55${tel}?text=`:`https://wa.me/?text=`;
   window.open(base+encodeURIComponent(txt),'_blank');
 };
+// ===== REGISTRO DE RECIBOS =====
+let recFiltro='hoje', recEdAtual=null, recEdPgSel=null;
+
+window.pdvAbrirRecibos=function(){
+  document.getElementById('pdv-recibos').style.display='flex';
+  pdvRenderRecibos();
+};
+window.pdvFiltroRec=function(f,btn){
+  recFiltro=f;
+  document.querySelectorAll('[id^="rf-"]').forEach(b=>{b.style.background='transparent';b.style.color='#94A3B8';});
+  if(btn){btn.style.background='#7C3AED';btn.style.color='#fff';}
+  pdvRenderRecibos();
+};
+
+// agrupa movimentações de saída em recibos (por venda_id; vendas antigas caem no ts)
+function pdvAgruparVendas(){
+  const grupos={};
+  Object.entries(movs).forEach(([id,m])=>{
+    if(m.tipo!=='saida')return;
+    const chave=m.venda_id||('T'+(m.ts||0));
+    if(!grupos[chave])grupos[chave]={chave,ts:m.ts||0,cliente:m.cliente||'',tel:m.tel||'',pagamento:m.pagamento||'',itens:[],total:0};
+    const sub=(parseFloat(m.vunit)||0)*(parseInt(m.qtd)||0);
+    grupos[chave].itens.push({movId:id,pid:m.pid,nome:m.prod,qtd:parseInt(m.qtd)||0,preco:parseFloat(m.vunit)||0,sub});
+    grupos[chave].total+=sub;
+    if(!grupos[chave].cliente&&m.cliente)grupos[chave].cliente=m.cliente;
+    if(!grupos[chave].tel&&m.tel)grupos[chave].tel=m.tel;
+  });
+  return Object.values(grupos).sort((a,b)=>b.ts-a.ts);
+}
+
+function pdvRenderRecibos(){
+  const el=document.getElementById('rec-lista');if(!el)return;
+  let vendas=pdvAgruparVendas();
+  const hoje=new Date();hoje.setHours(0,0,0,0);
+  if(recFiltro==='hoje')vendas=vendas.filter(v=>v.ts>=hoje.getTime());
+  else if(recFiltro==='7')vendas=vendas.filter(v=>v.ts>=Date.now()-7*86400000);
+  const totalPeriodo=vendas.reduce((s,v)=>s+v.total,0);
+  document.getElementById('rec-resumo').textContent=vendas.length+' venda(s) · R$ '+totalPeriodo.toFixed(2).replace('.',',');
+  if(!vendas.length){el.innerHTML='<div style="text-align:center;color:rgba(255,255,255,.45);padding:50px;font-size:15px;font-weight:700">Nenhuma venda no período 🧾</div>';return;}
+  const pgIco={pix:'📱 Pix',cartao:'💳 Cartão',dinheiro:'💵 Dinheiro'};
+  el.innerHTML=vendas.slice(0,100).map(v=>{
+    const d=new Date(v.ts);
+    const dt=d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    const itensHtml=v.itens.map(i=>`<div style="display:flex;justify-content:space-between;font-size:12px;color:#CBD5E1;margin-bottom:2px"><span>${i.qtd}x ${i.nome}</span><span style="font-weight:800;white-space:nowrap;padding-left:8px">R$ ${i.sub.toFixed(2).replace('.',',')}</span></div>`).join('');
+    return `<div style="background:#1E293B;border-radius:13px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:14px;font-weight:900;color:#fff">${v.cliente||'Cliente não informado'}</div>
+          <div style="font-size:11px;color:#94A3B8;font-weight:700">${dt} · ${pgIco[v.pagamento]||v.pagamento||'—'}</div>
+        </div>
+        <div style="font-size:19px;font-weight:900;color:#4ADE80;white-space:nowrap">R$ ${v.total.toFixed(2).replace('.',',')}</div>
+      </div>
+      <div style="border-top:1px dashed #334155;padding-top:8px;margin-bottom:10px">${itensHtml}</div>
+      <div style="display:flex;gap:6px">
+        <button onclick="recReimprimir('${v.chave}')" style="flex:1;padding:9px;border:none;border-radius:8px;background:#334155;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">🖨️ Recibo</button>
+        <button onclick="recEditar('${v.chave}')" style="flex:1;padding:9px;border:none;border-radius:8px;background:#1D4ED8;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">✏️ Editar</button>
+        <button onclick="recExcluir('${v.chave}')" style="flex:1;padding:9px;border:none;border-radius:8px;background:#B91C1C;color:#fff;font-family:var(--fn);font-size:12px;font-weight:900;cursor:pointer">🗑 Excluir</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+window._renderRecibos=pdvRenderRecibos;
+
+// --- Reimprimir recibo antigo ---
+window.recReimprimir=function(chave){
+  const v=pdvAgruparVendas().find(x=>x.chave===chave);if(!v)return;
+  const d=new Date(v.ts);
+  window._ultimoRecibo={
+    nRecibo:String(v.ts).slice(-6),
+    dataStr:d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),
+    itensRecibo:v.itens.map(i=>({nome:i.nome,qtd:i.qtd,preco:i.preco,sub:i.sub})),
+    total:v.total,pgLabel:({pix:'Pix',cartao:'Cartão',dinheiro:'Dinheiro'})[v.pagamento]||'—',
+    cliNome:v.cliente,cliTel:v.tel,pago:0,troco:0,pgSel:v.pagamento
+  };
+  pdvImprimir();
+};
+
+// --- Excluir recibo (devolve estoque) ---
+window.recExcluir=async function(chave){
+  const v=pdvAgruparVendas().find(x=>x.chave===chave);if(!v)return;
+  if(!confirm(`Excluir esta venda de R$ ${v.total.toFixed(2).replace('.',',')}?\n\n${v.itens.length} item(ns) VOLTAM para o estoque.\nEsta ação não tem volta.`))return;
+  try{
+    for(const it of v.itens){
+      if(it.pid&&prods[it.pid]){
+        const atual=parseInt(prods[it.pid].estoque)||0;
+        await update(ref(db,'loja/produtos/'+it.pid),{estoque:atual+it.qtd});
+      }
+      await remove(ref(db,'loja/movimentacoes/'+it.movId));
+    }
+    toast('🗑 Venda excluída — estoque devolvido','tr');
+    setTimeout(pdvRenderRecibos,400);
+  }catch(e){console.error(e);toast('Erro ao excluir','tr');}
+};
+
+// --- Editar recibo ---
+window.recEditar=function(chave){
+  const v=pdvAgruparVendas().find(x=>x.chave===chave);if(!v)return;
+  recEdAtual=JSON.parse(JSON.stringify(v));
+  recEdPgSel=v.pagamento||'pix';
+  const d=new Date(v.ts);
+  document.getElementById('rec-ed-info').textContent='Venda de '+d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('rec-ed-nome').value=v.cliente||'';
+  document.querySelectorAll('.rec-ed-pg').forEach(b=>{
+    const sel=b.dataset.pg===recEdPgSel;
+    b.style.borderColor=sel?'#059669':'#E2E8F0';b.style.background=sel?'#F0FDF4':'#fff';
+  });
+  recRenderItensEd();
+  document.getElementById('rec-edit').style.display='flex';
+};
+window.recEdPg=function(pg,btn){
+  recEdPgSel=pg;
+  document.querySelectorAll('.rec-ed-pg').forEach(b=>{b.style.borderColor='#E2E8F0';b.style.background='#fff';});
+  btn.style.borderColor='#059669';btn.style.background='#F0FDF4';
+};
+function recRenderItensEd(){
+  const el=document.getElementById('rec-ed-itens');
+  el.innerHTML=recEdAtual.itens.map((it,i)=>`<div style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:9px;padding:9px 11px;margin-bottom:6px">
+    <div style="flex:1;font-size:12.5px;font-weight:800;line-height:1.25">${it.nome}<div style="font-size:10.5px;color:#64748B;font-weight:700">R$ ${it.preco.toFixed(2).replace('.',',')} un</div></div>
+    <button onclick="recEdQtd(${i},-1)" style="width:30px;height:30px;border:none;border-radius:8px;background:#E2E8F0;font-size:18px;font-weight:900;cursor:pointer">−</button>
+    <span style="min-width:24px;text-align:center;font-size:15px;font-weight:900">${it.qtd}</span>
+    <button onclick="recEdQtd(${i},1)" style="width:30px;height:30px;border:none;border-radius:8px;background:#E2E8F0;font-size:18px;font-weight:900;cursor:pointer">+</button>
+  </div>`).join('');
+}
+window.recEdQtd=function(i,d){
+  const it=recEdAtual.itens[i];if(!it)return;
+  const nova=it.qtd+d;
+  if(nova<=0){if(!confirm('Remover "'+it.nome+'" da venda?'))return;recEdAtual.itens[i].qtd=0;}
+  else it.qtd=nova;
+  recRenderItensEd();
+};
+window.recSalvarEdicao=async function(){
+  if(!recEdAtual)return;
+  const nome=(document.getElementById('rec-ed-nome').value||'').trim();
+  try{
+    for(const it of recEdAtual.itens){
+      const orig=pdvAgruparVendas().find(x=>x.chave===recEdAtual.chave)?.itens.find(o=>o.movId===it.movId);
+      const qtdOrig=orig?orig.qtd:it.qtd;
+      const dif=qtdOrig-it.qtd; // positivo = devolver ao estoque
+      if(dif!==0&&it.pid&&prods[it.pid]){
+        const atual=parseInt(prods[it.pid].estoque)||0;
+        await update(ref(db,'loja/produtos/'+it.pid),{estoque:Math.max(0,atual+dif)});
+      }
+      if(it.qtd<=0){await remove(ref(db,'loja/movimentacoes/'+it.movId));}
+      else{await update(ref(db,'loja/movimentacoes/'+it.movId),{qtd:it.qtd,cliente:nome,pagamento:recEdPgSel});}
+    }
+    document.getElementById('rec-edit').style.display='none';
+    toast('✏️ Recibo atualizado!');
+    setTimeout(pdvRenderRecibos,400);
+  }catch(e){console.error(e);toast('Erro ao salvar','tr');}
+};
+// ===== FIM REGISTRO DE RECIBOS =====
+
 window.pdvNovaVenda=function(){
   document.getElementById('pdv-sucesso').style.display='none';
   const cn=document.getElementById('pdv-cli-nome');if(cn)cn.value='';
@@ -2497,10 +2785,10 @@ function renderComparativo(){
 }
 
 // LISTENERS TEMPO REAL
-onValue(rP,s=>{try{prods=s.val()||{};window._prods=prods;renderProd();renderResumo();renderAlertas();atualizarSelects();}catch(e){console.error("Erro rP:",e);}});
-onValue(rM,s=>{try{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();renderAlertas();if(window._renderMkt)window._renderMkt();}catch(e){console.error("Erro rM:",e);}});
+onValue(rP,s=>{try{prods=s.val()||{};window._prods=prods;renderProd();renderResumo();renderAlertas();atualizarSelects();limparAlertasRepostos();limparSugestoesResolvidas();if(window._renderSug)renderSugestoes();}catch(e){console.error("Erro rP:",e);}});
+onValue(rM,s=>{try{movs=s.val()||{};window._movs=movs;renderMovs();renderMeta();renderComparativo();if(window._renderMkt)window._renderMkt();if(window._renderRecibos&&document.getElementById('pdv-recibos')?.style.display==='flex')window._renderRecibos();}catch(e){console.error("Erro rM:",e);}});
 onValue(rF,s=>{try{forns=s.val()||{};window._forns=forns;renderForn();atualizarSelects();}catch(e){console.error("Erro rF:",e);}});
-onValue(rMt,s=>{try{metaData=s.val()||{};renderMeta();}catch(e){console.error("Erro rMt:",e);}});
+onValue(rMt,s=>{try{metaData=s.val()||{};window._metaData=metaData;renderMeta();if(window._renderSug)renderSugestoes();}catch(e){console.error("Erro rMt:",e);}});
 
 // RENDER PRODUTOS
 function renderProd(){
@@ -2593,7 +2881,14 @@ function renderResumo(){
   animNum(document.getElementById('r-inv'),investido,'R$ ',true);
   animNum(document.getElementById('r-bx'),baixo,'');
   animNum(document.getElementById('r-zr'),zero,'');
-  const n=l.filter(p=>p.estoque<=p.minimo).length;
+  // Badge: conta só os alertas PENDENTES (ignora os marcados como lidos)
+  const ok=window._alertasOk||{};
+  const n=Object.entries(prods).filter(([k,p])=>{
+    if(p.estoque>p.minimo)return false;
+    const marc=ok[k];
+    if(!marc)return true;
+    return (parseInt(p.estoque)||0) < (parseInt(marc.est)||0);
+  }).length;
   const bb=document.getElementById('sb-badge');
   if(bb){const antes=bb.textContent;bb.textContent=n;bb.style.display=n>0?'block':'none';if(n>0&&String(n)!==antes){bb.style.animation='none';void bb.offsetWidth;bb.style.animation='badgePulse 1s ease-out 3';}}
 }
@@ -2749,111 +3044,41 @@ function renderMeta(){
 window._renderMovs=renderMovs;
 
 // RENDER ALERTAS
-// ===== MOTOR DE ALERTAS / CONSULTOR DA LOJA (automático, sem IA) =====
-function _precoIdeal90(custo){var base=custo*2;var r=Math.round(base);var s=r-0.10;if(s<base-0.15||s<=custo)s=r+0.90;return Math.round(s*100)/100;}
-function _btnRepor(id){return '<button class="abtn abtn-e" style="width:auto;padding:8px 12px;font-size:12px;white-space:nowrap" onclick="abrirMov(\''+id+'\',\'entrada\')">+ Repor</button>';}
-function _btnPagina(pg,txt){return '<button class="abtn" style="width:auto;padding:8px 12px;font-size:12px;white-space:nowrap;background:var(--roxo2);color:var(--roxo)" onclick="goPage(\''+pg+'\')">'+txt+'</button>';}
-
-function gerarAlertas(){
-  var P=prods||{}, M=movs||{}, agora=Date.now();
-  var fmt=function(v){return 'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2});};
-  var catN=function(c){return (CATS[c]&&CATS[c].n)||'—';};
-  var mv=Object.values(M);
-  var vendas=mv.filter(function(m){return m.tipo==='saida';});
-  var d7=agora-7*86400000, d30=agora-30*86400000;
-  var q7={}, q30={}, ult={};
-  vendas.forEach(function(m){var pid=m.pid,q=parseInt(m.qtd||0);if((m.ts||0)>=d7)q7[pid]=(q7[pid]||0)+q;if((m.ts||0)>=d30)q30[pid]=(q30[pid]||0)+q;});
-  mv.forEach(function(m){var pid=m.pid;if(!ult[pid]||(m.ts||0)>ult[pid])ult[pid]=(m.ts||0);});
-  var ents=Object.entries(P), A=[];
-
-  // 1. sem preço de venda
-  var semP=ents.filter(function(e){var p=e[1];return parseFloat(p.preco_venda||0)<=0 && parseInt(p.estoque||0)>0;});
-  if(semP.length){var ns=semP.slice(0,3).map(function(e){return e[1].nome;}).join(', ');
-    A.push({pri:100,ico:'🚫',cor:'#DC2626',tit:semP.length+' produto(s) sem preço de venda',txt:'Risco de vender no prejuízo: '+ns+(semP.length>3?'…':'')+'. Cadastre o preço na aba Estoque.'});}
-
-  // 2. esgotou vendendo
-  ents.forEach(function(e){var id=e[0],p=e[1];if(parseInt(p.estoque||0)<=0 && (q30[id]||0)>0){
-    A.push({pri:90,ico:'📦',cor:'#DC2626',tit:p.nome+' esgotou',txt:'Vinha vendendo ('+q30[id]+' un em 30 dias) e zerou. Repor logo pra não perder venda.',acao:_btnRepor(id)});}});
-
-  // 3. vai acabar (giro alto x estoque)
-  var acabar=[];
-  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),v7=q7[id]||0;if(est>0&&v7>0){var cob=est/(v7/7);if(cob<=7)acabar.push({id:id,p:p,est:est,v7:v7,cob:cob});}});
-  acabar.sort(function(a,b){return a.cob-b.cob;});
-  var jaAcabar={};
-  acabar.slice(0,4).forEach(function(x){jaAcabar[x.id]=1;
-    A.push({pri:80,ico:'⏳',cor:'#D97706',tit:x.p.nome+' vai acabar',txt:'Vendeu '+x.v7+' un em 7 dias, restam '+x.est+' (~'+Math.max(1,Math.round(x.cob))+' dias). Bom repor.',acao:_btnRepor(x.id)});});
-
-  // 4. meta do mês (ritmo)
-  var mes=new Date().toISOString().slice(0,7);
-  var meta=parseFloat((metaData[mes]&&metaData[mes].valor)||0);
-  var dHoje=new Date().getDate();
-  var diasMes=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate();
-  var inicioMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).getTime();
-  var fatMes=vendas.filter(function(m){return (m.ts||0)>=inicioMes;}).reduce(function(s,m){return s+parseFloat(m.vunit||0)*parseInt(m.qtd||0);},0);
-  if(meta>0){var pct=fatMes/meta*100,proj=dHoje>0?(fatMes/dHoje*diasMes):0,pctProj=proj/meta*100,ok=pctProj>=100;
-    A.push({pri:70,ico:ok?'🎯':'📉',cor:ok?'#059669':'#D97706',tit:'Meta do mês: '+Math.round(pct)+'% ('+fmt(fatMes)+' de '+fmt(meta)+')',txt:'Faltam '+(diasMes-dHoje)+' dias. No ritmo atual fecha em ~'+Math.round(pctProj)+'% ('+fmt(proj)+').',acao:_btnPagina('meta','Ver meta')});
-  }else if(vendas.length){
-    A.push({pri:35,ico:'🎯',cor:'#7C3AED',tit:'Defina a meta do mês',txt:'Sem meta eu não consigo avisar se o ritmo de vendas está bom. Leva 10 segundos.',acao:_btnPagina('meta','Definir')});}
-
-  // 5. estoque baixo (que não caiu no "vai acabar")
-  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),mn=parseInt(p.minimo||5);if(est>0&&est<=mn&&!jaAcabar[id]){
-    A.push({pri:60,ico:'⚠️',cor:'#D97706',tit:p.nome+' com estoque baixo',txt:'Restam '+est+' un (mínimo definido: '+mn+').',acao:_btnRepor(id)});}});
-
-  // 6. abaixo da regra de preço (markup < 100%)
-  var abaixo=ents.filter(function(e){var p=e[1],pc=parseFloat(p.preco_custo||0),pv=parseFloat(p.preco_venda||0);return pc>0&&pv>0&&((pv-pc)/pc*100)<95;});
-  abaixo.slice(0,3).forEach(function(e){var p=e[1],pc=parseFloat(p.preco_custo),pv=parseFloat(p.preco_venda),mk=Math.round((pv-pc)/pc*100),ideal=_precoIdeal90(pc);
-    A.push({pri:50,ico:'💸',cor:'#DB2777',tit:p.nome+' abaixo da regra',txt:'Markup de '+mk+'% (a regra da loja é 100%). Preço ideal ~'+fmt(ideal)+'.'});});
-
-  // 7. encalhe (parado > 30 dias com estoque)
-  var enc=[];
-  ents.forEach(function(e){var id=e[0],p=e[1],est=parseInt(p.estoque||0),last=ult[id]||p.criado||0;if(est>0&&last>0&&last<d30)enc.push({p:p,dias:Math.round((agora-last)/86400000),est:est});});
-  enc.sort(function(a,b){return b.dias-a.dias;});
-  enc.slice(0,3).forEach(function(x){
-    A.push({pri:40,ico:'🐌',cor:'#7C3AED',tit:x.p.nome+' está parado',txt:'Sem giro há '+x.dias+' dias com '+x.est+' em estoque. Ideias: promoção, combo ou mudar de lugar na vitrine.'});});
-
-  // 8. oportunidade (categoria mais lucrativa nos 30 dias)
-  var cA={};
-  vendas.filter(function(m){return (m.ts||0)>=d30;}).forEach(function(m){var c=m.cat;if(!c)return;if(!cA[c])cA[c]={fat:0,cst:0};cA[c].fat+=parseFloat(m.vunit||0)*parseInt(m.qtd||0);cA[c].cst+=parseFloat(m.cunit||0)*parseInt(m.qtd||0);});
-  var best=null;Object.keys(cA).forEach(function(c){var a=cA[c];if(a.fat<=0)return;var mg=(a.fat-a.cst)/a.fat*100;if(!best||mg>best.mg)best={c:c,mg:mg,fat:a.fat};});
-  if(best){A.push({pri:30,ico:'⭐',cor:'#059669',tit:catN(best.c)+' é sua categoria mais lucrativa',txt:'Margem de '+Math.round(best.mg)+'% nos últimos 30 dias ('+fmt(best.fat)+' de faturamento). Vale reforçar a compra e o marketing.'});}
-
-  A.sort(function(a,b){return b.pri-a.pri;});
-  return A;
-}
-
-function _cardAlerta(a){
-  return '<div style="display:flex;gap:12px;align-items:center;background:var(--bg2);border:1px solid var(--border);border-left:4px solid '+a.cor+';border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)">'
-    +'<div style="font-size:22px;line-height:1">'+a.ico+'</div>'
-    +'<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800;color:var(--text)">'+a.tit+'</div>'
-    +'<div style="font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4">'+a.txt+'</div></div>'
-    +(a.acao?'<div>'+a.acao+'</div>':'')+'</div>';
-}
-
 function renderAlertas(){
-  var A=gerarAlertas();
-  var full=document.getElementById('alertas-lista');
-  if(full){
-    if(!A.length)full.innerHTML='<div class="empty"><div class="ico">✅</div><p>Tudo em dia! Nenhum alerta agora.</p></div>';
-    else full.innerHTML='<div style="font-size:12px;color:var(--text3);font-weight:700;margin-bottom:10px">🧠 '+A.length+' coisa(s) pra olhar hoje — em ordem de prioridade</div>'+A.map(_cardAlerta).join('');
+  const d=document.getElementById('alertas-lista');if(!d)return;
+  const hdr=document.getElementById('alertas-header');
+  const ok=window._alertasOk||{};
+  // produtos em situação de alerta
+  const todos=Object.entries(prods).filter(([k,p])=>p.estoque<=p.minimo);
+  // filtra os já marcados como lidos (volta a alertar se o estoque cair mais)
+  const l=todos.filter(([k,p])=>{
+    const marc=ok[k];
+    if(!marc) return true;
+    return (parseInt(p.estoque)||0) < (parseInt(marc.est)||0); // piorou → alerta de novo
+  });
+  const lidos=todos.length-l.length;
+  if(hdr){
+    if(todos.length){
+      hdr.style.display='flex';
+      document.getElementById('alertas-count').textContent=
+        l.length? `${l.length} alerta(s) pendente(s)${lidos?` · ${lidos} lido(s)`:''}`
+                : `✅ Tudo lido — ${lidos} item(ns) em silêncio`;
+    }else{hdr.style.display='none';}
   }
-  var topo=document.getElementById('consultor-topo');
-  if(topo){
-    if(!A.length){topo.innerHTML='';return;}
-    var top=A.slice(0,3), resto=A.length-top.length;
-    var hoje=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'long'});
-    topo.innerHTML='<div style="background:linear-gradient(135deg,var(--roxo),#9333EA);border-radius:14px;padding:14px 16px 8px;margin-bottom:12px;box-shadow:var(--shadow)">'
-      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:20px">🧠</span>'
-      +'<div><div style="font-size:15px;font-weight:900;color:#fff">Consultor da loja</div><div style="font-size:11px;color:rgba(255,255,255,.8);text-transform:capitalize">'+hoje+'</div></div></div>'
-      +'<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:4px">'
-      +top.map(function(a){return '<div style="display:flex;gap:10px;align-items:center;padding:9px 10px">'
-        +'<div style="font-size:18px">'+a.ico+'</div>'
-        +'<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:800;color:#fff">'+a.tit+'</div>'
-        +'<div style="font-size:11px;color:rgba(255,255,255,.85);line-height:1.35">'+a.txt+'</div></div>'
-        +(a.acao?'<div>'+a.acao+'</div>':'')+'</div>';}).join('<div style="height:1px;background:rgba(255,255,255,.12)"></div>')
-      +'</div>'
-      +(resto>0?'<div onclick="goPage(\'alertas\')" style="text-align:center;color:#fff;font-size:12px;font-weight:800;padding:9px 0 4px;cursor:pointer">Ver todos os '+A.length+' alertas →</div>':'')
-      +'</div>';
+  if(!l.length){
+    d.innerHTML=`<div class="empty"><div class="ico">✅</div><p>${todos.length?'Nenhum alerta pendente!<br><span style="font-size:12px;color:var(--text3)">Os itens marcados voltam a avisar se o estoque cair mais.</span>':'Estoque em dia!'}</p></div>`;
+    return;
   }
+  d.innerHTML=l.map(([id,p])=>{
+    const c=CATS[p.categoria]||CATS.cosmetico;
+    return `<div class="alerta-item ${p.estoque<=0?'zerado':''}">
+      <div style="font-size:24px">${p.estoque<=0?'🚫':'⚠️'}</div>
+      <div style="flex:1"><div style="font-size:14px;font-weight:800">${p.nome}</div><div style="font-size:12px;color:var(--text3)">${c.e} ${c.n} · Mín: ${p.minimo}</div></div>
+      <div style="text-align:right"><div style="font-size:22px;font-weight:800;color:${p.estoque<=0?'var(--red)':'var(--amber)'}">${p.estoque||0}</div><div style="font-size:10px;color:var(--text3)">un</div></div>
+      <button class="abtn abtn-e" style="width:auto;padding:8px 12px;font-size:12px" onclick="abrirMov('${id}','entrada')">+ Repor</button>
+      <button style="width:auto;padding:8px 12px;font-size:12px;border:none;border-radius:9px;background:#D1FAE5;color:#065F46;font-family:var(--fn);font-weight:900;cursor:pointer" onclick="okAlerta('${id}')">✓ OK</button>
+    </div>`;
+  }).join('');
 }
 
 // RENDER FORNECEDORES
