@@ -36,6 +36,18 @@ body{font-family:var(--fb);background:var(--white);background-image:radial-gradi
 .tab.active{color:var(--navy);border-bottom-color:var(--gold);font-weight:600;}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
+.tab-cnt{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:700;background:#E6F1FB;color:#0C447C;padding:1px 7px;border-radius:10px;vertical-align:1px;}
+.tab.active .tab-cnt{background:var(--gold);color:#3A2C05;}
+.submenu-bar{display:none;background:#F4F6FA;border-bottom:1px solid var(--border);padding:0 2rem;position:sticky;top:47px;z-index:99;box-shadow:0 1px 6px rgba(11,31,58,.05);}
+.submenu-bar.open{display:block;}
+.submenu-grp{display:none;gap:2px;overflow-x:auto;padding:7px 0;}
+.submenu-grp.open{display:flex;}
+.subtab{padding:6px 13px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;white-space:nowrap;border-radius:4px;transition:all .18s;}
+.subtab:hover{background:#E6EBF3;color:var(--navy);}
+.subtab.active{background:var(--navy);color:#fff;font-weight:600;}
+.subtab.pend{color:#E65100;}
+.subtab.pend::after{content:"·";margin-left:5px;font-weight:700;}
+.subtab.pend.active{background:#E65100;color:#fff;}
 .main{max-width:1140px;margin:0 auto;padding:2rem 2rem;}
 /* TÍTULOS */
 .stitle{font-family:var(--fd);font-size:17px;font-weight:600;color:var(--navy);margin-bottom:1.1rem;display:flex;align-items:center;gap:10px;letter-spacing:-0.01em;}
@@ -210,7 +222,7 @@ body.apres .estat .v{font-size:30px;}
 body.apres .stitle{font-size:22px;}
 body.apres .tabs-bar{position:static;}
 @media(max-width:880px){.exec{grid-template-columns:1fr;}.exec-charts{grid-template-columns:1fr;}.exec-stats{grid-template-columns:1fr;}}
-@media print{.pbtn,.tabs-bar,.legenda{display:none;}body{background:white;}.header,.subhdr,thead,tfoot{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.tab-panel{display:block!important;page-break-before:always;}.tab-panel:first-child{page-break-before:auto;}}
+@media print{.pbtn,.tabs-bar,.submenu-bar,.legenda{display:none;}body{background:white;}.header,.subhdr,thead,tfoot{-webkit-print-color-adjust:exact;print-color-adjust:exact;}.tab-panel{display:block!important;page-break-before:always;}.tab-panel:first-child{page-break-before:auto;}}
 </style>
 </head>
 <body>
@@ -280,7 +292,7 @@ body.apres .tabs-bar{position:static;}
       <button class="pbtn" onclick="location.href='protocolo.html'">📋 Protocolos</button>
       <span style="display:inline-flex;align-items:center;gap:0;">
         <select id="pdf-filtro" aria-label="Conteúdo do PDF" style="padding:8px 10px;background:transparent;border:1px solid var(--gold);border-right:none;border-radius:8px 0 0 8px;color:var(--gold);font-size:12px;font-weight:600;font-family:var(--fb);cursor:pointer;max-width:210px;">
-          <option value="geral" style="color:#0B1F3A">📊 Geral — Exercício 2026</option>
+          <option value="geral" style="color:#0B1F3A">📊 Geral — Consolidado 2025+2026</option>
         </select><button class="pbtn" style="border-radius:0 8px 8px 0;" onclick="gerarPDFRel()">📄 PDF</button>
       </span>
       <button class="pbtn" onclick="exportarCSV()">⇩ Excel/CSV</button>
@@ -310,6 +322,7 @@ body.apres .tabs-bar{position:static;}
 <div class="tabs-bar" id="tabs-bar">
   <div class="tab active" onclick="showTab('geral',this)">📊 Visão Geral</div>
 </div>
+<div class="submenu-bar" id="submenu-bar"></div>
 
 <div id="panels-container">
   <div id="tab-geral" class="tab-panel active">
@@ -339,7 +352,7 @@ window._popularFiltroPDF = function(){
   const meses = Object.entries(d.meses).sort((a,b)=>
     ORD0.findIndex(n=>(a[1].competencia||'').toLowerCase().startsWith(n)) -
     ORD0.findIndex(n=>(b[1].competencia||'').toLowerCase().startsWith(n)));
-  let opts = `<option value="geral" style="color:#0B1F3A">📊 Geral — Exercício 2026</option>`;
+  let opts = `<option value="geral" style="color:#0B1F3A">📊 Geral — Consolidado 2025+2026</option>`;
   for(const [k,m] of meses) opts += `<option value="${k}" style="color:#0B1F3A">📅 ${m.competencia}</option>`;
   sel.innerHTML = opts;
   sel.value = (atual && (atual==='geral' || d.meses[atual])) ? atual : 'geral';
@@ -476,7 +489,7 @@ window.gerarPDFRel = function(){
           g.status==='debito' ? porOrg[org].deb+=v : porOrg[org].pago+=v; } }
       return {c:m.competencia, ...t};
     });
-    const doc = novoDoc('Relatório de Repasses - Consolidado do Exercício 2026', 'Competências: ' + (linhas[0]?.c||'') + ' a ' + (linhas[linhas.length-1]?.c||''));
+    const doc = novoDoc('Relatório de Repasses - Consolidado dos Exercícios ' + EXERCICIOS.join(' e '), 'Competências: ' + (linhas[0]?.c||'') + ' a ' + (linhas[linhas.length-1]?.c||''));
     let y = cards(doc, 54, [
       {lbl:'Total do exercício', val:brl(TG)},
       {lbl:'Repassado', val:brl(TP), color:STC.verde},
@@ -567,11 +580,22 @@ if(window._acessoLiberado) window._registrarAcesso();
 
 const ORGAOS = ['FMAS','FMS','ADM','FME','FUNDEB'];
 // Ordem cronológica dos meses — usada em abas, painéis e exportações
-const ORDEM_MESES = ['janeiro_2026','fevereiro_2026','marco_2026','abril_2026','maio_2026','junho_2026','julho_2026','agosto_2026','setembro_2026','outubro_2026','novembro_2026','dezembro_2026'];
+const EXERCICIOS = ['2025','2026'];
+const SLUG_MESES = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const ORDEM_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const idxMesKey = k => { const i = ORDEM_MESES.indexOf(k); return i < 0 ? 99 : i; };
-const idxMesComp = c => { const i = ORDEM_NOMES.indexOf((c||'').split('/')[0]); return i < 0 ? 99 : i; };
+// Chaves de todos os exercícios, em ordem: janeiro_2025 ... dezembro_2026
+const ORDEM_MESES = EXERCICIOS.flatMap(a => SLUG_MESES.map(m => m+'_'+a));
+const chavesDoAno = ano => SLUG_MESES.map(m => m+'_'+ano);
+const anoDaChave = k => (k||'').split('_')[1] || '';
+const nomeDaChave = k => { const p=(k||'').split('_'); const i=SLUG_MESES.indexOf(p[0]); return (i<0?p[0]:ORDEM_NOMES[i])+'/'+(p[1]||''); };
+// Ordinal absoluto: ano*12 + mês, para não misturar Nov/2025 com Jan/2026
+const idxMesKey = k => { const p=(k||'').split('_'); const i=SLUG_MESES.indexOf(p[0]); return i<0 ? 9999 : (parseInt(p[1]||'0',10)*12 + i); };
+const idxMesComp = c => { const p=(c||'').split('/'); const i=ORDEM_NOMES.indexOf(p[0]); return i<0 ? 9999 : (parseInt(p[1]||'0',10)*12 + i); };
 const sortMesesEntries = obj => Object.entries(obj||{}).sort((a,b)=>idxMesKey(a[0])-idxMesKey(b[0]));
+// Prazo legal: dia 31 do mês seguinte à competência (conforme prazos já usados no relatório)
+const prazoDaChave = k => { const p=(k||'').split('_'); const i=SLUG_MESES.indexOf(p[0]); if(i<0) return '-';
+  const ult=[31,28,31,30,31,30,31,31,30,31,30,31]; const mProx=(i+1)%12; const aProx=parseInt(p[1]||'0',10)+(i===11?1:0);
+  return String(ult[mProx]).padStart(2,'0')+'/'+String(mProx+1).padStart(2,'0')+'/'+aProx; };
 const CHIPS = {FMAS:'c-fmas',FMS:'c-fms',ADM:'c-adm',FME:'c-fme',FUNDEB:'c-fundeb'};
 const TIPOS = ['lei','patronal','servidor'];
 const fmt = v => 'R$ ' + Math.round(parseFloat(v)||0).toLocaleString('pt-BR');
@@ -675,7 +699,7 @@ function buildExecPanel(dados){
   const x=execTotais(dados);
   const brlMi=v=>'R$ '+Math.round(v).toLocaleString('pt-BR');
   return `
-    <div class="stitle"><span class="slbl">painel executivo</span>Visão Geral · Exercício 2026</div>
+    <div class="stitle"><span class="slbl">painel executivo</span>Visão Geral · Exercícios ${EXERCICIOS.join(" e ")}</div>
     <div class="exec">
       <div class="gauge-card">
         <div class="gauge-lbl">Índice de Adimplência</div>
@@ -941,36 +965,53 @@ function renderTudo(dados) {
   document.getElementById('ftr-info').textContent = `Aposentados: ${cfg.aposentados||97} · Pensionistas: ${cfg.pensionistas||28}`;
 
   // Abas
-  const meses = sortMesesEntries(dados.meses);
   const tabsBar = document.getElementById('tabs-bar');
+  const subBar = document.getElementById('submenu-bar');
   const container = document.getElementById('panels-container');
 
   // Limpar abas existentes (exceto geral)
   tabsBar.querySelectorAll('.tab:not(:first-child)').forEach(t=>t.remove());
+  subBar.innerHTML = '';
   container.querySelectorAll('.tab-panel:not(#tab-geral)').forEach(p=>p.remove());
 
   // Reconstruir aba geral
   document.getElementById('tab-geral').innerHTML = buildGeral(dados);
 
-  // Abas mensais — sempre em ordem cronológica (com dados ou pendentes)
-  const nomes = {janeiro_2026:'Janeiro/2026',fevereiro_2026:'Fevereiro/2026',marco_2026:'Março/2026',abril_2026:'Abril/2026',maio_2026:'Maio/2026',junho_2026:'Junho/2026',julho_2026:'Julho/2026',agosto_2026:'Agosto/2026',setembro_2026:'Setembro/2026',outubro_2026:'Outubro/2026',novembro_2026:'Novembro/2026',dezembro_2026:'Dezembro/2026'};
-  const prazos = {janeiro_2026:'28/02/2026',fevereiro_2026:'31/03/2026',marco_2026:'30/04/2026',abril_2026:'31/05/2026',maio_2026:'30/06/2026',junho_2026:'31/07/2026',julho_2026:'31/08/2026',agosto_2026:'30/09/2026',setembro_2026:'31/10/2026',outubro_2026:'30/11/2026',novembro_2026:'31/12/2026',dezembro_2026:'31/01/2027'};
   const mapMeses = dados.meses||{};
 
-  for(const key of ORDEM_MESES) {
-    const mes = mapMeses[key];
+  for(const ano of EXERCICIOS){
+    const chaves = chavesDoAno(ano);
+    const comDados = chaves.filter(k=>mapMeses[k]).length;
+
+    // Aba do exercício
     const btn = document.createElement('div');
     btn.className='tab';
-    btn.textContent = mes ? mes.competencia : nomes[key];
-    if(!mes) btn.style.color='#E65100';
-    btn.onclick = function(){ showTab(key,this); };
+    btn.id = 'tabbtn-ano-'+ano;
+    btn.innerHTML = `📁 ${ano} <span class="tab-cnt">${comDados}/12</span>`;
+    btn.onclick = function(){ showAno(ano,this); };
     tabsBar.appendChild(btn);
 
-    const panel = document.createElement('div');
-    panel.id = 'tab-'+key;
-    panel.className='tab-panel';
-    panel.innerHTML = mes ? buildTabMes(key,mes) : `<div class="main"><div style="text-align:center;padding:4rem 2rem"><div style="font-size:48px;margin-bottom:1rem">📂</div><h2 style="font-family:var(--fd);color:var(--navy);margin-bottom:.75rem">${nomes[key]} — Aguardando Planilha</h2><p style="color:var(--text2);font-size:14px">Envie a planilha ao Claude para consolidação dos dados.</p><div style="margin-top:1.5rem;display:inline-block;background:#FFF3E0;color:#E65100;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600">⏱ Prazo: ${prazos[key]}</div></div></div>`;
-    container.appendChild(panel);
+    // Submenu de meses do exercício
+    const grp = document.createElement('div');
+    grp.className='submenu-grp';
+    grp.id='sub-'+ano;
+    for(const key of chaves){
+      const mes = mapMeses[key];
+      const sb = document.createElement('div');
+      sb.className = 'subtab' + (mes?'':' pend');
+      sb.id = 'subbtn-'+key;
+      sb.textContent = mes ? mes.competencia : nomeDaChave(key);
+      sb.onclick = function(){ showTab(key,this); };
+      grp.appendChild(sb);
+
+      const panel = document.createElement('div');
+      panel.id = 'tab-'+key;
+      panel.className='tab-panel';
+      panel.dataset.ano = ano;
+      panel.innerHTML = mes ? buildTabMes(key,mes) : `<div class="main"><div style="text-align:center;padding:4rem 2rem"><div style="font-size:48px;margin-bottom:1rem">📂</div><h2 style="font-family:var(--fd);color:var(--navy);margin-bottom:.75rem">${nomeDaChave(key)} — Aguardando Planilha</h2><p style="color:var(--text2);font-size:14px">Envie a planilha ao Claude para consolidação dos dados.</p><div style="margin-top:1.5rem;display:inline-block;background:#FFF3E0;color:#E65100;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600">⏱ Prazo: ${prazoDaChave(key)}</div></div></div>`;
+      container.appendChild(panel);
+    }
+    subBar.appendChild(grp);
   }
 
   { const lg=document.getElementById('loading-geral'); if(lg) lg.style.display='none'; }
@@ -984,6 +1025,19 @@ function renderTudo(dados) {
 // Merge automático com controle de revisão: só grava se o mês não existir no Firebase
 // ou se o "rev" daqui for maior que o "rev" salvo (não sobrescreve edições posteriores).
 const MESES_NOVOS = {
+  "novembro_2025": {"competencia":"Novembro/2025","prazo":"31/12/2025","total":514137.72,"rev":1,"orgaos":{
+    "FMAS":{"lei":{"valor":4479.39,"status":"verde","data_pgto":"23/12/2025"},"patronal":{"valor":1919.87,"status":"verde","data_pgto":"23/12/2025"},"servidor":{"valor":1221.73,"status":"verde","data_pgto":"23/12/2025"}},
+    "FMS":{"lei":{"valor":86201.26,"status":"debito","data_pgto":""},"patronal":{"valor":36945.80,"status":"debito","data_pgto":""},"servidor":{"valor":23510.97,"status":"verde","data_pgto":"23/12/2025"}},
+    "ADM":{"lei":{"valor":70121.51,"status":"azul","data_pgto":"09/01/2026"},"patronal":{"valor":30054.03,"status":"azul","data_pgto":"09/01/2026"},"servidor":{"valor":19125.29,"status":"verde","data_pgto":"23/12/2025"}},
+    "FME":{"lei":{"valor":141392.82,"status":"debito","data_pgto":""},"patronal":{"valor":60600.86,"status":"azul","data_pgto":"09/01/2026"},"servidor":{"valor":38564.19,"status":"verde","data_pgto":"23/12/2025"}}
+  }},
+  "dezembro_2025": {"competencia":"Dezembro/2025","prazo":"31/01/2026","total":511911.31,"rev":1,"orgaos":{
+    "FMAS":{"lei":{"valor":6078.25,"status":"debito","data_pgto":""},"patronal":{"valor":2431.30,"status":"debito","data_pgto":""},"servidor":{"valor":1547.20,"status":"verde","data_pgto":"30/01/2026"}},
+    "FMS":{"lei":{"valor":84064.21,"status":"debito","data_pgto":""},"patronal":{"valor":36029.86,"status":"debito","data_pgto":""},"servidor":{"valor":22928.09,"status":"verde","data_pgto":"30/01/2026"}},
+    "ADM":{"lei":{"valor":68058.31,"status":"debito","data_pgto":""},"patronal":{"valor":29169.74,"status":"debito","data_pgto":""},"servidor":{"valor":18562.57,"status":"verde","data_pgto":"30/01/2026"}},
+    "FME":{"lei":{"valor":8289.80,"status":"debito","data_pgto":""},"patronal":{"valor":3553.00,"status":"debito","data_pgto":""},"servidor":{"valor":2261.00,"status":"debito","data_pgto":""}},
+    "FUNDEB":{"lei":{"valor":134562.99,"status":"debito","data_pgto":""},"patronal":{"valor":57673.60,"status":"azul","data_pgto":"27/02/2026"},"servidor":{"valor":36701.39,"status":"verde","data_pgto":"30/01/2026"}}
+  }},
   "abril_2026": {"competencia":"Abril/2026","prazo":"31/05/2026","total":578144.98,"rev":4,"orgaos":{
     "FMAS":{"lei":{"valor":2152.63,"status":"debito","data_pgto":""},"patronal":{"valor":861.05,"status":"debito","data_pgto":""},"servidor":{"valor":572.66,"status":"azul","data_pgto":"13/07/2026"}},
     "FMS":{"lei":{"valor":102542.07,"status":"debito","data_pgto":""},"patronal":{"valor":41016.83,"status":"debito","data_pgto":""},"servidor":{"valor":27278.68,"status":"azul","data_pgto":"13/07/2026"}},
@@ -1064,15 +1118,62 @@ function fillProtocolos(){
 }
 
 window._abaAtiva = 'geral';
-window.showTab = function(id,el){
+window._anoAtivo = null;
+
+// Abre um exercício: destaca a aba do ano, mostra o submenu e cai no mês mais
+// relevante (o último com dados; se o ano estiver vazio, o primeiro pendente).
+window.showAno = function(ano, el){
+  window._anoAtivo = ano;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const subBar = document.getElementById('submenu-bar');
+  subBar.classList.add('open');
+  subBar.querySelectorAll('.submenu-grp').forEach(g=>g.classList.remove('open'));
+  const grp = document.getElementById('sub-'+ano);
+  if(grp) grp.classList.add('open');
+
+  const mm = window._dadosFirebase?.meses || {};
+  const chaves = chavesDoAno(ano);
+  const comDados = chaves.filter(k=>mm[k]);
+  const alvo = comDados.length ? comDados[comDados.length-1] : chaves[0];
+  abrirMes(alvo, ano);
+};
+
+// Troca só o painel do mês, preservando o ano ativo e o submenu aberto
+function abrirMes(id, ano){
   window._abaAtiva = id;
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
   const panel = document.getElementById('tab-'+id);
   if(panel) panel.classList.add('active');
-  if(el) el.classList.add('active');
+  const sb = document.getElementById('subbtn-'+id);
+  if(sb) sb.classList.add('active');
   animateTabContent(id);
   setTimeout(()=>buildChartMes(id, window._dadosFirebase?.meses?.[id]), 100);
+}
+
+window.showTab = function(id,el){
+  // Visão Geral: fecha o submenu e volta ao nível raiz
+  if(id === 'geral'){
+    window._abaAtiva = 'geral'; window._anoAtivo = null;
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+    const sbar = document.getElementById('submenu-bar');
+    sbar.classList.remove('open');
+    sbar.querySelectorAll('.submenu-grp').forEach(g=>g.classList.remove('open'));
+    document.getElementById('tab-geral').classList.add('active');
+    if(el) el.classList.add('active');
+    animateTabContent('geral');
+    return;
+  }
+  // Mês: mantém a aba do exercício correspondente destacada
+  const ano = anoDaChave(id);
+  if(ano && window._anoAtivo !== ano){
+    const btnAno = document.getElementById('tabbtn-ano-'+ano);
+    if(btnAno){ showAno(ano, btnAno); }
+  }
+  abrirMes(id, ano);
 };
 
 window.toggleAlerta = function(el,e){
