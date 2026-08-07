@@ -1055,6 +1055,43 @@ tbody td.r{text-align:right;font-weight:700;}
     <div style="text-align:center;margin-bottom:18px">
       <div style="font-size:13px;font-weight:800;color:#64748B;text-transform:uppercase">Total a pagar</div>
       <div id="pdv-pg-total" style="font-size:40px;font-weight:900;color:#059669">R$ 0,00</div>
+      <div id="pdv-pg-orig" style="font-size:12px;font-weight:800;color:#94A3B8;text-decoration:line-through;display:none"></div>
+    </div>
+
+    <!-- DESCONTO -->
+    <div style="background:#FEF3C7;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:900;color:#92400E;text-transform:uppercase;margin-bottom:8px">🏷️ Desconto (opcional)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div>
+          <label style="font-size:10px;font-weight:800;color:#B45309">Em reais (R$)</label>
+          <input type="number" id="pdv-desc-rs" placeholder="0,00" step="0.01" oninput="pdvDesc('rs')"
+            style="width:100%;padding:10px;border:2px solid #FDE68A;border-radius:9px;font-family:var(--fn);font-size:15px;font-weight:900;outline:none;background:#fff">
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:800;color:#B45309">Ou em %</label>
+          <input type="number" id="pdv-desc-pc" placeholder="0" step="1" oninput="pdvDesc('pc')"
+            style="width:100%;padding:10px;border:2px solid #FDE68A;border-radius:9px;font-family:var(--fn);font-size:15px;font-weight:900;outline:none;background:#fff">
+        </div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button onclick="pdvDescRapido(5)" style="flex:1;padding:7px;border:none;border-radius:7px;background:#FDE68A;color:#92400E;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer">5%</button>
+        <button onclick="pdvDescRapido(10)" style="flex:1;padding:7px;border:none;border-radius:7px;background:#FDE68A;color:#92400E;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer">10%</button>
+        <button onclick="pdvDescRapido(15)" style="flex:1;padding:7px;border:none;border-radius:7px;background:#FDE68A;color:#92400E;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer">15%</button>
+        <button onclick="pdvDescRapido(0)" style="flex:1;padding:7px;border:none;border-radius:7px;background:#fff;color:#92400E;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer">Limpar</button>
+      </div>
+      <div id="pdv-desc-aviso" style="font-size:11px;font-weight:800;margin-top:8px;display:none"></div>
+    </div>
+
+    <!-- DATA DA VENDA -->
+    <div style="background:#EFF6FF;border-radius:12px;padding:12px 14px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:900;color:#1E40AF;text-transform:uppercase;margin-bottom:8px">📅 Data da venda</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="date" id="pdv-data" onchange="pdvDataMudou()"
+          style="flex:1;padding:10px;border:2px solid #BFDBFE;border-radius:9px;font-family:var(--fn);font-size:14px;font-weight:800;outline:none;background:#fff">
+        <button onclick="pdvDataOntem()" style="padding:10px 12px;border:none;border-radius:9px;background:#DBEAFE;color:#1E40AF;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap">Ontem</button>
+        <button onclick="pdvDataHoje()" style="padding:10px 12px;border:none;border-radius:9px;background:#1E40AF;color:#fff;font-family:var(--fn);font-weight:900;font-size:12px;cursor:pointer;white-space:nowrap">Hoje</button>
+      </div>
+      <div id="pdv-data-aviso" style="font-size:11px;font-weight:800;color:#B45309;margin-top:7px;display:none"></div>
     </div>
 
     <div style="background:#F8FAFC;border-radius:12px;padding:12px 14px;margin-bottom:16px">
@@ -1621,10 +1658,22 @@ function fazerBackup(){
   const backup={
     exportado_em:new Date().toISOString(),
     loja:'Promoções Goiandira',
+    versao:2,
     produtos:prods,
     movimentacoes:movs,
     fornecedores:forns,
-    clientes:clis
+    clientes:clis,
+    meta:window._metaData||{},
+    custosfixos:window._custosFixos||{},
+    alertas_ok:window._alertasOk||{},
+    sugestoes_ok:window._sugOk||{},
+    resumo:{
+      total_produtos:Object.keys(prods||{}).length,
+      total_movimentacoes:Object.keys(movs||{}).length,
+      total_clientes:Object.keys(clis||{}).length,
+      investido:Object.values(prods||{}).reduce((s,p)=>s+parseFloat(p.preco_custo||0)*(parseInt(p.estoque)||0),0),
+      potencial:Object.values(prods||{}).reduce((s,p)=>s+parseFloat(p.preco_venda||0)*(parseInt(p.estoque)||0),0)
+    }
   };
   const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
@@ -2192,7 +2241,7 @@ onValue(rCF,s=>{try{custosFixos=s.val()||{};window._custosFixos=custosFixos;rend
 // ===== ALERTAS LIDOS (sincroniza entre aparelhos) =====
 const rAOK=ref(db,'loja/alertas_ok');
 window._alertasOk={};
-onValue(rAOK,s=>{try{window._alertasOk=s.val()||{};renderAlertas();renderResumo();}catch(e){console.error("Erro rAOK:",e);}});
+onValue(rAOK,s=>{try{window._alertasOk=s.val()||{};window._alertasOkGlobal=window._alertasOk;renderAlertas();renderResumo();}catch(e){console.error("Erro rAOK:",e);}});
 
 // ===== SUGESTÕES DO CONSULTOR (lidas) =====
 const rSOK=ref(db,'loja/sugestoes_ok');
@@ -2292,7 +2341,7 @@ window._limparAlertasRepostos=limparAlertasRepostos;
 
 // ===================== MOTOR DO PDV =====================
 let pdvCart=[]; // {pid, nome, preco, qtd, estoque}
-let pdvPgSel=null, pdvTotalAtual=0;
+let pdvPgSel=null, pdvTotalAtual=0, pdvSubtotal=0, pdvDescValor=0;
 
 window.abrirPDV=function(soCaixa){
   document.getElementById('pdv-screen').style.display='flex';
@@ -2407,13 +2456,79 @@ window.pdvLimpar=function(){pdvCart=[];pdvRenderCart();if(document.getElementByI
 window.pdvFinalizar=function(){
   if(!pdvCart.length)return;
   pdvPgSel=null;
-  document.getElementById('pdv-pg-total').textContent='R$ '+pdvTotalAtual.toFixed(2).replace('.',',');
+  pdvSubtotal=pdvCart.reduce((s,it)=>s+it.preco*it.qtd,0);
+  pdvDescValor=0;
+  pdvTotalAtual=pdvSubtotal;
+  document.getElementById('pdv-desc-rs').value='';
+  document.getElementById('pdv-desc-pc').value='';
+  document.getElementById('pdv-desc-aviso').style.display='none';
+  document.getElementById('pdv-pg-orig').style.display='none';
+  pdvDataHoje();
+  pdvAtualizaTotalPg();
   document.querySelectorAll('.pdv-pg-op').forEach(b=>{b.style.borderColor='#E2E8F0';b.style.background='#fff';});
   document.getElementById('pdv-troco-box').style.display='none';
   document.getElementById('pdv-pago').value='';
   document.getElementById('pdv-troco').textContent='R$ 0,00';
   const cf=document.getElementById('pdv-confirmar');cf.disabled=true;cf.style.opacity='.4';
   document.getElementById('pdv-pgto').style.display='flex';
+};
+
+// ---- desconto ----
+function pdvAtualizaTotalPg(){
+  document.getElementById('pdv-pg-total').textContent='R$ '+pdvTotalAtual.toFixed(2).replace('.',',');
+  const orig=document.getElementById('pdv-pg-orig');
+  if(pdvDescValor>0){
+    orig.style.display='block';
+    orig.textContent='R$ '+pdvSubtotal.toFixed(2).replace('.',',');
+  }else{orig.style.display='none';}
+}
+window.pdvDesc=function(origem){
+  const rs=document.getElementById('pdv-desc-rs');
+  const pc=document.getElementById('pdv-desc-pc');
+  let d=0;
+  if(origem==='rs'){
+    d=parseFloat(rs.value)||0; pc.value = d>0&&pdvSubtotal>0 ? (d/pdvSubtotal*100).toFixed(1) : '';
+  }else{
+    const p=parseFloat(pc.value)||0; d=pdvSubtotal*p/100; rs.value = p>0 ? d.toFixed(2) : '';
+  }
+  if(d>pdvSubtotal){d=pdvSubtotal;rs.value=d.toFixed(2);pc.value='100';}
+  if(d<0)d=0;
+  pdvDescValor=d;
+  pdvTotalAtual=pdvSubtotal-d;
+  pdvAtualizaTotalPg();
+  // aviso de impacto na margem
+  const av=document.getElementById('pdv-desc-aviso');
+  if(d>0){
+    const custo=pdvCart.reduce((s,it)=>{const p=prods[it.pid];return s+(parseFloat(p?.preco_custo||0))*it.qtd;},0);
+    const mg=pdvTotalAtual>0?((pdvTotalAtual-custo)/pdvTotalAtual*100):0;
+    av.style.display='block';
+    av.textContent=`Margem desta venda: ${mg.toFixed(0)}%`;
+    av.style.color = mg>=40?'#166534' : mg>=25?'#B45309' : '#B91C1C';
+    if(mg<25)av.textContent+=' ⚠️ muito baixa';
+  }else{av.style.display='none';}
+  if(pdvPgSel==='dinheiro')pdvCalcTroco();
+};
+window.pdvDescRapido=function(p){
+  document.getElementById('pdv-desc-pc').value = p||'';
+  pdvDesc('pc');
+};
+
+// ---- data da venda ----
+function pdvSetData(dt){
+  document.getElementById('pdv-data').value=dt.toISOString().slice(0,10);
+  pdvDataMudou();
+}
+window.pdvDataHoje=function(){pdvSetData(new Date());};
+window.pdvDataOntem=function(){const d=new Date();d.setDate(d.getDate()-1);pdvSetData(d);};
+window.pdvDataMudou=function(){
+  const v=document.getElementById('pdv-data').value;
+  const av=document.getElementById('pdv-data-aviso');
+  const hoje=new Date().toISOString().slice(0,10);
+  if(v && v!==hoje){
+    const [y,m,d]=v.split('-');
+    av.style.display='block';
+    av.textContent=`⚠️ Esta venda será registrada em ${d}/${m}/${y}, não hoje.`;
+  }else{av.style.display='none';}
 };
 window.pdvSelPg=function(pg,btn){
   pdvPgSel=pg;
@@ -2446,16 +2561,28 @@ window.pdvConfirmar=async function(){
   const cliNome=(document.getElementById('pdv-cli-nome').value||'').trim();
   const cliTel=(document.getElementById('pdv-cli-tel').value||'').trim();
   try{
-    const ts=Date.now();
-    const vendaId='V'+ts;
-    const itensRecibo=pdvCart.map(it=>({nome:it.nome,qtd:it.qtd,preco:it.preco,sub:it.preco*it.qtd}));
+    const dataSel=document.getElementById('pdv-data').value;
+    let ts;
+    if(dataSel){
+      const [y,m,dd]=dataSel.split('-').map(Number);
+      const hoje=new Date();
+      // se for hoje, usa a hora atual; se for outro dia, marca 18h
+      ts = (dataSel===hoje.toISOString().slice(0,10))
+           ? Date.now()
+           : new Date(y,m-1,dd,18,0,0).getTime();
+    }else{ ts=Date.now(); }
+    const vendaId='V'+ts+'_'+Math.random().toString(36).slice(2,6);
+    // fator de desconto rateado proporcionalmente entre os itens
+    const fatorDesc = pdvSubtotal>0 ? (pdvTotalAtual/pdvSubtotal) : 1;
+    const itensRecibo=pdvCart.map(it=>({nome:it.nome,qtd:it.qtd,preco:it.preco*fatorDesc,sub:it.preco*it.qtd*fatorDesc}));
     for(const it of pdvCart){
       const p=prods[it.pid];
       const novoEst=Math.max(0,(parseInt(p.estoque)||0)-it.qtd);
       await update(ref(db,'loja/produtos/'+it.pid),{estoque:novoEst});
       await push(rM,{pid:it.pid,prod:it.nome,cat:p.categoria||'',tipo:'saida',qtd:it.qtd,
-        vunit:it.preco,cunit:parseFloat(p.preco_custo||0),pagamento:pdvPgSel,venda_id:vendaId,
-        cliente:cliNome||'',tel:cliTel||'',obs:'Venda no Caixa (PDV)',ts});
+        vunit:parseFloat((it.preco*fatorDesc).toFixed(2)),cunit:parseFloat(p.preco_custo||0),
+        pagamento:pdvPgSel,venda_id:vendaId,desconto:parseFloat(pdvDescValor.toFixed(2)),
+        cliente:cliNome||'',tel:cliTel||'',obs:'Venda no Caixa (PDV)'+(pdvDescValor>0?' — desconto R$ '+pdvDescValor.toFixed(2):''),ts});
     }
     // salvar/atualizar cliente (se informado)
     if(cliNome){
@@ -2472,7 +2599,7 @@ window.pdvConfirmar=async function(){
     const dt=new Date(ts);
     const dataStr=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     const pgLabel={pix:'Pix',cartao:'Cartão',dinheiro:'Dinheiro'}[pdvPgSel];
-    window._ultimoRecibo={nRecibo,dataStr,itensRecibo,total:pdvTotalAtual,pgLabel,cliNome,cliTel,pago,troco,pgSel:pdvPgSel};
+    window._ultimoRecibo={nRecibo,dataStr,itensRecibo,total:pdvTotalAtual,subtotal:pdvSubtotal,desconto:pdvDescValor,pgLabel,cliNome,cliTel,pago,troco,pgSel:pdvPgSel};
     pdvMontarRecibo();
     document.getElementById('pdv-pgto').style.display='none';
     const st=document.getElementById('pdv-suc-troco');
@@ -2485,73 +2612,160 @@ window.pdvConfirmar=async function(){
 
 function pdvMontarRecibo(){
   const r=window._ultimoRecibo;if(!r)return;
-  const linhas=r.itensRecibo.map(it=>
-    `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
-      <span style="flex:1">${it.qtd}x ${it.nome}</span>
-      <span style="font-weight:800;white-space:nowrap;padding-left:8px">R$ ${it.sub.toFixed(2).replace('.',',')}</span>
-    </div>`).join('');
+  const m=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const linhas=r.itensRecibo.map((it,i)=>`
+    <tr style="background:${i%2?'#F8FAFC':'#fff'}">
+      <td style="padding:7px 8px;font-size:11.5px;color:#0F172A;line-height:1.3">${it.nome}</td>
+      <td style="padding:7px 4px;font-size:11.5px;color:#475569;text-align:center;white-space:nowrap">${it.qtd}</td>
+      <td style="padding:7px 4px;font-size:11.5px;color:#475569;text-align:right;white-space:nowrap">${m(it.preco)}</td>
+      <td style="padding:7px 8px;font-size:11.5px;font-weight:800;color:#0F172A;text-align:right;white-space:nowrap">${m(it.sub)}</td>
+    </tr>`).join('');
+  const totQtd=r.itensRecibo.reduce((s,it)=>s+it.qtd,0);
+  let extra='';
+  if(r.desconto>0){
+    extra+=`<div style="display:flex;justify-content:space-between;font-size:12px;color:#64748B;margin-bottom:3px"><span>Subtotal</span><span>${m(r.subtotal)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:#B45309;margin-bottom:3px"><span>Desconto</span><span>- ${m(r.desconto)}</span></div>`;
+  }
   let trocoHtml='';
   if(r.pgSel==='dinheiro'){
-    trocoHtml=`<div style="display:flex;justify-content:space-between;font-size:12px;margin-top:4px"><span>Pago</span><span>R$ ${r.pago.toFixed(2).replace('.',',')}</span></div>
-    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:900"><span>Troco</span><span>R$ ${r.troco.toFixed(2).replace('.',',')}</span></div>`;
+    trocoHtml=`<div style="display:flex;justify-content:space-between;font-size:12px;color:#475569;margin-top:5px"><span>Valor recebido</span><span>${m(r.pago)}</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:900;color:#059669"><span>Troco</span><span>${m(r.troco)}</span></div>`;
   }
   document.getElementById('pdv-recibo').innerHTML=`
-    <div style="text-align:center;border-bottom:2px dashed #CBD5E1;padding-bottom:10px;margin-bottom:10px">
-      <div style="font-size:16px;font-weight:900">PROMOÇÕES GOIANDIRA</div>
-      <div style="font-size:11px;color:#64748B">Rua Oscar de Lima, Centro · Goiandira-GO</div>
-      <div style="font-size:11px;color:#64748B">WhatsApp (79) 98160-0141</div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748B;margin-bottom:2px"><span>Recibo #${r.nRecibo}</span><span>${r.dataStr}</span></div>
-    ${r.cliNome?`<div style="font-size:12px;font-weight:800;margin-bottom:8px">Cliente: ${r.cliNome}${r.cliTel?' · '+r.cliTel:''}</div>`:'<div style="margin-bottom:6px"></div>'}
-    <div style="border-top:1px dashed #CBD5E1;padding-top:8px;margin-bottom:8px">${linhas}</div>
-    <div style="border-top:2px dashed #CBD5E1;padding-top:8px">
-      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:900"><span>TOTAL</span><span>R$ ${r.total.toFixed(2).replace('.',',')}</span></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:#64748B;margin-top:2px"><span>Pagamento</span><span>${r.pgLabel}</span></div>
-      ${trocoHtml}
-    </div>
-    <div style="text-align:center;font-size:11px;color:#64748B;margin-top:12px;border-top:1px dashed #CBD5E1;padding-top:10px">Obrigado pela preferência! 💜<br>Volte sempre</div>`;
+    <div style="font-family:var(--fn);color:#0F172A">
+
+      <div style="background:linear-gradient(135deg,#1E1B4B,#7C3AED);margin:-20px -20px 0;padding:18px 20px 15px;border-radius:14px 14px 0 0;color:#fff">
+        <div style="display:flex;align-items:center;gap:11px">
+          <div style="width:40px;height:40px;background:rgba(255,255,255,.2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">🛍</div>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:900;letter-spacing:.3px">PROMOÇÕES GOIANDIRA</div>
+            <div style="font-size:10px;opacity:.8;font-weight:700">Presentes · Utilidades · Cosméticos · Chocolates</div>
+          </div>
+        </div>
+        <div style="font-size:10px;opacity:.75;font-weight:700;margin-top:9px;line-height:1.5">
+          Rua Oscar de Lima, Centro — Goiandira/GO<br>WhatsApp (79) 98160-0141
+        </div>
+      </div>
+
+      <div style="background:#F1F5F9;margin:0 -20px;padding:9px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0">
+        <div><div style="font-size:8.5px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Recibo Nº</div><div style="font-size:12.5px;font-weight:900;color:#1E1B4B">${r.nRecibo}</div></div>
+        <div style="text-align:right"><div style="font-size:8.5px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px">Emissão</div><div style="font-size:12.5px;font-weight:800;color:#334155">${r.dataStr}</div></div>
+      </div>
+
+      ${r.cliNome?`<div style="padding:10px 0 0;border-bottom:1px solid #F1F5F9;padding-bottom:9px">
+        <div style="font-size:8.5px;font-weight:900;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px">Cliente</div>
+        <div style="font-size:13px;font-weight:800">${r.cliNome}</div>
+        ${r.cliTel?`<div style="font-size:11px;color:#64748B;font-weight:700">${r.cliTel}</div>`:''}
+      </div>`:''}
+
+      <table style="width:100%;border-collapse:collapse;margin-top:11px">
+        <thead><tr style="background:#1E1B4B">
+          <th style="padding:6px 8px;font-size:8.5px;font-weight:900;color:#fff;text-align:left;text-transform:uppercase;letter-spacing:.4px">Descrição</th>
+          <th style="padding:6px 4px;font-size:8.5px;font-weight:900;color:#fff;text-align:center;text-transform:uppercase">Qtd</th>
+          <th style="padding:6px 4px;font-size:8.5px;font-weight:900;color:#fff;text-align:right;text-transform:uppercase">Unit.</th>
+          <th style="padding:6px 8px;font-size:8.5px;font-weight:900;color:#fff;text-align:right;text-transform:uppercase">Total</th>
+        </tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+      <div style="font-size:10px;color:#94A3B8;font-weight:700;text-align:right;padding:5px 8px 0">${r.itensRecibo.length} item(ns) · ${totQtd} unidade(s)</div>
+
+      <div style="background:#F8FAFC;border-radius:10px;padding:12px 14px;margin-top:11px;border:1px solid #E2E8F0">
+        ${extra}
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:${r.desconto>0?'7px;border-top:1px solid #E2E8F0':'0'}">
+          <span style="font-size:12px;font-weight:900;color:#475569;text-transform:uppercase;letter-spacing:.5px">Total</span>
+          <span style="font-size:23px;font-weight:900;color:#059669">${m(r.total)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#475569;font-weight:700;margin-top:4px;padding-top:6px;border-top:1px dashed #E2E8F0"><span>Forma de pagamento</span><span style="font-weight:900;color:#1E1B4B">${r.pgLabel}</span></div>
+        ${trocoHtml}
+      </div>
+
+      <div style="text-align:center;margin-top:13px;padding-top:11px;border-top:1px solid #F1F5F9">
+        <div style="font-size:12px;font-weight:900;color:#7C3AED">Obrigado pela preferência! 💜</div>
+        <div style="font-size:9.5px;color:#94A3B8;font-weight:700;margin-top:3px">Documento não fiscal · emitido eletronicamente</div>
+      </div>
+    </div>`;
 }
 
 window.pdvImprimir=function(){
   const r=window._ultimoRecibo;if(!r)return;
-  const w=window.open('','_blank','width=380,height=600');
-  w.document.write(`<html><head><title>Recibo ${r.nRecibo}</title><style>
-    body{font-family:'Courier New',monospace;font-size:13px;padding:12px;max-width:300px}
-    .c{text-align:center}.b{font-weight:bold}.line{border-top:1px dashed #000;margin:6px 0}
-    .row{display:flex;justify-content:space-between}
+  const m=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const totQtd=r.itensRecibo.reduce((s,it)=>s+it.qtd,0);
+  const w=window.open('','_blank','width=420,height=680');
+  w.document.write(`<html><head><meta charset="utf-8"><title>Recibo ${r.nRecibo} — Promoções Goiandira</title><style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#111;padding:16px;max-width:340px;margin:0 auto;font-size:12px}
+    .hd{border-bottom:2px solid #111;padding-bottom:10px;margin-bottom:10px}
+    .hd h1{font-size:15px;letter-spacing:.5px;margin-bottom:3px}
+    .hd p{font-size:10px;color:#444;line-height:1.5}
+    .meta{display:flex;justify-content:space-between;font-size:10px;color:#444;margin-bottom:9px}
+    .meta b{display:block;font-size:11.5px;color:#111}
+    .cli{border:1px solid #ccc;padding:7px 9px;margin-bottom:9px}
+    .lbl{font-size:8.5px;text-transform:uppercase;letter-spacing:.5px;color:#777}
+    table{width:100%;border-collapse:collapse;margin-bottom:4px}
+    th{background:#111;color:#fff;font-size:8.5px;text-transform:uppercase;letter-spacing:.4px;padding:5px 6px;text-align:left}
+    th.c{text-align:center}th.r{text-align:right}
+    td{padding:5px 6px;font-size:11px;border-bottom:1px solid #eee}
+    td.c{text-align:center}td.r{text-align:right}
+    .cnt{font-size:9.5px;color:#777;text-align:right;margin-bottom:9px}
+    .tot{border:1px solid #ccc;padding:10px}
+    .row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+    .grand{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid #111;padding-top:7px;margin-top:5px}
+    .grand span:first-child{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px}
+    .grand span:last-child{font-size:19px;font-weight:bold}
+    .ft{text-align:center;margin-top:14px;padding-top:10px;border-top:1px dashed #999;font-size:10px;color:#555;line-height:1.6}
+    @media print{body{padding:4px}}
   </style></head><body>
-    <div class="c b" style="font-size:16px">PROMOÇÕES GOIANDIRA</div>
-    <div class="c">Rua Oscar de Lima, Centro</div><div class="c">Goiandira-GO</div>
-    <div class="c">WhatsApp (79) 98160-0141</div>
-    <div class="line"></div>
-    <div class="row"><span>Recibo #${r.nRecibo}</span><span>${r.dataStr}</span></div>
-    ${r.cliNome?`<div>Cliente: ${r.cliNome}</div>`:''}${r.cliTel?`<div>Tel: ${r.cliTel}</div>`:''}
-    <div class="line"></div>
-    ${r.itensRecibo.map(it=>`<div class="row"><span>${it.qtd}x ${it.nome}</span><span>${it.sub.toFixed(2).replace('.',',')}</span></div>`).join('')}
-    <div class="line"></div>
-    <div class="row b" style="font-size:15px"><span>TOTAL</span><span>R$ ${r.total.toFixed(2).replace('.',',')}</span></div>
-    <div class="row"><span>Pagamento</span><span>${r.pgLabel}</span></div>
-    ${r.pgSel==='dinheiro'?`<div class="row"><span>Pago</span><span>R$ ${r.pago.toFixed(2).replace('.',',')}</span></div><div class="row b"><span>Troco</span><span>R$ ${r.troco.toFixed(2).replace('.',',')}</span></div>`:''}
-    <div class="line"></div>
-    <div class="c">Obrigado pela preferencia!</div><div class="c">Volte sempre :)</div>
+    <div class="hd">
+      <h1>PROMOÇÕES GOIANDIRA</h1>
+      <p>Presentes · Utilidades · Cosméticos · Chocolates<br>
+      Rua Oscar de Lima, Centro — Goiandira/GO<br>WhatsApp (79) 98160-0141</p>
+    </div>
+    <div class="meta">
+      <div><span class="lbl">Recibo Nº</span><b>${r.nRecibo}</b></div>
+      <div style="text-align:right"><span class="lbl">Emissão</span><b>${r.dataStr}</b></div>
+    </div>
+    ${r.cliNome?`<div class="cli"><span class="lbl">Cliente</span><div style="font-weight:bold;font-size:12px">${r.cliNome}</div>${r.cliTel?`<div style="font-size:10.5px;color:#555">${r.cliTel}</div>`:''}</div>`:''}
+    <table>
+      <thead><tr><th>Descrição</th><th class="c">Qtd</th><th class="r">Unit.</th><th class="r">Total</th></tr></thead>
+      <tbody>${r.itensRecibo.map(it=>`<tr><td>${it.nome}</td><td class="c">${it.qtd}</td><td class="r">${m(it.preco)}</td><td class="r"><b>${m(it.sub)}</b></td></tr>`).join('')}</tbody>
+    </table>
+    <div class="cnt">${r.itensRecibo.length} item(ns) · ${totQtd} unidade(s)</div>
+    <div class="tot">
+      ${r.desconto>0?`<div class="row"><span>Subtotal</span><span>${m(r.subtotal)}</span></div><div class="row"><span>Desconto</span><span>- ${m(r.desconto)}</span></div>`:''}
+      <div class="grand"><span>Total</span><span>${m(r.total)}</span></div>
+      <div class="row" style="margin-top:6px;padding-top:5px;border-top:1px dashed #ccc"><span>Forma de pagamento</span><span><b>${r.pgLabel}</b></span></div>
+      ${r.pgSel==='dinheiro'?`<div class="row"><span>Valor recebido</span><span>${m(r.pago)}</span></div><div class="row" style="font-weight:bold"><span>Troco</span><span>${m(r.troco)}</span></div>`:''}
+    </div>
+    <div class="ft">
+      <b>Obrigado pela preferência!</b><br>
+      Documento não fiscal · emitido eletronicamente
+    </div>
   </body></html>`);
-  w.document.close();setTimeout(()=>{w.print();},400);
+  w.document.close();setTimeout(()=>{w.print();},450);
 };
 
-window.pdvCompartilhar=function(){  const r=window._ultimoRecibo;if(!r)return;
-  let txt=`*PROMOÇÕES GOIANDIRA*\nRua Oscar de Lima, Centro - Goiandira-GO\n\n`;
-  txt+=`Recibo #${r.nRecibo} - ${r.dataStr}\n`;
-  if(r.cliNome)txt+=`Cliente: ${r.cliNome}\n`;
-  txt+=`\n`;
-  r.itensRecibo.forEach(it=>{txt+=`${it.qtd}x ${it.nome} - R$ ${it.sub.toFixed(2).replace('.',',')}\n`;});
-  txt+=`\n*TOTAL: R$ ${r.total.toFixed(2).replace('.',',')}*\nPagamento: ${r.pgLabel}\n`;
-  if(r.pgSel==='dinheiro'&&r.troco>0)txt+=`Troco: R$ ${r.troco.toFixed(2).replace('.',',')}\n`;
-  txt+=`\nObrigado pela preferência! 💜`;
-  // se cliente tem telefone, abre conversa direto com ele
+window.pdvCompartilhar=function(){
+  const r=window._ultimoRecibo;if(!r)return;
+  const m=v=>'R$ '+parseFloat(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let t=`*PROMOÇÕES GOIANDIRA*\n_Presentes · Utilidades · Cosméticos · Chocolates_\n`;
+  t+=`Rua Oscar de Lima, Centro — Goiandira/GO\n`;
+  t+=`━━━━━━━━━━━━━━━━━━\n`;
+  t+=`*Recibo Nº* ${r.nRecibo}\n*Emissão:* ${r.dataStr}\n`;
+  if(r.cliNome)t+=`*Cliente:* ${r.cliNome}\n`;
+  t+=`━━━━━━━━━━━━━━━━━━\n`;
+  r.itensRecibo.forEach(it=>{t+=`${it.qtd}x ${it.nome}\n     ${m(it.sub)}\n`;});
+  t+=`━━━━━━━━━━━━━━━━━━\n`;
+  if(r.desconto>0){t+=`Subtotal: ${m(r.subtotal)}\nDesconto: - ${m(r.desconto)}\n`;}
+  t+=`*TOTAL: ${m(r.total)}*\n`;
+  t+=`Pagamento: ${r.pgLabel}\n`;
+  if(r.pgSel==='dinheiro'&&r.troco>0)t+=`Troco: ${m(r.troco)}\n`;
+  t+=`━━━━━━━━━━━━━━━━━━\n`;
+  t+=`Obrigado pela preferência! 💜\n_Documento não fiscal_`;
   const tel=(r.cliTel||'').replace(/\D/g,'');
   const base=tel.length>=10?`https://wa.me/55${tel}?text=`:`https://wa.me/?text=`;
-  window.open(base+encodeURIComponent(txt),'_blank');
+  window.open(base+encodeURIComponent(t),'_blank');
 };
+
 // ===== REGISTRO DE RECIBOS =====
 let recFiltro='hoje', recEdAtual=null, recEdPgSel=null;
 
