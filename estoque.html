@@ -1020,7 +1020,10 @@ tbody td.r{text-align:right;font-weight:700;}
     <div style="flex:1.3;display:flex;flex-direction:column;padding:16px;overflow:hidden">
       <input type="text" id="pdv-busca" placeholder="🔍 Digite o nome do produto..." autocomplete="off"
         oninput="pdvBuscar()" 
-        style="width:100%;padding:18px 20px;border:none;border-radius:14px;font-family:var(--fn);font-size:19px;font-weight:800;outline:none;margin-bottom:14px;box-shadow:0 4px 12px rgba(0,0,0,.2)">
+        style="width:100%;padding:18px 20px;border:none;border-radius:14px;font-family:var(--fn);font-size:19px;font-weight:800;outline:none;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.2)">
+      <button onclick="pdvAbrirOutros()" style="width:100%;padding:13px;border:2px dashed rgba(255,255,255,.35);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer;margin-bottom:14px">
+        &#10133; OUTROS PRODUTOS <span style="font-weight:700;opacity:.7;font-size:12px">(estoque antigo, sem cadastro)</span>
+      </button>
       <div id="pdv-grade" style="flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;align-content:start"></div>
     </div>
 
@@ -1199,6 +1202,36 @@ tbody td.r{text-align:right;font-weight:700;}
     <div style="display:flex;gap:10px">
       <button onclick="document.getElementById('rec-edit').style.display='none'" style="flex:1;padding:14px;border:2px solid #E2E8F0;border-radius:11px;background:#fff;color:#64748B;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">Cancelar</button>
       <button onclick="recSalvarEdicao()" style="flex:1.4;padding:14px;border:none;border-radius:11px;background:#059669;color:#fff;font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">✓ Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OUTROS PRODUTOS -->
+<div id="pdv-outros" style="display:none;position:fixed;inset:0;z-index:9550;background:rgba(0,0,0,.72);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:18px;padding:22px;max-width:400px;width:100%;font-family:var(--fn)">
+    <div style="font-size:17px;font-weight:900;margin-bottom:3px">&#10133; Outros Produtos</div>
+    <div style="font-size:12px;color:#64748B;font-weight:700;margin-bottom:16px;line-height:1.5">
+      Para mercadoria que você tinha antes do app e ainda não foi cadastrada. Some os valores e lance aqui.
+    </div>
+    <label style="display:block;font-size:11px;font-weight:900;color:#94A3B8;text-transform:uppercase;margin-bottom:5px">Valor total (R$)</label>
+    <input type="number" id="out-valor" placeholder="0,00" step="0.01" inputmode="decimal"
+      style="width:100%;padding:15px;border:2px solid #E2E8F0;border-radius:11px;font-family:var(--fn);font-size:22px;font-weight:900;outline:none;margin-bottom:12px;text-align:center">
+    <label style="display:block;font-size:11px;font-weight:900;color:#94A3B8;text-transform:uppercase;margin-bottom:5px">Descrição (opcional)</label>
+    <input type="text" id="out-desc" placeholder="Ex.: bijuterias, itens diversos"
+      style="width:100%;padding:12px;border:2px solid #E2E8F0;border-radius:10px;font-family:var(--fn);font-size:14px;font-weight:700;outline:none;margin-bottom:12px">
+    <div style="background:#FEF3C7;border-radius:10px;padding:11px 13px;margin-bottom:16px">
+      <label style="display:block;font-size:11px;font-weight:900;color:#92400E;text-transform:uppercase;margin-bottom:5px">Custo estimado (R$)</label>
+      <input type="number" id="out-custo" value="0" step="0.01" inputmode="decimal"
+        style="width:100%;padding:11px;border:2px solid #FDE68A;border-radius:9px;font-family:var(--fn);font-size:15px;font-weight:900;outline:none;background:#fff">
+      <div style="font-size:10.5px;color:#B45309;font-weight:700;margin-top:6px;line-height:1.45">
+        Deixe <b>0</b> se a mercadoria já foi paga há tempos (entra como lucro limpo). Se souber o custo, informe para a margem ficar real.
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="document.getElementById('pdv-outros').style.display='none'"
+        style="flex:1;padding:14px;border:2px solid #E2E8F0;border-radius:11px;background:#fff;color:#64748B;font-family:var(--fn);font-size:14px;font-weight:900;cursor:pointer">Cancelar</button>
+      <button onclick="pdvAddOutros()"
+        style="flex:1.4;padding:14px;border:none;border-radius:11px;background:#059669;color:#fff;font-family:var(--fn);font-size:15px;font-weight:900;cursor:pointer">Adicionar ao carrinho</button>
     </div>
   </div>
 </div>
@@ -2399,6 +2432,27 @@ function pdvRenderGrade(termo){
   }).join('');
 }
 
+// ===== OUTROS PRODUTOS (estoque antigo sem cadastro) =====
+window.pdvAbrirOutros=function(){
+  document.getElementById('out-valor').value='';
+  document.getElementById('out-desc').value='';
+  document.getElementById('out-custo').value='0';
+  document.getElementById('pdv-outros').style.display='flex';
+  setTimeout(()=>document.getElementById('out-valor').focus(),120);
+};
+window.pdvAddOutros=function(){
+  const v=parseFloat(document.getElementById('out-valor').value)||0;
+  const c=parseFloat(document.getElementById('out-custo').value)||0;
+  const desc=(document.getElementById('out-desc').value||'').trim();
+  if(v<=0){toast('Informe o valor','tr');return;}
+  if(c>v){toast('Custo maior que o valor de venda','tr');return;}
+  pdvCart.push({pid:'__outros__',nome:'OUTROS PRODUTOS'+(desc?' \u2014 '+desc:''),
+                preco:v,qtd:1,estoque:9999,custoManual:c});
+  document.getElementById('pdv-outros').style.display='none';
+  pdvRenderCart();
+  toast('\u2795 Adicionado ao carrinho');
+};
+
 window.pdvAdd=function(pid){
   const p=prods[pid];if(!p)return;
   const est=parseInt(p.estoque)||0;
@@ -2446,7 +2500,7 @@ window.pdvQtd=function(i,d){
   const it=pdvCart[i];if(!it)return;
   it.qtd+=d;
   if(it.qtd<=0)pdvCart.splice(i,1);
-  else if(it.qtd>it.estoque){it.qtd=it.estoque;toast('Estoque máximo: '+it.estoque,'tr');}
+  else if(it.pid!=='__outros__'&&it.qtd>it.estoque){it.qtd=it.estoque;toast('Estoque máximo: '+it.estoque,'tr');}
   pdvRenderCart();pdvRenderGrade(document.getElementById('pdv-busca').value);
 };
 window.pdvRemove=function(i){pdvCart.splice(i,1);pdvRenderCart();pdvRenderGrade(document.getElementById('pdv-busca').value);};
@@ -2499,7 +2553,7 @@ window.pdvDesc=function(origem){
   // aviso de impacto na margem
   const av=document.getElementById('pdv-desc-aviso');
   if(d>0){
-    const custo=pdvCart.reduce((s,it)=>{const p=prods[it.pid];return s+(parseFloat(p?.preco_custo||0))*it.qtd;},0);
+    const custo=pdvCart.reduce((s,it)=>{if(it.pid==='__outros__')return s+(parseFloat(it.custoManual||0))*it.qtd;const p=prods[it.pid];return s+(parseFloat(p?.preco_custo||0))*it.qtd;},0);
     const mg=pdvTotalAtual>0?((pdvTotalAtual-custo)/pdvTotalAtual*100):0;
     av.style.display='block';
     av.textContent=`Margem desta venda: ${mg.toFixed(0)}%`;
@@ -2576,6 +2630,13 @@ window.pdvConfirmar=async function(){
     const fatorDesc = pdvSubtotal>0 ? (pdvTotalAtual/pdvSubtotal) : 1;
     const itensRecibo=pdvCart.map(it=>({nome:it.nome,qtd:it.qtd,preco:it.preco*fatorDesc,sub:it.preco*it.qtd*fatorDesc}));
     for(const it of pdvCart){
+      if(it.pid==='__outros__'){
+        await push(rM,{pid:'',prod:it.nome,cat:'outros',tipo:'saida',qtd:it.qtd,
+          vunit:parseFloat((it.preco*fatorDesc).toFixed(2)),cunit:parseFloat(it.custoManual||0),
+          pagamento:pdvPgSel,venda_id:vendaId,desconto:parseFloat(pdvDescValor.toFixed(2)),
+          cliente:cliNome||'',tel:cliTel||'',obs:'Estoque anterior \u2014 sem cadastro no app',ts});
+        continue;
+      }
       const p=prods[it.pid];
       const novoEst=Math.max(0,(parseInt(p.estoque)||0)-it.qtd);
       await update(ref(db,'loja/produtos/'+it.pid),{estoque:novoEst});
