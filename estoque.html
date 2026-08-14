@@ -2631,7 +2631,21 @@ window.pdvConfirmar=async function(){
     const itensRecibo=pdvCart.map(it=>({nome:it.nome,qtd:it.qtd,preco:it.preco*fatorDesc,sub:it.preco*it.qtd*fatorDesc}));
     for(const it of pdvCart){
       if(it.pid==='__outros__'){
-        await push(rM,{pid:'',prod:it.nome,cat:'outros',tipo:'saida',qtd:it.qtd,
+        // cria (ou reaproveita) o produto do dia: OUTROS PRODUTOS DD/MM/AAAA
+        const dOut=new Date(ts);
+        const nomeDia='OUTROS PRODUTOS '+String(dOut.getDate()).padStart(2,'0')+'/'
+                      +String(dOut.getMonth()+1).padStart(2,'0')+'/'+dOut.getFullYear();
+        let pidOut=Object.keys(prods).find(k=>(prods[k].nome||'')===nomeDia);
+        if(!pidOut){
+          const novo=await push(rP,{nome:nomeDia,categoria:'outros',
+            preco_custo:parseFloat(it.custoManual||0),
+            preco_venda:parseFloat((it.preco*fatorDesc).toFixed(2)),
+            estoque:0,minimo:0,fornecedor_id:'',pagamento:'',cartao_digitos:'',
+            criado:ts});
+          pidOut=novo.key;
+        }
+        await push(rM,{pid:pidOut,prod:nomeDia+(it.nome.includes('\u2014')?' \u2014 '+it.nome.split('\u2014')[1].trim():''),
+          cat:'outros',tipo:'saida',qtd:it.qtd,
           vunit:parseFloat((it.preco*fatorDesc).toFixed(2)),cunit:parseFloat(it.custoManual||0),
           pagamento:pdvPgSel,venda_id:vendaId,desconto:parseFloat(pdvDescValor.toFixed(2)),
           cliente:cliNome||'',tel:cliTel||'',obs:'Estoque anterior \u2014 sem cadastro no app',ts});
