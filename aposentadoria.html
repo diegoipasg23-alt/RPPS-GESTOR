@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulador de Aposentadoria — IPASG Goiandira</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4EF; --surface:#FFFFFF; --ink:#17231B; --muted:#5A6A5E; --line:#D5DCD2;
+  --cerrado:#2F5D3A; --cerrado-soft:#E1ECE2; --ipe:#E0A60F; --ipe-soft:#FAEFCB;
+  --terra:#9A4A26; --terra-soft:#F5E2D8; --track:#E6EAE3;
+  --fd:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --fb:'Instrument Sans','Segoe UI',system-ui,-apple-system,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121813; --surface:#1A221C; --ink:#E7EDE6; --muted:#9EAE9F; --line:#2E3A31;
+    --cerrado:#7FC08E; --cerrado-soft:#1F3324; --ipe:#F2BE3A; --ipe-soft:#3A3014;
+    --terra:#E59A74; --terra-soft:#3A2419; --track:#26302A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121813; --surface:#1A221C; --ink:#E7EDE6; --muted:#9EAE9F; --line:#2E3A31;
+  --cerrado:#7FC08E; --cerrado-soft:#1F3324; --ipe:#F2BE3A; --ipe-soft:#3A3014;
+  --terra:#E59A74; --terra-soft:#3A2419; --track:#26302A;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--ink);padding-bottom:14px;margin-bottom:26px}
+header.top h1{font-family:var(--fd);font-weight:700;font-size:clamp(26px,4vw,38px);line-height:1.05;margin:0;letter-spacing:-.01em}
+header.top p{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.org{font-size:13px;color:var(--muted);text-align:right}
+.org strong{display:block;color:var(--ink);font-size:14px}
+.grid{display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:28px;align-items:start}
+@media (max-width:880px){.grid{grid-template-columns:1fr}}
+form{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+fieldset{border:0;margin:0 0 18px;padding:0}
+legend{font-family:var(--fd);font-weight:700;font-size:16px;margin-bottom:10px;padding:0}
+label{display:block;font-size:13px;font-weight:500;color:var(--muted);margin:10px 0 4px}
+input,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:9px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--ipe);outline-offset:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.row3 input{text-align:center}
+.hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+.check{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:14px;color:var(--ink);font-weight:400}
+.check input{width:auto;margin-top:3px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+button{font:inherit;font-weight:600;border-radius:6px;padding:10px 14px;cursor:pointer;border:1px solid var(--ink);background:var(--ink);color:var(--bg)}
+button.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.err{background:var(--terra-soft);color:var(--terra);border-radius:6px;padding:10px 12px;font-size:14px;margin-top:12px;display:none}
+
+/* resultado */
+.empty{border:1px dashed var(--line);border-radius:10px;padding:40px 24px;color:var(--muted);text-align:center}
+.hero{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 22px 18px;margin-bottom:22px}
+.hero .first{font-family:var(--fd);font-size:clamp(22px,3.2vw,30px);font-weight:700;line-height:1.15;margin:0 0 4px}
+.hero .sub{color:var(--muted);margin:0 0 18px}
+.tl{display:grid;grid-template-columns:minmax(120px,190px) 1fr auto;gap:8px 12px;align-items:center;font-size:13px}
+.tl .nm{font-weight:600;line-height:1.25}
+.tl .bar{height:12px;background:var(--track);border-radius:6px;position:relative;overflow:hidden}
+.tl .fill{position:absolute;left:0;top:0;bottom:0;background:var(--ipe);border-radius:6px}
+.tl .fill.ok{background:var(--cerrado)}
+.tl .fill.na{background:transparent}
+.tl .dt{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.tl .dt.na{color:var(--muted)}
+.scale{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:8px;padding-left:calc(min(190px,30%) + 12px)}
+@media (max-width:560px){.tl{grid-template-columns:1fr auto}.tl .bar{grid-column:1/-1;order:3}.scale{padding-left:0}}
+
+.rule{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.rule.best{border-color:var(--ipe);box-shadow:inset 4px 0 0 var(--ipe)}
+.rule h3{font-family:var(--fd);font-size:18px;margin:0;line-height:1.25}
+.rule .base{font-size:13px;color:var(--muted);margin:2px 0 12px}
+.rhead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.chip{font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.chip.ok{background:var(--cerrado-soft);color:var(--cerrado)}
+.chip.wait{background:var(--ipe-soft);color:var(--ink)}
+.chip.no{background:var(--terra-soft);color:var(--terra)}
+.chip.na{background:var(--track);color:var(--muted)}
+.when{font-size:15px;margin:0 0 12px}
+.when b{font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{text-align:left;font-weight:600;color:var(--muted);border-bottom:1px solid var(--line);padding:6px 8px}
+td{border-bottom:1px solid var(--line);padding:7px 8px;vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.ok{color:var(--cerrado);font-weight:600}
+.prov{margin:12px 0 0;font-size:14px;background:var(--bg);border-radius:6px;padding:10px 12px}
+.prov b{font-weight:600}
+.notes{margin-top:26px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px;font-size:14px}
+.notes h2{font-family:var(--fd);font-size:18px;margin:0 0 8px}
+.notes p{margin:8px 0;max-width:80ch}
+.printhead{display:none}
+
+@media print{
+  body{background:#fff;color:#000;font-size:11.5px}
+  form,.actions,.noprint{display:none!important}
+  .grid{display:block}
+  .wrap{padding:0;max-width:none}
+  .printhead{display:block;margin-bottom:14px;font-size:12px}
+  .rule,.hero,.notes{break-inside:avoid;border-color:#bbb}
+  .tl .fill{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Simulador de aposentadoria</h1>
+      <p>Quando o servidor efetivo de Goiandira cumpre os requisitos de cada regra do Estatuto (Lei nº 1.010/2004) e das regras de transição constitucionais.</p>
+    </div>
+    <div class="org"><strong>IPASG</strong>Instituto de Previdência e Assistência<br>dos Servidores de Goiandira</div>
+  </header>
+
+  <div class="grid">
+    <form id="f" autocomplete="off" onsubmit="return false">
+      <fieldset>
+        <legend>Servidor</legend>
+        <label for="nome">Nome</label>
+        <input id="nome">
+        <div class="row2">
+          <div><label for="cargoNome">Cargo</label><input id="cargoNome"></div>
+          <div><label for="matr">Matrícula</label><input id="matr"></div>
+        </div>
+        <div class="row2">
+          <div><label for="sexo">Sexo</label>
+            <select id="sexo"><option value="M">Masculino</option><option value="F">Feminino</option></select></div>
+          <div><label for="nasc">Nascimento</label><input id="nasc" type="date"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="prof"> Professor(a) com tempo exclusivo de magistério na educação infantil, ensino fundamental ou médio</label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Datas de ingresso</legend>
+        <label for="iniMun">Início do exercício no cargo efetivo em Goiandira</label>
+        <input id="iniMun" type="date">
+        <label for="cargoD">Ingresso no cargo atual</label>
+        <input id="cargoD" type="date">
+        <p class="hint">Se nunca mudou de cargo, é a mesma data acima.</p>
+        <label for="carreira">Ingresso na carreira</label>
+        <input id="carreira" type="date">
+        <p class="hint">Em branco, usa a data do cargo atual.</p>
+        <label for="ingSP">Primeiro ingresso no serviço público (qualquer ente)</label>
+        <input id="ingSP" type="date">
+        <p class="hint">Define o acesso às regras de transição. Em branco, usa o início em Goiandira.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tempo averbado</legend>
+        <label>Regime Geral (INSS) — anos, meses, dias</label>
+        <div class="row3"><input id="rgY" type="number" min="0" placeholder="anos"><input id="rgM" type="number" min="0" placeholder="meses"><input id="rgD" type="number" min="0" placeholder="dias"></div>
+        <label>Outro serviço público (outro RPPS) — anos, meses, dias</label>
+        <div class="row3"><input id="pbY" type="number" min="0" placeholder="anos"><input id="pbM" type="number" min="0" placeholder="meses"><input id="pbD" type="number" min="0" placeholder="dias"></div>
+        <p class="hint">Conforme CTC averbada. Tempo público conta também como serviço público.</p>
+        <label for="desc">Dias a descontar em Goiandira</label>
+        <input id="desc" type="number" min="0" placeholder="0">
+        <p class="hint">Faltas injustificadas, licença sem remuneração e outros períodos não computáveis.</p>
+        <label for="ref">Data da simulação</label>
+        <input id="ref" type="date">
+      </fieldset>
+
+      <div class="actions">
+        <button type="button" id="calc">Calcular</button>
+        <button type="button" class="ghost" id="print">Imprimir simulação</button>
+        <button type="button" class="ghost" id="ex">Usar exemplo</button>
+        <button type="button" class="ghost" id="clr">Limpar</button>
+      </div>
+      <div class="err" id="err" role="alert"></div>
+    </form>
+
+    <main id="out" aria-live="polite">
+      <div class="empty">Preencha nascimento, início em Goiandira e ingresso no cargo atual para ver as datas de cada regra.</div>
+    </main>
+  </div>
+</div>
+
+<script>
+const DAY=86400000, Y=365;
+const EC20=Date.UTC(1998,11,16), EC41=Date.UTC(2003,11,31);
+const $=id=>document.getElementById(id);
+const FIELDS=['nome','cargoNome','matr','sexo','nasc','prof','iniMun','cargoD','carreira','ingSP','rgY','rgM','rgD','pbY','pbM','pbD','desc','ref'];
+
+function pd(s){if(!s)return null;const p=s.split('-').map(Number);if(!p[0])return null;return Date.UTC(p[0],p[1]-1,p[2]);}
+function addY(t,n){const x=new Date(t);return Date.UTC(x.getUTCFullYear()+n,x.getUTCMonth(),x.getUTCDate());}
+function incl(a,b){return b<a?0:Math.round((b-a)/DAY)+1;}
+function idade(n,D){const b=new Date(n),x=new Date(D);let y=x.getUTCFullYear()-b.getUTCFullYear();if(D<addY(n,y))y--;return y;}
+function fd(t){const x=new Date(t);return String(x.getUTCDate()).padStart(2,'0')+'/'+String(x.getUTCMonth()+1).padStart(2,'0')+'/'+x.getUTCFullYear();}
+function pl(n,s,p){return n+' '+(n===1?s:p);}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function num(id){const v=parseInt($(id).value,10);return isNaN(v)||v<0?0:v;}
+function today(){const t=new Date();return Date.UTC(t.getFullYear(),t.getMonth(),t.getDate());}
+
+// Estatuto, art. 135: apuração em dias, ano de 365 dias
+function tempo(days){days=Math.max(0,Math.round(days));const a=Math.floor(days/Y),r=days%Y,m=Math.floor(r/30),d=r%30;
+  const parts=[];if(a)parts.push(pl(a,'ano','anos'));if(m)parts.push(pl(m,'mês','meses'));if(d||!parts.length)parts.push(pl(d,'dia','dias'));
+  return parts.join(', ').replace(/, ([^,]*)$/,' e $1');}
+function diffCal(a,b){const A=new Date(a),B=new Date(b);let y=B.getUTCFullYear()-A.getUTCFullYear(),m=B.getUTCMonth()-A.getUTCMonth(),d=B.getUTCDate()-A.getUTCDate();
+  if(d<0){m--;d+=new Date(Date.UTC(B.getUTCFullYear(),B.getUTCMonth(),0)).getUTCDate();}if(m<0){y--;m+=12;}
+  const parts=[];if(y)parts.push(pl(y,'ano','anos'));if(m)parts.push(pl(m,'mês','meses'));if(d||!parts.length)parts.push(pl(d,'dia','dias'));
+  return parts.join(', ').replace(/, ([^,]*)$/,' e $1');}
+
+// primeira data em que um requisito (monotônico) passa a ser cumprido
+function primeira(test,ref,lim){if(test(ref))return ref;if(lim<=ref||!test(lim))return null;let lo=ref,hi=lim;
+  while(hi-lo>DAY){const mid=lo+Math.floor((hi-lo)/DAY/2)*DAY;if(test(mid))hi=mid;else lo=mid;}return hi;}
+
+function ler(){
+  const v={nome:$('nome').value.trim(),cargo:$('cargoNome').value.trim(),matr:$('matr').value.trim(),
+    H:$('sexo').value==='M',prof:$('prof').checked,nasc:pd($('nasc').value),iniMun:pd($('iniMun').value),
+    cargoD:pd($('cargoD').value),carreira:pd($('carreira').value),ingSP:pd($('ingSP').value),
+    rgps:num('rgY')*Y+num('rgM')*30+num('rgD'),pub:num('pbY')*Y+num('pbM')*30+num('pbD'),
+    desc:num('desc'),ref:pd($('ref').value)||today()};
+  if(!v.carreira)v.carreira=v.cargoD;
+  if(!v.ingSP)v.ingSP=v.iniMun;
+  return v;
+}
+function validar(v){const e=[];
+  if(!v.nasc)e.push('Informe a data de nascimento.');
+  if(!v.iniMun)e.push('Informe o início do exercício em Goiandira.');
+  if(!v.cargoD)e.push('Informe o ingresso no cargo atual.');
+  if(v.nasc&&v.iniMun&&idade(v.nasc,v.iniMun)<16)e.push('O início em Goiandira está antes dos 16 anos do servidor. Confira as datas.');
+  if(v.iniMun&&v.cargoD&&v.cargoD<v.iniMun)e.push('O ingresso no cargo atual não pode ser anterior ao início em Goiandira.');
+  if(v.ingSP&&v.iniMun&&v.ingSP>v.iniMun)e.push('O primeiro ingresso no serviço público não pode ser posterior ao início em Goiandira.');
+  return e;}
+
+function regras(v){
+  const H=v.H,P=v.prof;
+  const mun=D=>Math.max(0,incl(v.iniMun,D)-v.desc);
+  const contrib=D=>mun(D)+v.rgps+v.pub;
+  const sp=D=>mun(D)+v.pub;
+  const car=D=>Math.max(0,incl(v.carreira,D)-v.desc);
+  const cg=D=>Math.max(0,incl(v.cargoD,D)-v.desc);
+  const id=D=>idade(v.nasc,D);
+  const ctr=n=>({label:'Tempo de contribuição',need:n*Y,exig:pl(n,'ano','anos'),fn:contrib,fmt:tempo});
+  const spR=n=>({label:'Serviço público',need:n*Y,exig:pl(n,'ano','anos'),fn:sp,fmt:tempo});
+  const carR=n=>({label:'Carreira',need:n*Y,exig:pl(n,'ano','anos'),fn:car,fmt:tempo});
+  const cgR=n=>({label:'No cargo atual',need:n*Y,exig:pl(n,'ano','anos'),fn:cg,fmt:tempo});
+  const idR=n=>({label:'Idade',need:n,exig:n+' anos',fn:id,fmt:x=>x+' anos'});
+  const R=[];
+
+  // EC 47/2005, art. 3º
+  {const tc=H?35:30,ib=H?60:55;
+   R.push({key:'ec47',curto:'EC 47, art. 3º',titulo:'Transição com redução de idade',
+    base:'EC 47/2005, art. 3º — ingresso no serviço público até 16/12/1998',
+    aplica:v.ingSP<=EC20,motivoNA:'Exige ingresso no serviço público até 16/12/1998.',
+    reqs:[ctr(tc),spR(25),carR(15),cgR(5),
+      {label:'Idade mínima (−1 ano por ano de contribuição acima de '+tc+')',custom:true,
+       test:D=>id(D)>=ib-Math.floor(Math.max(0,contrib(D)-tc*Y)/Y),
+       exig:ib+' anos, reduzida',
+       atual:D=>id(D)+' anos (mínima hoje: '+(ib-Math.floor(Math.max(0,contrib(D)-tc*Y)/Y))+')'}],
+    paridade:true,
+    prov:()=> '<b>Integralidade</b> (remuneração do cargo efetivo) e <b>paridade</b> com os ativos. Pensão decorrente também com paridade (art. 3º, parágrafo único).'});}
+
+  // EC 41/2003, art. 6º
+  {const tc=(H?35:30)-(P?5:0),ib=(H?60:55)-(P?5:0);
+   R.push({key:'ec41a6',curto:'EC 41, art. 6º',titulo:'Transição com integralidade',
+    base:'EC 41/2003, art. 6º — ingresso no serviço público até 31/12/2003'+(P?' · redução de 5 anos do magistério (CF, art. 40, §5º)':''),
+    aplica:v.ingSP<=EC41,motivoNA:'Exige ingresso no serviço público até 31/12/2003.',
+    reqs:[idR(ib),ctr(tc),spR(20),carR(10),cgR(5)],
+    paridade:true,
+    prov:()=> '<b>Integralidade</b> (remuneração do cargo efetivo) e <b>paridade</b> com os ativos (EC 47/2005, art. 2º).'});}
+
+  // EC 41/2003, art. 2º
+  {const tcBase=(H?35:30);
+   const c98=v.rgps+v.pub+(v.iniMun<=EC20?incl(v.iniMun,EC20):0);
+   const falta=Math.max(0,tcBase*Y-c98), need=Math.ceil(tcBase*Y+falta*0.2);
+   const bonus=P?Math.round(c98*(H?0.17:0.20)):0;
+   const idRef=(H?60:55)-(P?5:0);
+   R.push({key:'ec41a2',curto:'EC 41, art. 2º',titulo:'Transição com pedágio e redutor',
+    base:'EC 41/2003, art. 2º — ingresso em cargo efetivo até 16/12/1998 (substituiu o art. 276 do Estatuto, que reproduzia a EC 20/1998)',
+    aplica:v.ingSP<=EC20,motivoNA:'Exige ingresso em cargo efetivo até 16/12/1998.',
+    reqs:[idR(H?53:48),cgR(5),
+      {label:'Contribuição + pedágio de 20%'+(P?' (com bônus do magistério de '+(H?'17':'20')+'% até 16/12/1998)':''),
+       need:need,exig:tempo(need),fn:D=>contrib(D)+bonus,fmt:tempo}],
+    paridade:false,
+    prov:D=>{const anos=Math.max(0,idRef-id(D));const red=Math.min(100,anos*5);
+      return '<b>Média</b> das remunerações (Lei 10.887/2004, art. 1º) com <b>redutor de '+red+'%</b> ('+pl(anos,'ano','anos')+' antes dos '+idRef+' anos, 5% por ano). Sem paridade.';}});}
+
+  // Estatuto, art. 154, III, a
+  {const tc=(H?35:30)-(P?5:0),ib=(H?60:55)-(P?5:0);
+   R.push({key:'perm',curto:'Art. 154, III, a',titulo:'Voluntária por idade e tempo de contribuição',
+    base:'Estatuto, art. 154, III, "a"'+(P?' e §1º (magistério)':'')+' — CF, art. 40, §1º, III, "a"',
+    aplica:true,
+    reqs:[idR(ib),ctr(tc),spR(10),cgR(5)],
+    paridade:false,
+    prov:()=> '<b>Média</b> das remunerações (Lei 10.887/2004, art. 1º), limitada à remuneração do cargo; reajuste pelo índice legal, sem paridade. A "totalidade da remuneração" do art. 154, §3º, e a paridade do art. 157 do Estatuto foram superadas pela EC 41/2003.'});}
+
+  // Estatuto, art. 154, III, b
+  {const ib=H?65:60,tcRef=H?35:30;
+   R.push({key:'idade',curto:'Art. 154, III, b',titulo:'Voluntária por idade',
+    base:'Estatuto, art. 154, III, "b", e art. 158 — CF, art. 40, §1º, III, "b"',
+    aplica:true,
+    reqs:[idR(ib),spR(10),cgR(5)],
+    paridade:false,
+    prov:D=>{const f=Math.min(1,contrib(D)/(tcRef*Y));
+      return '<b>Proporcional</b>: cerca de '+(f*100).toFixed(1).replace('.',',')+'% da média ('+tempo(contrib(D))+' de '+tcRef+' anos — 1/'+tcRef+' por ano, art. 158). Não pode ser inferior ao salário mínimo.';}});}
+
+  // Compulsória
+  R.push({key:'comp',curto:'Compulsória',titulo:'Compulsória',
+    base:'CF, art. 40, §1º, II, e LC 152/2015 — 75 anos (o art. 154, II, do Estatuto ainda diz 70)',
+    aplica:true,reqs:[idR(75)],paridade:false,
+    prov:D=>{const tcRef=H?35:30,f=Math.min(1,contrib(D)/(tcRef*Y));
+      return '<b>Proporcional</b>: cerca de '+(f*100).toFixed(1).replace('.',',')+'% da média. Automática no dia seguinte ao aniversário de 75 anos (art. 155).';}});
+  return {R,contrib,sp,car,cg,id};
+}
+
+function calcular(){
+  const v=ler(),err=validar(v),E=$('err');
+  if(err.length){E.innerHTML=err.map(esc).join('<br>');E.style.display='block';return;}
+  E.style.display='none';salvar();
+  const ctx=regras(v),ref=v.ref,lim=Math.max(addY(v.nasc,75),ref),ini=Math.min(v.iniMun,ref);
+  const res=ctx.R.map(r=>{
+    if(!r.aplica)return {...r,status:'na'};
+    const rq=r.reqs.map(q=>{const test=q.custom?q.test:(D=>q.fn(D)>=q.need);
+      return {...q,data:r.key==='comp'?addY(v.nasc,75):primeira(test,ini,lim),
+        atualTxt:q.custom?q.atual(ref):q.fmt(q.fn(ref))};});
+    let data=null;
+    if(r.key==='comp')data=addY(v.nasc,75);
+    else if(rq.every(q=>q.data!==null))data=Math.max(...rq.map(q=>q.data));
+    if(data!==null&&r.key!=='comp'&&data>=addY(v.nasc,75))data=null;
+    const status=data===null?'no':(data<=ref?'ok':'wait');
+    return {...r,rq,data,status};
+  });
+  render(v,ctx,res,lim);
+}
+
+function chip(r,ref){
+  if(r.status==='na')return '<span class="chip na">Não se aplica</span>';
+  if(r.status==='no')return '<span class="chip no">Não alcança antes dos 75</span>';
+  if(r.status==='ok')return '<span class="chip ok">Requisitos cumpridos</span>';
+  return '<span class="chip wait">Faltam '+diffCal(ref,r.data)+'</span>';
+}
+
+function render(v,ctx,res,lim){
+  const ref=v.ref;
+  const vol=res.filter(r=>r.key!=='comp'&&(r.status==='ok'||r.status==='wait')).sort((a,b)=>a.data-b.data);
+  const first=vol[0],firstPar=vol.find(r=>r.paridade);
+  let h='<div class="printhead"><strong>IPASG — Simulação de aposentadoria</strong><br>'+
+    (v.nome?'Servidor(a): '+esc(v.nome)+(v.matr?' · Matrícula '+esc(v.matr):'')+'<br>':'')+
+    (v.cargo?'Cargo: '+esc(v.cargo)+'<br>':'')+'Data da simulação: '+fd(ref)+'</div>';
+
+  h+='<section class="hero">';
+  if(first){
+    h+='<p class="first">'+(first.status==='ok'?'Já pode se aposentar — '+esc(first.curto):'Primeira aposentadoria possível em '+fd(first.data))+'</p>';
+    h+='<p class="sub">'+(first.status==='ok'?'Requisitos cumpridos em '+fd(first.data)+'.':esc(first.titulo)+' ('+esc(first.curto)+') · faltam '+diffCal(ref,first.data)+', aos '+ctx.id(first.data)+' anos.');
+    if(firstPar&&firstPar!==first)h+=' Com integralidade e paridade: '+(firstPar.status==='ok'?'já cumpre':fd(firstPar.data))+' ('+esc(firstPar.curto)+').';
+    h+='</p>';
+  }else{
+    h+='<p class="first">Nenhuma regra voluntária é alcançada antes dos 75 anos</p><p class="sub">Aposentadoria compulsória em '+fd(addY(v.nasc,75))+'.</p>';
+  }
+  h+='<p class="sub" style="margin-top:-8px">Hoje: '+ctx.id(ref)+' anos · '+tempo(ctx.contrib(ref))+' de contribuição · '+tempo(ctx.sp(ref))+' de serviço público.</p>';
+  const span=Math.max(DAY,lim-ref);
+  h+='<div class="tl">';
+  res.forEach(r=>{
+    let w=0,cls='',dt='';
+    if(r.status==='ok'){w=100;cls='ok';dt='cumpre';}
+    else if(r.status==='wait'){w=Math.max(2,(r.data-ref)/span*100);dt=fd(r.data);}
+    else{cls='na';dt=r.status==='na'?'não se aplica':'—';}
+    h+='<div class="nm">'+esc(r.curto)+'</div><div class="bar"><div class="fill '+cls+'" style="width:'+w+'%"></div></div><div class="dt'+(cls==='na'?' na':'')+'">'+dt+'</div>';
+  });
+  h+='</div><div class="scale"><span>Hoje '+fd(ref)+'</span><span>75 anos '+fd(lim)+'</span></div></section>';
+
+  res.forEach(r=>{
+    const best=first&&r===first;
+    h+='<article class="rule'+(best?' best':'')+'"><div class="rhead"><div><h3>'+esc(r.titulo)+'</h3><p class="base">'+esc(r.base)+'</p></div>'+chip(r,ref)+'</div>';
+    if(r.status==='na'){h+='<p class="when">'+esc(r.motivoNA)+'</p></article>';return;}
+    if(r.data!==null)h+='<p class="when">'+(r.status==='ok'?'Cumpriu os requisitos em ':'Cumpre todos os requisitos em ')+'<b>'+fd(r.data)+'</b>, aos '+ctx.id(r.data)+' anos.</p>';
+    h+='<div class="tw"><table><thead><tr><th>Requisito</th><th>Exigido</th><th>Hoje</th><th>Cumpre em</th></tr></thead><tbody>';
+    r.rq.forEach(q=>{const ok=q.data!==null&&q.data<=ref;
+      h+='<tr><td>'+esc(q.label)+'</td><td>'+esc(q.exig)+'</td><td>'+esc(q.atualTxt)+'</td><td class="'+(ok?'ok':'')+'">'+(ok?'cumprido':(q.data?fd(q.data):'não alcança'))+'</td></tr>';});
+    h+='</tbody></table></div>';
+    if(r.data!==null)h+='<p class="prov">'+r.prov(r.data)+'</p>';
+    h+='</article>';
+  });
+
+  h+='<section class="notes"><h2>Como ler esta simulação</h2>'+
+  '<p>O tempo é apurado em dias e convertido em anos de 365 dias (Estatuto, art. 135), projetando exercício contínuo a partir da data da simulação. Afastamentos futuros não computáveis adiam as datas.</p>'+
+  '<p>Pela EC 103/2019, art. 10, §7º, os municípios seguem as regras anteriores à reforma enquanto não alterarem sua legislação própria. Se Goiandira aprovar reforma local, estas regras precisam ser revistas.</p>'+
+  '<p>Onde o Estatuto conflita com a Constituição, prevalece a norma superior: compulsória aos 75 anos (LC 152/2015), cálculo pela média para quem não está em regra de transição (EC 41/2003) e a transição do art. 2º da EC 41 no lugar do art. 276.</p>'+
+  (v.prof?'<p>Para o magistério, a simulação considera todo o tempo informado como de efetivo exercício em funções de magistério. Tempo em outras funções deve ser excluído das reduções.</p>':'')+
+  '<p>Simulação informativa. Não substitui a análise do processo de aposentadoria, das CTCs averbadas e do assentamento funcional pelo IPASG.</p></section>';
+  $('out').innerHTML=h;
+}
+
+function salvar(){try{const o={};FIELDS.forEach(k=>{const el=$(k);o[k]=el.type==='checkbox'?el.checked:el.value;});localStorage.setItem('ipasg_apos',JSON.stringify(o));}catch(e){}}
+function carregar(){try{const o=JSON.parse(localStorage.getItem('ipasg_apos')||'null');if(!o)return false;FIELDS.forEach(k=>{const el=$(k);if(!(k in o))return;if(el.type==='checkbox')el.checked=o[k];else el.value=o[k];});return true;}catch(e){return false;}}
+function limpar(){FIELDS.forEach(k=>{const el=$(k);if(el.type==='checkbox')el.checked=false;else if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';});
+  try{localStorage.removeItem('ipasg_apos');}catch(e){}
+  $('err').style.display='none';
+  $('out').innerHTML='<div class="empty">Preencha nascimento, início em Goiandira e ingresso no cargo atual para ver as datas de cada regra.</div>';}
+function exemplo(){limpar();const e={nome:'Servidora Exemplo',cargoNome:'Auxiliar Administrativo',matr:'0001',sexo:'F',nasc:'1968-05-10',iniMun:'1996-03-01',cargoD:'1996-03-01',rgY:'4',rgM:'6',rgD:'0'};
+  Object.entries(e).forEach(([k,val])=>$(k).value=val);calcular();}
+
+$('calc').addEventListener('click',calcular);
+$('print').addEventListener('click',()=>{calcular();setTimeout(()=>window.print(),100);});
+$('ex').addEventListener('click',exemplo);
+$('clr').addEventListener('click',limpar);
+document.querySelectorAll('#f input,#f select').forEach(el=>el.addEventListener('change',()=>{if($('nasc').value&&$('iniMun').value&&$('cargoD').value)calcular();}));
+if(carregar()&&$('nasc').value&&$('iniMun').value&&$('cargoD').value)calcular();
+</script>
+</body>
+</html>
